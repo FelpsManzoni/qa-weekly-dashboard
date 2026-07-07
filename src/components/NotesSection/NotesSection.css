@@ -1,0 +1,36 @@
+.notes-section {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-5);
+}
+
+.notes-section__list {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.notes-section__item {
+  border-left: 4px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+}
+
+.notes-section__item p,
+.notes-section__item small {
+  margin: var(--space-2) 0 0;
+}
+
+.notes-section__item--p0 {
+  border-left-color: var(--status-fail);
+}
+
+.notes-section__item--p1 {
+  border-left-color: var(--status-warning);
+}
+
+.notes-section__item--p2 {
+  border-left-color: var(--brand-accent);
+}

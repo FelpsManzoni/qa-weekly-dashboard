@@ -1,0 +1,12 @@
+.chart-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-5);
+}
+
+.chart-card__canvas {
+  min-height: 280px;
+}

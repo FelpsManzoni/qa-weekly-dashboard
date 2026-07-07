@@ -1,0 +1,27 @@
+.release-table {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  display: grid;
+  gap: var(--space-3);
+  overflow: hidden;
+  padding: var(--space-5);
+}
+
+.release-table table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.release-table th,
+.release-table td {
+  border-bottom: 1px solid var(--border-subtle);
+  padding: var(--space-3);
+  text-align: left;
+  vertical-align: top;
+}
+
+.release-table th {
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+}
