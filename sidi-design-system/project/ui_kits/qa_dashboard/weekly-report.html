@@ -1,0 +1,177 @@
+<!-- @dsCard group="QA Dashboard" viewport="1600x1200" name="Weekly Report" subtitle="Detailed weekly QA metrics per project" -->
+<html>
+<head>
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--surface-page); }
+    body { font-family: var(--font-body); color: var(--text-primary); }
+  </style>
+</head>
+<body>
+  <div style="display: flex; height: 100vh;">
+    <!-- Sidebar -->
+    <div style="width: 280px; background: var(--surface-card); border-right: 1px solid var(--border-subtle); padding: var(--space-5); overflow-y: auto;">
+      <div style="display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-8);">
+        <img src="../../assets/logos/sidi-symbol-dark-green.png" style="width: 28px; height: 28px;">
+        <div style="font-weight: 700; font-family: var(--font-display); font-size: var(--text-lg);">SiDi QA</div>
+      </div>
+      <nav style="display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-8);">
+        <a href="#" style="padding: var(--space-3) var(--space-3); border-radius: var(--radius-sm); color: var(--text-secondary); text-decoration: none; font-size: var(--text-sm);">Dashboard</a>
+        <a href="#" style="padding: var(--space-3) var(--space-3); border-radius: var(--radius-sm); background: var(--brand-primary); color: var(--text-inverse); text-decoration: none; font-weight: 600; font-size: var(--text-sm);">Weekly Report</a>
+        <a href="#" style="padding: var(--space-3) var(--space-3); border-radius: var(--radius-sm); color: var(--text-secondary); text-decoration: none; font-size: var(--text-sm);">Projects</a>
+      </nav>
+      
+      <div style="font-size: var(--text-xs); color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--space-3);">Projects</div>
+      <div style="display: flex; flex-direction: column; gap: var(--space-1);">
+        <div style="padding: var(--space-2) var(--space-3); border-left: 3px solid var(--brand-primary); background: var(--surface-sunken); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; cursor: pointer;">
+          <div style="font-weight: 600; font-size: var(--text-sm);">Hana</div>
+          <div style="font-size: var(--text-xs); color: var(--text-secondary);">HANA NB-IOT</div>
+        </div>
+        <div style="padding: var(--space-2) var(--space-3); cursor: pointer; border-radius: var(--radius-sm);">
+          <div style="font-weight: 600; font-size: var(--text-sm);">BXB</div>
+          <div style="font-size: var(--text-xs); color: var(--text-secondary);">Samsung BIXBY</div>
+        </div>
+        <div style="padding: var(--space-2) var(--space-3); cursor: pointer; border-radius: var(--radius-sm);">
+          <div style="font-weight: 600; font-size: var(--text-sm);">BDT</div>
+          <div style="font-size: var(--text-xs); color: var(--text-secondary);">Bixby Design Tool</div>
+        </div>
+        <div style="padding: var(--space-2) var(--space-3); cursor: pointer; border-radius: var(--radius-sm);">
+          <div style="font-weight: 600; font-size: var(--text-sm);">AI Rep</div>
+          <div style="font-size: var(--text-xs); color: var(--text-secondary);">COMPAL - AI-REPORT</div>
+        </div>
+        <div style="padding: var(--space-2) var(--space-3); cursor: pointer; border-radius: var(--radius-sm);">
+          <div style="font-weight: 600; font-size: var(--text-sm);">GTC</div>
+          <div style="font-size: var(--text-xs); color: var(--text-secondary);">Global Transitions Cloud</div>
+        </div>
+        <div style="padding: var(--space-2) var(--space-3); cursor: pointer; border-radius: var(--radius-sm);">
+          <div style="font-weight: 600; font-size: var(--text-sm);">VLA</div>
+          <div style="font-size: var(--text-xs); color: var(--text-secondary);">COMPAL - VLA/NIST</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div style="flex: 1; overflow-y: auto;">
+      <div style="padding: var(--space-8);">
+        <!-- Header -->
+        <h1 style="margin: 0 0 var(--space-2) 0; font-size: var(--text-4xl); font-weight: 700;">Weekly Report</h1>
+        <p style="margin: 0 0 var(--space-8) 0; color: var(--text-secondary); font-size: var(--text-sm);">Hana - HANA NB-IOT</p>
+
+        <!-- Week Tabs -->
+        <div style="display: flex; gap: var(--space-3); overflow-x: auto; margin-bottom: var(--space-8); padding-bottom: var(--space-3);">
+          <button style="padding: var(--space-2) var(--space-4); background: var(--brand-primary); color: var(--text-inverse); border: none; border-radius: var(--radius-sm); font-weight: 600; font-size: var(--text-sm); cursor: pointer; white-space: nowrap;">
+            <div>Week 27</div>
+            <div style="font-size: var(--text-xs); opacity: 0.9;">02/07/2026 - 07/07/2026</div>
+          </button>
+          <button style="padding: var(--space-2) var(--space-4); background: var(--surface-sunken); color: var(--text-primary); border: none; border-radius: var(--radius-sm); font-weight: 600; font-size: var(--text-sm); cursor: pointer; white-space: nowrap;">
+            <div>Week 26</div>
+            <div style="font-size: var(--text-xs); opacity: 0.7;">02/07/2026 - 07/07/2026</div>
+          </button>
+          <button style="padding: var(--space-2) var(--space-4); background: var(--surface-sunken); color: var(--text-primary); border: none; border-radius: var(--radius-sm); font-weight: 600; font-size: var(--text-sm); cursor: pointer; white-space: nowrap;">
+            <div>Week 25</div>
+            <div style="font-size: var(--text-xs); opacity: 0.7;">02/07/2026 - 07/07/2026</div>
+          </button>
+        </div>
+
+        <!-- Content Grid -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); margin-bottom: var(--space-6);">
+          <!-- Issue History -->
+          <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-5);">
+            <h3 style="margin: 0 0 var(--space-4) 0; font-size: var(--text-md); font-weight: 600;">Issue History</h3>
+            <div style="display: flex; gap: var(--space-6); align-items: flex-end;">
+              <div>
+                <div style="font-size: var(--text-xs); color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--space-2);">Fixed Issues</div>
+                <div style="display: flex; align-items: center; gap: var(--space-2);">
+                  <div style="width: 12px; height: 12px; border-radius: 50%; background: #22c55e;"></div>
+                  <span style="font-size: var(--text-3xl); font-weight: 700; color: #22c55e;">2</span>
+                </div>
+              </div>
+              <div>
+                <div style="font-size: var(--text-xs); color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--space-2);">Reported Issues</div>
+                <div style="display: flex; align-items: center; gap: var(--space-2);">
+                  <div style="width: 12px; height: 12px; border-radius: 50%; background: #ef4444;"></div>
+                  <span style="font-size: var(--text-3xl); font-weight: 700; color: #ef4444;">1</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Test Case Distribution -->
+          <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-5);">
+            <h3 style="margin: 0 0 var(--space-4) 0; font-size: var(--text-md); font-weight: 600;">Test Case Distribution</h3>
+            <div style="display: flex; gap: var(--space-8); align-items: center;">
+              <svg width="120" height="120" viewBox="0 0 100 100" style="flex: '0 0 auto';">
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#a3e635" strokeWidth="20" strokeDasharray="67.02 282.7"/>
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#fbbf24" strokeWidth="20" strokeDasharray="22.56 282.7" strokeDashoffset="-67.02"/>
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#f87171" strokeWidth="20" strokeDasharray="33.92 282.7" strokeDashoffset="-89.58"/>
+              </svg>
+              <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+                <div style="display: flex; align-items: center; gap: var(--space-2);">
+                  <div style="width: 12px; height: 12px; border-radius: 50%; background: #a3e635;"></div>
+                  <span style="font-size: var(--text-sm);">Automated: <strong>45</strong></span>
+                </div>
+                <div style="display: flex; align-items: center; gap: var(--space-2);">
+                  <div style="width: 12px; height: 12px; border-radius: 50%; background: #fbbf24;"></div>
+                  <span style="font-size: var(--text-sm);">Pending: <strong>8</strong></span>
+                </div>
+                <div style="display: flex; align-items: center; gap: var(--space-2);">
+                  <div style="width: 12px; height: 12px; border-radius: 50%; background: #f87171;"></div>
+                  <span style="font-size: var(--text-sm);">Not Automated: <strong>12</strong></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Versions Table -->
+        <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; margin-bottom: var(--space-6);">
+          <div style="padding: var(--space-5); border-bottom: 1px solid var(--border-subtle);">
+            <h3 style="margin: 0; font-size: var(--text-md); font-weight: 600;">Versions</h3>
+          </div>
+          <table style="width: 100%; border-collapse: collapse; font-size: var(--text-sm);">
+            <thead>
+              <tr style="background: var(--surface-sunken); border-bottom: 1px solid var(--border-subtle);">
+                <th style="padding: var(--space-3) var(--space-4); text-align: left; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; font-size: var(--text-xs); letter-spacing: 0.5px;">Version</th>
+                <th style="padding: var(--space-3) var(--space-4); text-align: left; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; font-size: var(--text-xs); letter-spacing: 0.5px;">Date2</th>
+                <th style="padding: var(--space-3) var(--space-4); text-align: left; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; font-size: var(--text-xs); letter-spacing: 0.5px;">Status</th>
+                <th style="padding: var(--space-3) var(--space-4); text-align: left; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; font-size: var(--text-xs); letter-spacing: 0.5px;">Critical Issues</th>
+                <th style="padding: var(--space-3) var(--space-4); text-align: left; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; font-size: var(--text-xs); letter-spacing: 0.5px;">Changelog</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid var(--border-subtle);">
+                <td style="padding: var(--space-3) var(--space-4);"><strong>1.2.4</strong></td>
+                <td style="padding: var(--space-3) var(--space-4);">2026-07-05</td>
+                <td style="padding: var(--space-3) var(--space-4);">
+                  <span style="background: #dcfce7; color: #16a34a; padding: 4px 8px; border-radius: var(--radius-sm); font-size: var(--text-xs); font-weight: 600;">Stable</span>
+                </td>
+                <td style="padding: var(--space-3) var(--space-4);">0</td>
+                <td style="padding: var(--space-3) var(--space-4); color: var(--text-secondary);">Bug fixes</td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="padding: var(--space-5); text-align: center; color: var(--text-tertiary); font-size: var(--text-sm);">
+            Não foi possível localizar dados para mostrar no momento
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-5);">
+          <h3 style="margin: 0 0 var(--space-4) 0; font-size: var(--text-md); font-weight: 600;">Notes</h3>
+          <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+            <div style="padding: var(--space-3) var(--space-4); border-left: 4px solid #dc2626; background: #fee2e2; border-radius: var(--radius-sm);">
+              <div style="font-weight: 600; color: #dc2626; margin-bottom: 4px;">BXB W27 - 001</div>
+              <div style="font-size: var(--text-xs); color: #dc2626; opacity: 0.7;">Priority: Critical</div>
+            </div>
+            <div style="padding: var(--space-3) var(--space-4); border-left: 4px solid #ca8a04; background: #fef08a; border-radius: var(--radius-sm);">
+              <div style="font-weight: 600; color: #ca8a04; margin-bottom: 4px;">Notes 01 27</div>
+              <div style="font-size: var(--text-xs); color: #ca8a04; opacity: 0.7;">Priority: High</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
