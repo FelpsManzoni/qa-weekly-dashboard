@@ -1,0 +1,66 @@
+.maintenance-form {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.maintenance-form__grid {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.maintenance-form label {
+  color: var(--text-secondary);
+  display: grid;
+  font-size: var(--text-sm);
+  gap: var(--space-2);
+}
+
+.maintenance-form input,
+.maintenance-form select,
+.maintenance-form textarea {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font: inherit;
+  min-height: 42px;
+  padding: var(--space-3);
+}
+
+.maintenance-form textarea {
+  min-height: 92px;
+  resize: vertical;
+}
+
+.maintenance-form__actions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.maintenance-form__error,
+.maintenance-form__lock {
+  background: var(--status-fail-bg);
+  border-radius: var(--radius-sm);
+  color: var(--status-fail);
+  padding: var(--space-3);
+}
+
+.maintenance-form__secondary {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font: inherit;
+  padding: var(--space-3) var(--space-4);
+}
+
+.maintenance-form__primary {
+  background: var(--brand-primary);
+  border: 1px solid var(--brand-primary);
+  border-radius: var(--radius-sm);
+  color: var(--text-inverse);
+  cursor: pointer;
+  font: inherit;
+  padding: var(--space-3) var(--space-4);
+}
