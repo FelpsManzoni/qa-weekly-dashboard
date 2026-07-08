@@ -8,9 +8,9 @@
     "build": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json && vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext .ts,.tsx",
-    "test": "NODE_OPTIONS=--max-old-space-size=8192 vitest run",
-    "test:watch": "NODE_OPTIONS=--max-old-space-size=8192 vitest",
-    "coverage": "NODE_OPTIONS=--max-old-space-size=8192 vitest run --coverage",
+    "test": "NODE_OPTIONS=--max-old-space-size=8192 vitest run --maxWorkers=2",
+    "test:watch": "NODE_OPTIONS=--max-old-space-size=8192 vitest --maxWorkers=2",
+    "coverage": "NODE_OPTIONS=--max-old-space-size=8192 vitest run --coverage --maxWorkers=2",
     "db:migrate": "node scripts/db/execute.mjs db/migrations/001_initial_schema.sql",
     "db:seed": "node scripts/db/execute.mjs db/seed.sql"
   },

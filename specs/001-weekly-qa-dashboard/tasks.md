@@ -183,8 +183,8 @@ description: "Task list for Weekly QA Dashboard implementation"
 - [x] T082 [P] Add final validation for lock timeout and refresh fallback logic in `src/hooks/useDashboard.ts` and `src/hooks/useEditLock.ts`
 - [x] T083 [P] Add final seed-data adjustments for realistic weekly scenarios in `db/seed.sql`
 - [x] T084 Ensure all components use design-system tokens and avoid hardcoded styles across `src/components/` and `src/styles/`
-- [ ] T085 Run full test suite with coverage via `package.json` scripts and capture >=80% coverage in CI config files
-- [ ] T086 Run end-to-end quickstart validation steps against `specs/001-weekly-qa-dashboard/quickstart.md`
+- [x] T085 Run full test suite with coverage via `package.json` scripts and capture >=80% coverage in CI config files
+- [x] T086 Run end-to-end quickstart validation steps against `specs/001-weekly-qa-dashboard/quickstart.md`
 
 ---
 

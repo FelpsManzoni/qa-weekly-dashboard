@@ -44,7 +44,7 @@ it('gets a single row', async () => {
   selectMock.mockReturnValueOnce({ eq: vi.fn().mockReturnValue({ single: vi.fn().mockResolvedValue({ data: { id: 'row1' }, error: null }) }) });
   const { getRow } = await import('../../../src/api/client');
   const response = await getRow('weeks', 'row1');
-  expect(response.data?.id).toBe('row1');
+  expect((response.data as any)?.id).toBe('row1');
 });
 
 it('upserts rows and removes empty id values', async () => {
