@@ -1,65 +1,100 @@
-const upsertMock = vi.fn();
-const updateMock = vi.fn();
-const deleteMock = vi.fn();
-const selectMock = vi.fn();
-const eqMock = vi.fn();
+import {
+  apiGet,
+  apiPost,
+  apiPut,
+  apiDelete,
+  mapError,
+  queryString,
+  setAuthToken,
+  getAuthToken,
+  setUnauthorizedHandler
+} from '../../../src/api/client';
 
-vi.mock('@supabase/supabase-js', () => ({
-  createClient: vi.fn(() => ({
-    from: vi.fn(() => ({
-      select: selectMock,
-      upsert: upsertMock,
-      update: updateMock,
-      delete: deleteMock
-    }))
-  }))
-}));
+function mockFetch(response: { ok?: boolean; status?: number; body?: unknown }) {
+  const { ok = true, status = 200, body = {} } = response;
+  return vi.fn().mockResolvedValue({
+    ok,
+    status,
+    json: vi.fn().mockResolvedValue(body)
+  });
+}
 
 beforeEach(() => {
-  vi.resetModules();
-  vi.clearAllMocks();
-  vi.stubEnv('VITE_SUPABASE_URL', 'https://example.supabase.co');
-  vi.stubEnv('VITE_SUPABASE_ANON_KEY', 'anon-key');
-
-  eqMock.mockReturnThis();
-  selectMock.mockReturnThis();
-  upsertMock.mockReturnThis();
-  updateMock.mockReturnThis();
-  deleteMock.mockReturnThis();
+  setAuthToken(null);
+  setUnauthorizedHandler(null);
+  vi.restoreAllMocks();
 });
 
-it('maps errors', async () => {
-  const { mapError } = await import('../../../src/api/client');
+it('maps errors', () => {
   expect(mapError(new Error('Boom')).message).toBe('Boom');
+  expect(mapError('nope').message).toBe('Unexpected error');
 });
 
-it('lists rows successfully', async () => {
-  selectMock.mockResolvedValueOnce({ data: [{ id: 'row1' }], error: null });
-  const { listRows } = await import('../../../src/api/client');
-  const response = await listRows('weeks');
-  expect(response.data).toHaveLength(1);
+it('builds query strings from defined params only', () => {
+  expect(queryString({ a: '1', b: null, c: undefined, d: '' })).toBe('?a=1');
+  expect(queryString({})).toBe('');
 });
 
-it('gets a single row', async () => {
-  selectMock.mockReturnValueOnce({ eq: vi.fn().mockReturnValue({ single: vi.fn().mockResolvedValue({ data: { id: 'row1' }, error: null }) }) });
-  const { getRow } = await import('../../../src/api/client');
-  const response = await getRow('weeks', 'row1');
-  expect((response.data as any)?.id).toBe('row1');
+it('stores and clears the auth token', () => {
+  setAuthToken('abc');
+  expect(getAuthToken()).toBe('abc');
+  setAuthToken(null);
+  expect(getAuthToken()).toBeNull();
 });
 
-it('upserts rows and removes empty id values', async () => {
-  upsertMock.mockReturnValueOnce({ select: vi.fn().mockReturnValue({ single: vi.fn().mockResolvedValue({ data: { id: 'row2' }, error: null }) }) });
-  const { upsertRow } = await import('../../../src/api/client');
-  const response = await upsertRow('weeks', { id: '', week_number: 27 } as any);
-  expect((response.data as any)?.id).toBe('row2');
+it('GETs and returns parsed data', async () => {
+  vi.stubGlobal('fetch', mockFetch({ body: [{ id: 'x' }] }));
+  const res = await apiGet<{ id: string }[]>('/weeks');
+  expect(res.data).toEqual([{ id: 'x' }]);
+  expect(res.error).toBeNull();
 });
 
-it('updates and deletes rows', async () => {
-  updateMock.mockReturnValueOnce({ eq: vi.fn().mockReturnValue({ select: vi.fn().mockReturnValue({ single: vi.fn().mockResolvedValue({ data: { id: 'row3' }, error: null }) }) }) });
-  deleteMock.mockReturnValueOnce({ eq: vi.fn().mockResolvedValue({ error: null }) });
-  const { updateRow, deleteRow } = await import('../../../src/api/client');
-  const updated = await updateRow('weeks', 'row3', { week_number: 28 } as any);
-  const deleted = await deleteRow('weeks', 'row3');
-  expect((updated.data as any)?.id).toBe('row3');
-  expect(deleted.error).toBeNull();
+it('attaches the bearer token when set', async () => {
+  const fetchMock = mockFetch({ body: {} });
+  vi.stubGlobal('fetch', fetchMock);
+  setAuthToken('tok');
+  await apiGet('/weeks');
+  const headers = fetchMock.mock.calls[0][1].headers;
+  expect(headers.Authorization).toBe('Bearer tok');
+});
+
+it('POSTs a JSON body', async () => {
+  const fetchMock = mockFetch({ status: 201, body: { id: 'n' } });
+  vi.stubGlobal('fetch', fetchMock);
+  const res = await apiPost('/notes', { note_text: 'hi' });
+  expect(res.data).toEqual({ id: 'n' });
+  expect(fetchMock.mock.calls[0][1].body).toBe(JSON.stringify({ note_text: 'hi' }));
+});
+
+it('PUTs and returns data', async () => {
+  vi.stubGlobal('fetch', mockFetch({ body: { id: 'n' } }));
+  const res = await apiPut('/notes/n', { note_text: 'hi' });
+  expect(res.data).toEqual({ id: 'n' });
+});
+
+it('returns null data on 204 delete', async () => {
+  vi.stubGlobal('fetch', mockFetch({ status: 204, body: null }));
+  const res = await apiDelete('/notes/n');
+  expect(res.data).toBeNull();
+  expect(res.error).toBeNull();
+});
+
+it('surfaces API error envelopes', async () => {
+  vi.stubGlobal('fetch', mockFetch({ ok: false, status: 409, body: { error: { message: 'dup', code: 'DUPLICATE' } } }));
+  const res = await apiPost('/notes', {});
+  expect(res.error?.code).toBe('DUPLICATE');
+});
+
+it('invokes the unauthorized handler on 401', async () => {
+  const onUnauthorized = vi.fn();
+  setUnauthorizedHandler(onUnauthorized);
+  vi.stubGlobal('fetch', mockFetch({ ok: false, status: 401, body: { error: { message: 'no', code: 'UNAUTHENTICATED' } } }));
+  await apiGet('/weeks');
+  expect(onUnauthorized).toHaveBeenCalled();
+});
+
+it('returns a mapped error when fetch throws', async () => {
+  vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network down')));
+  const res = await apiGet('/weeks');
+  expect(res.error?.message).toBe('network down');
 });

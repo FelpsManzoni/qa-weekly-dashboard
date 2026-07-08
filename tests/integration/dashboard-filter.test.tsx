@@ -1,6 +1,16 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import App from '../../src/App';
 
+vi.mock('../../src/hooks/useAuth', () => ({
+  useAuth: () => ({
+    user: { id: 'u1', username: 'qa', email: 'qa@example.com', display_name: 'QA' },
+    isLoading: false,
+    login: vi.fn(),
+    register: vi.fn(),
+    logout: vi.fn()
+  })
+}));
+
 vi.mock('../../src/hooks/useWeeks', () => ({
   useWeeks: () => ({
     data: [{ id: 'w1', week_number: 27, start_date: '2026-06-29', end_date: '2026-07-05', is_active: true }],

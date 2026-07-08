@@ -68,6 +68,46 @@ export const copy = {
   lockExpires: {
     en: 'Lock expires after 15 minutes of inactivity',
     pt: 'Bloqueio expira apos 15 minutos de inatividade'
+  },
+  signIn: {
+    en: 'Sign in',
+    pt: 'Entrar'
+  },
+  signUp: {
+    en: 'Create account',
+    pt: 'Criar conta'
+  },
+  username: {
+    en: 'Username',
+    pt: 'Usuario'
+  },
+  email: {
+    en: 'Email',
+    pt: 'Email'
+  },
+  password: {
+    en: 'Password',
+    pt: 'Senha'
+  },
+  displayName: {
+    en: 'Display name',
+    pt: 'Nome de exibicao'
+  },
+  logout: {
+    en: 'Sign out',
+    pt: 'Sair'
+  },
+  haveAccount: {
+    en: 'Already have an account? Sign in',
+    pt: 'Ja tem uma conta? Entrar'
+  },
+  needAccount: {
+    en: "Don't have an account? Create one",
+    pt: 'Nao tem conta? Crie uma'
+  },
+  authSubtitle: {
+    en: 'Sign in to access the QA dashboard',
+    pt: 'Entre para acessar o painel de QA'
   }
 } satisfies Record<string, BilingualText>;
 

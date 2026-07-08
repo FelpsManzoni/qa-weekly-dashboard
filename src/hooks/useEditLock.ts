@@ -1,35 +1,58 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { acquireLock, releaseLock } from '../api/locks';
+import { acquireLock, extendLock, releaseLock } from '../api/locks';
 import { copy } from '../utils/copy';
 import type { EditLock } from '../types';
+
+// Heartbeat cadence: extend the lock well before the 15-minute server expiry so an
+// actively-editing user is never silently overridden (improvements #2).
+const HEARTBEAT_MS = 5 * 60 * 1000;
+const ACTIVITY_THROTTLE_MS = 30 * 1000;
 
 export function useEditLock(resourceType: string, resourceId: string | null, enabled = true) {
   const [lock, setLock] = useState<EditLock | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const ownerIdRef = useRef(`editor-${Math.random().toString(36).slice(2, 10)}`);
+  const lockRef = useRef<EditLock | null>(null);
+  const lastBeatRef = useRef(0);
+
+  const setActiveLock = (value: EditLock | null) => {
+    lockRef.current = value;
+    setLock(value);
+  };
 
   const release = useCallback(async () => {
-    if (lock?.id) {
-      await releaseLock(lock.id);
-      setLock(null);
+    const current = lockRef.current;
+    if (current?.id) {
+      await releaseLock(current.id);
+      setActiveLock(null);
     }
-  }, [lock]);
+  }, []);
 
   const acquire = useCallback(async () => {
     if (!resourceId || !enabled) {
       return;
     }
 
-    const response = await acquireLock(resourceType, resourceId, ownerIdRef.current);
+    const response = await acquireLock(resourceType, resourceId);
 
     if (response.error) {
       setError(`${copy.lockActive.en} / ${copy.lockActive.pt}`);
       return;
     }
 
-    setLock(response.data);
+    setActiveLock(response.data);
     setError(null);
   }, [enabled, resourceId, resourceType]);
+
+  const beat = useCallback(async () => {
+    const current = lockRef.current;
+    if (current?.id) {
+      lastBeatRef.current = Date.now();
+      const response = await extendLock(current.id);
+      if (!response.error && response.data) {
+        setActiveLock(response.data);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     void acquire();
@@ -38,6 +61,30 @@ export function useEditLock(resourceType: string, resourceId: string | null, ena
       void release();
     };
   }, [acquire, release]);
+
+  // Periodic heartbeat plus a throttled heartbeat on user activity.
+  useEffect(() => {
+    if (!enabled || !resourceId) {
+      return;
+    }
+
+    const interval = setInterval(() => void beat(), HEARTBEAT_MS);
+
+    const onActivity = () => {
+      if (Date.now() - lastBeatRef.current > ACTIVITY_THROTTLE_MS) {
+        void beat();
+      }
+    };
+
+    window.addEventListener('keydown', onActivity);
+    window.addEventListener('mousemove', onActivity);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('keydown', onActivity);
+      window.removeEventListener('mousemove', onActivity);
+    };
+  }, [beat, enabled, resourceId]);
 
   return {
     lock,

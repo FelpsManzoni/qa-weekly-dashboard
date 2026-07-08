@@ -1,6 +1,16 @@
 import { render, screen } from '@testing-library/react';
 import App from '../../src/App';
 
+vi.mock('../../src/hooks/useAuth', () => ({
+  useAuth: () => ({
+    user: { id: 'u1', username: 'qa', email: 'qa@example.com', display_name: 'QA' },
+    isLoading: false,
+    login: vi.fn(),
+    register: vi.fn(),
+    logout: vi.fn()
+  })
+}));
+
 vi.mock('../../src/hooks/useWeeks', () => ({
   useWeeks: () => ({ data: [], activeWeeks: [], refresh: vi.fn(), isLoading: false, error: null })
 }));

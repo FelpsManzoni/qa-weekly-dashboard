@@ -1,9 +1,14 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { AsyncState } from '../types';
 
 export function useAsyncData<T>(loader: () => Promise<T>, initialData: T, enabled = true) {
+  // Capture the initial value once. Callers commonly pass a fresh literal (e.g. `[]`)
+  // every render; keeping it out of the `refresh` deps prevents an infinite
+  // refresh → setState → re-render loop.
+  const initialRef = useRef(initialData);
+
   const [state, setState] = useState<AsyncState<T>>({
-    data: initialData,
+    data: initialRef.current,
     isLoading: enabled,
     error: null
   });
@@ -16,12 +21,12 @@ export function useAsyncData<T>(loader: () => Promise<T>, initialData: T, enable
       setState({ data, isLoading: false, error: null });
     } catch (error) {
       setState({
-        data: initialData,
+        data: initialRef.current,
         isLoading: false,
         error: error instanceof Error ? error.message : 'Unexpected error'
       });
     }
-  }, [initialData, loader]);
+  }, [loader]);
 
   useEffect(() => {
     if (enabled) {

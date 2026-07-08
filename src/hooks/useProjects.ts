@@ -1,10 +1,11 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { fetchProjects } from '../api/projects';
 import { useAsyncData } from './useAsyncData';
 import type { Project } from '../types';
 
 export function useProjects() {
-  const state = useAsyncData(async () => {
+  // Memoize the loader so useAsyncData's refresh identity stays stable across renders.
+  const loader = useCallback(async () => {
     const response = await fetchProjects();
 
     if (response.error) {
@@ -12,7 +13,9 @@ export function useProjects() {
     }
 
     return response.data;
-  }, [] as Project[]);
+  }, []);
+
+  const state = useAsyncData(loader, [] as Project[]);
 
   const activeProjects = useMemo(() => state.data.filter((project) => project.is_active), [state.data]);
 

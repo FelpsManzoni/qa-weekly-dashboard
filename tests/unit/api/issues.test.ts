@@ -1,8 +1,9 @@
-import { fetchIssueHistory, saveIssueMetric } from '../../../src/api/issues';
+import { fetchIssueHistory, fetchIssueMetric, saveIssueMetric } from '../../../src/api/issues';
 
 vi.mock('../../../src/api/client', () => ({
-  listRows: vi.fn().mockResolvedValue({ data: [{ id: 'i1' }], error: null }),
-  upsertRow: vi.fn().mockResolvedValue({ data: { id: 'i1' }, error: null })
+  apiGet: vi.fn().mockResolvedValue({ data: [{ id: 'i1' }], error: null }),
+  apiPost: vi.fn().mockResolvedValue({ data: { id: 'i1' }, error: null }),
+  queryString: vi.fn(() => '?q')
 }));
 
 it('fetches issue history', async () => {
@@ -10,7 +11,17 @@ it('fetches issue history', async () => {
   expect(response.data).toHaveLength(1);
 });
 
+it('fetches issue history scoped to a week', async () => {
+  const response = await fetchIssueHistory('p1', 'w1');
+  expect(response.data).toHaveLength(1);
+});
+
+it('fetches a single issue metric', async () => {
+  const response = await fetchIssueMetric('w1', 'p1');
+  expect(response.data).toHaveLength(1);
+});
+
 it('saves issue metrics', async () => {
-  const response = await saveIssueMetric({ week_id: 'w1', project_id: 'p1', reported_count: 2, fixed_count: 1 } as any);
+  const response = await saveIssueMetric({ week_id: 'w1', project_id: 'p1', reported_count: 2, fixed_count: 1 } as never);
   expect(response.error).toBeNull();
 });

@@ -1,16 +1,20 @@
-import { listRows, upsertRow, updateRow } from './client';
+import { apiGet, apiPost, apiPut, apiDelete, queryString } from './client';
 import type { ApiItemResponse, ApiListResponse, PriorityNote } from '../types';
 
-export function fetchNotes(weekId: string, projectId: string): Promise<ApiListResponse<PriorityNote>> {
-  return listRows<PriorityNote>('notes', (builder) =>
-    builder.eq('week_id', weekId).eq('project_id', projectId).order('priority', { ascending: true })
-  );
+export async function fetchNotes(weekId: string, projectId: string): Promise<ApiListResponse<PriorityNote>> {
+  const qs = queryString({ week_id: weekId, project_id: projectId });
+  const { data, error } = await apiGet<PriorityNote[]>(`/notes${qs}`);
+  return { data: data ?? [], error };
 }
 
-export function saveNote(payload: Partial<PriorityNote>): Promise<ApiItemResponse<PriorityNote>> {
-  if (payload.id) {
-    return updateRow<PriorityNote>('notes', payload.id, payload);
-  }
+export async function saveNote(payload: Partial<PriorityNote>): Promise<ApiItemResponse<PriorityNote>> {
+  const { data, error } = payload.id
+    ? await apiPut<PriorityNote>(`/notes/${payload.id}`, payload)
+    : await apiPost<PriorityNote>('/notes', payload);
+  return { data, error };
+}
 
-  return upsertRow<PriorityNote>('notes', payload as PriorityNote);
+export async function deleteNote(id: string): Promise<ApiItemResponse<null>> {
+  const { error } = await apiDelete(`/notes/${id}`);
+  return { data: null, error };
 }

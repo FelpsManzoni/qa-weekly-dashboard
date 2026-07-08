@@ -5,7 +5,7 @@ import prettier from 'eslint-config-prettier';
 
 export default [
   {
-    ignores: ['dist/', 'coverage/', 'node_modules/', 'sidi-design-system/**']
+    ignores: ['dist/', 'coverage/', 'node_modules/', 'sidi-design-system/**', 'server/**']
   },
   js.configs.recommended,
   {
@@ -32,7 +32,17 @@ export default [
         window: 'readonly',
         document: 'readonly',
         fetch: 'readonly',
-        console: 'readonly'
+        console: 'readonly',
+        localStorage: 'readonly',
+        URLSearchParams: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        KeyboardEvent: 'readonly',
+        MouseEvent: 'readonly',
+        Node: 'readonly',
+        process: 'readonly'
       }
     },
     plugins: {

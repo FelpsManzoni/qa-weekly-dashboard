@@ -29,11 +29,15 @@ vi.mock('../../../src/api/notes', () => ({
 }));
 vi.mock('../../../src/api/locks', () => ({
   acquireLock: vi.fn().mockResolvedValue({ data: { id: 'l1' }, error: null }),
+  extendLock: vi.fn().mockResolvedValue({ data: { id: 'l1' }, error: null }),
   releaseLock: vi.fn().mockResolvedValue({ data: null, error: null })
 }));
 
+// Stable loader identity (as real callers use via useCallback) so refresh doesn't churn.
+const stringLoader = async () => ['value'];
+
 it('loads async data', async () => {
-  const { result } = renderHook(() => useAsyncData(async () => ['value'], [] as string[]));
+  const { result } = renderHook(() => useAsyncData(stringLoader, [] as string[]));
   await waitFor(() => expect(result.current.data).toEqual(['value']));
 });
 

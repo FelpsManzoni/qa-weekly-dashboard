@@ -3,6 +3,7 @@ import {
   Legend,
   Line,
   LineChart,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -16,9 +17,10 @@ import './IssueHistoryChart.css';
 type IssueHistoryChartProps = {
   metrics: IssueMetric[];
   weeks: Week[];
+  selectedWeekId?: string | null;
 };
 
-export function IssueHistoryChart({ metrics, weeks }: IssueHistoryChartProps) {
+export function IssueHistoryChart({ metrics, weeks, selectedWeekId = null }: IssueHistoryChartProps) {
   if (!metrics.length) {
     return <EmptyState title={bilingualText(copy.issueHistory)} body={bilingualText(copy.emptyGeneric)} />;
   }
@@ -29,9 +31,13 @@ export function IssueHistoryChart({ metrics, weeks }: IssueHistoryChartProps) {
     return {
       name: week ? `W${week.week_number}` : metric.week_id,
       fixed: metric.fixed_count,
-      reported: metric.reported_count
+      reported: metric.reported_count,
+      // Marks the point matching the currently selected week so it can be highlighted (#10).
+      isSelected: metric.week_id === selectedWeekId
     };
   });
+
+  const selectedLabel = data.find((point) => point.isSelected)?.name ?? null;
 
   return (
     <section className="chart-card">
@@ -44,6 +50,7 @@ export function IssueHistoryChart({ metrics, weeks }: IssueHistoryChartProps) {
             <YAxis allowDecimals={false} />
             <Tooltip />
             <Legend />
+            {selectedLabel ? <ReferenceLine x={selectedLabel} stroke="var(--brand-primary)" strokeDasharray="4 4" /> : null}
             <Line dataKey="fixed" name="Fixed issues" stroke="var(--status-pass)" strokeWidth={3} />
             <Line dataKey="reported" name="Reported issues" stroke="var(--status-fail)" strokeWidth={3} />
           </LineChart>

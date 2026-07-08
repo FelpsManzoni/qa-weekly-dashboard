@@ -1,14 +1,14 @@
-import { listRows, upsertRow, updateRow } from './client';
+import { apiGet, apiPost, apiPut } from './client';
 import type { Project, ApiItemResponse, ApiListResponse } from '../types';
 
-export function fetchProjects(): Promise<ApiListResponse<Project>> {
-  return listRows<Project>('projects', (builder) => builder.order('display_order', { ascending: true }));
+export async function fetchProjects(): Promise<ApiListResponse<Project>> {
+  const { data, error } = await apiGet<Project[]>('/projects');
+  return { data: data ?? [], error };
 }
 
-export function saveProject(payload: Partial<Project>): Promise<ApiItemResponse<Project>> {
-  if (payload.id) {
-    return updateRow<Project>('projects', payload.id, payload);
-  }
-
-  return upsertRow<Project>('projects', payload as Project);
+export async function saveProject(payload: Partial<Project>): Promise<ApiItemResponse<Project>> {
+  const { data, error } = payload.id
+    ? await apiPut<Project>(`/projects/${payload.id}`, payload)
+    : await apiPost<Project>('/projects', payload);
+  return { data, error };
 }

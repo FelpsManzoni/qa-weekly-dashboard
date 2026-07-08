@@ -25,9 +25,21 @@
   margin: var(--space-2) 0 0;
 }
 
+.dashboard-header__actions {
+  align-items: center;
+  display: flex;
+  gap: var(--space-3);
+}
+
+.dashboard-header__user {
+  color: var(--text-inverse);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+}
+
 .dashboard-header__refresh {
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: var(--brand-secondary-hover);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
   color: var(--text-inverse);
   cursor: pointer;

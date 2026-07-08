@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Header } from './components/Header/Header';
 import { WeekSelector } from './components/WeekSelector/WeekSelector';
 import { ProjectNav } from './components/ProjectNav/ProjectNav';
@@ -8,6 +8,7 @@ import { ReleaseTable } from './components/ReleaseTable/ReleaseTable';
 import { NotesSection } from './components/NotesSection/NotesSection';
 import { IssueMetricForm, NoteForm, ProjectForm, ReleaseForm, TestCaseDistributionForm, WeekForm } from './components/forms';
 import { maintenanceTitles, bilingualText } from './utils/copy';
+import { useAuth } from './hooks/useAuth';
 import { useWeeks } from './hooks/useWeeks';
 import { useProjects } from './hooks/useProjects';
 import { useDashboard } from './hooks/useDashboard';
@@ -15,6 +16,7 @@ import { useIssueHistory } from './hooks/useIssueHistory';
 import { useTestCaseDistribution } from './hooks/useTestCaseDistribution';
 import { useReleases } from './hooks/useReleases';
 import { useNotes } from './hooks/useNotes';
+import type { PriorityNote, ReleaseVersion } from './types';
 import './styles/globals.css';
 import './App.css';
 
@@ -35,22 +37,55 @@ function PanelTabs({ active, onChange }: { active: keyof typeof maintenanceTitle
   );
 }
 
+// Lets the maintenance panel target any existing record (or create a new one) instead of
+// only ever editing the first row (improvements #12).
+function RecordPicker({
+  label,
+  value,
+  options,
+  onChange
+}: {
+  label: string;
+  value: string | null;
+  options: { id: string; label: string }[];
+  onChange: (id: string | null) => void;
+}) {
+  return (
+    <label className="record-picker">
+      {label}
+      <select value={value ?? ''} onChange={(event) => onChange(event.target.value || null)}>
+        <option value="">+ New / Novo</option>
+        {options.map((option) => (
+          <option key={option.id} value={option.id}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
 export default function App() {
+  const { user, logout } = useAuth();
   const weeks = useWeeks();
   const projects = useProjects();
   const dashboard = useDashboard(weeks.activeWeeks, projects.activeProjects);
-  const issues = useIssueHistory(dashboard.selectedProjectId);
+  const issues = useIssueHistory(dashboard.selectedProjectId, dashboard.selectedWeekId);
   const distributions = useTestCaseDistribution(dashboard.selectedWeekId, dashboard.selectedProjectId);
   const releases = useReleases(dashboard.selectedWeekId, dashboard.selectedProjectId);
   const notes = useNotes(dashboard.selectedWeekId, dashboard.selectedProjectId);
+
+  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
+  const [selectedReleaseId, setSelectedReleaseId] = useState<string | null>(null);
 
   const selectedIssueMetric = useMemo(
     () => issues.data.find((item) => item.week_id === dashboard.selectedWeekId) ?? null,
     [dashboard.selectedWeekId, issues.data]
   );
   const selectedDistribution = distributions.data[0] ?? null;
-  const selectedRelease = releases.data[0] ?? null;
-  const selectedNote = notes.data[0] ?? null;
+  const selectedRelease: ReleaseVersion | null =
+    releases.data.find((item) => item.id === selectedReleaseId) ?? null;
+  const selectedNote: PriorityNote | null = notes.data.find((item) => item.id === selectedNoteId) ?? null;
 
   const refreshAll = async () => {
     await Promise.all([
@@ -65,7 +100,7 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <Header onRefresh={() => void refreshAll()} />
+      <Header user={user} onLogout={logout} onRefresh={() => void refreshAll()} />
       <WeekSelector weeks={weeks.activeWeeks} selectedWeekId={dashboard.selectedWeekId} onSelect={dashboard.setSelectedWeekId} />
       <div className="dashboard-grid">
         <ProjectNav
@@ -74,7 +109,7 @@ export default function App() {
           onSelect={dashboard.setSelectedProjectId}
         />
         <main className="dashboard-main">
-          <IssueHistoryChart metrics={issues.data} weeks={weeks.data} />
+          <IssueHistoryChart metrics={issues.data} weeks={weeks.data} selectedWeekId={dashboard.selectedWeekId} />
           <TestCaseDistributionChart distributions={distributions.data} />
         </main>
         <aside className="dashboard-side">
@@ -105,20 +140,45 @@ export default function App() {
             />
           ) : null}
           {dashboard.activePanel === 'releases' ? (
-            <ReleaseForm
-              weekId={dashboard.selectedWeekId}
-              projectId={dashboard.selectedProjectId}
-              selected={selectedRelease}
-              onSaved={() => void refreshAll()}
-            />
+            <>
+              <RecordPicker
+                label="Edit release / Editar release"
+                value={selectedReleaseId}
+                options={releases.data.map((item) => ({ id: item.id, label: item.version }))}
+                onChange={setSelectedReleaseId}
+              />
+              <ReleaseForm
+                weekId={dashboard.selectedWeekId}
+                projectId={dashboard.selectedProjectId}
+                selected={selectedRelease}
+                onSaved={() => {
+                  setSelectedReleaseId(null);
+                  void refreshAll();
+                }}
+              />
+            </>
           ) : null}
           {dashboard.activePanel === 'notes' ? (
-            <NoteForm
-              weekId={dashboard.selectedWeekId}
-              projectId={dashboard.selectedProjectId}
-              selected={selectedNote}
-              onSaved={() => void refreshAll()}
-            />
+            <>
+              <RecordPicker
+                label="Edit note / Editar nota"
+                value={selectedNoteId}
+                options={notes.data.map((item) => ({
+                  id: item.id,
+                  label: `P${item.priority} · ${item.note_text.slice(0, 30)}`
+                }))}
+                onChange={setSelectedNoteId}
+              />
+              <NoteForm
+                weekId={dashboard.selectedWeekId}
+                projectId={dashboard.selectedProjectId}
+                selected={selectedNote}
+                onSaved={() => {
+                  setSelectedNoteId(null);
+                  void refreshAll();
+                }}
+              />
+            </>
           ) : null}
         </div>
       </section>

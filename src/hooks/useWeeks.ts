@@ -1,10 +1,11 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { fetchWeeks } from '../api/weeks';
 import { useAsyncData } from './useAsyncData';
 import type { Week } from '../types';
 
 export function useWeeks() {
-  const state = useAsyncData(async () => {
+  // Memoize the loader so useAsyncData's refresh identity stays stable across renders.
+  const loader = useCallback(async () => {
     const response = await fetchWeeks();
 
     if (response.error) {
@@ -12,7 +13,9 @@ export function useWeeks() {
     }
 
     return response.data;
-  }, [] as Week[]);
+  }, []);
+
+  const state = useAsyncData(loader, [] as Week[]);
 
   const activeWeeks = useMemo(() => state.data.filter((week) => week.is_active), [state.data]);
 

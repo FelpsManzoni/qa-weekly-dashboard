@@ -22,6 +22,7 @@ vi.mock('recharts', async () => {
     YAxis: passthrough('y-axis'),
     Tooltip: passthrough('tooltip'),
     Legend: passthrough('legend'),
+    ReferenceLine: passthrough('reference-line'),
     CartesianGrid: passthrough('grid'),
     PieChart: passthrough('pie-chart'),
     Pie: passthrough('pie'),

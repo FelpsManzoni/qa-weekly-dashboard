@@ -1,16 +1,20 @@
-import { acquireLock, fetchLock, releaseLock } from '../../../src/api/locks';
+import { acquireLock, extendLock, releaseLock } from '../../../src/api/locks';
 
 vi.mock('../../../src/api/client', () => ({
-  listRows: vi.fn().mockResolvedValue({ data: [], error: null }),
-  upsertRow: vi.fn().mockResolvedValue({ data: { id: 'l1' }, error: null }),
-  deleteRow: vi.fn().mockResolvedValue({ data: null, error: null })
+  apiPost: vi.fn().mockResolvedValue({ data: { id: 'l1' }, error: null }),
+  apiPut: vi.fn().mockResolvedValue({ data: { id: 'l1' }, error: null }),
+  apiDelete: vi.fn().mockResolvedValue({ data: null, error: null })
 }));
 
-it('fetches and acquires locks', async () => {
-  const list = await fetchLock('notes', 'n1');
-  expect(list.data).toEqual([]);
-  const acquired = await acquireLock('notes', 'n1', 'owner');
+it('acquires a lock', async () => {
+  const acquired = await acquireLock('notes', 'n1');
   expect(acquired.error).toBeNull();
+  expect(acquired.data?.id).toBe('l1');
+});
+
+it('extends a lock (heartbeat)', async () => {
+  const extended = await extendLock('l1');
+  expect(extended.data?.id).toBe('l1');
 });
 
 it('releases locks', async () => {

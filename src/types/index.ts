@@ -81,6 +81,13 @@ export type EditLock = {
   expires_at: string;
 };
 
+export type AuthUser = {
+  id: string;
+  username: string;
+  email: string;
+  display_name: string | null;
+};
+
 export type DashboardSelection = {
   selectedWeekId: string | null;
   selectedProjectId: string | null;

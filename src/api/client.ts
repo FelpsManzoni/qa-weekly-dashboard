@@ -1,126 +1,96 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import type { ApiError, ApiItemResponse, ApiListResponse } from '../types';
+import type { ApiError } from '../types';
 
-type Database = any;
+export const TOKEN_STORAGE_KEY = 'qa-dashboard-token';
 
-let supabaseClient: SupabaseClient<Database> | null = null;
+const baseUrl = (import.meta.env.VITE_API_URL as string | undefined) ?? '/api';
 
-export function getSupabaseClient(): SupabaseClient<Database> {
-  if (supabaseClient) {
-    return supabaseClient;
+let authToken: string | null =
+  typeof localStorage !== 'undefined' ? localStorage.getItem(TOKEN_STORAGE_KEY) : null;
+
+let unauthorizedHandler: (() => void) | null = null;
+
+export function setAuthToken(token: string | null): void {
+  authToken = token;
+  if (typeof localStorage === 'undefined') return;
+  if (token) {
+    localStorage.setItem(TOKEN_STORAGE_KEY, token);
+  } else {
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
   }
+}
 
-  const url = import.meta.env.VITE_SUPABASE_URL;
-  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+export function getAuthToken(): string | null {
+  return authToken;
+}
 
-  if (!url || !anonKey) {
-    throw new Error('Supabase environment variables are missing.');
-  }
-
-  supabaseClient = createClient<Database>(url, anonKey);
-
-  return supabaseClient;
+/** Registers a callback invoked when the API returns 401 (e.g. to force logout). */
+export function setUnauthorizedHandler(handler: (() => void) | null): void {
+  unauthorizedHandler = handler;
 }
 
 export function mapError(error: unknown, code = 'UNKNOWN_ERROR'): ApiError {
   if (error instanceof Error) {
     return { message: error.message, code };
   }
-
   return { message: 'Unexpected error', code };
 }
 
-export async function listRows<T>(table: string, query?: (builder: any) => any): Promise<ApiListResponse<T>> {
+type Envelope<T> = { data: T | null; error: ApiError | null };
+
+async function request<T>(method: string, path: string, body?: unknown): Promise<Envelope<T>> {
   try {
-    let builder = getSupabaseClient().from(table).select('*');
-
-    if (query) {
-      builder = query(builder);
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (authToken) {
+      headers.Authorization = `Bearer ${authToken}`;
     }
 
-    const { data, error } = await builder;
+    const response = await fetch(`${baseUrl}${path}`, {
+      method,
+      headers,
+      body: body === undefined ? undefined : JSON.stringify(body)
+    });
 
-    if (error) {
-      return { data: [], error: mapError(error, error.code) };
+    if (response.status === 401) {
+      unauthorizedHandler?.();
     }
 
-    return { data: (data ?? []) as T[], error: null };
-  } catch (error) {
-    return { data: [], error: mapError(error) };
-  }
-}
-
-export async function getRow<T>(table: string, id: string): Promise<ApiItemResponse<T>> {
-  try {
-    const { data, error } = await getSupabaseClient().from(table).select('*').eq('id', id).single();
-
-    if (error) {
-      return { data: null, error: mapError(error, error.code) };
+    if (response.status === 204) {
+      return { data: null, error: null };
     }
 
-    return { data: data as T, error: null };
-  } catch (error) {
-    return { data: null, error: mapError(error) };
-  }
-}
+    const payload = await response.json().catch(() => null);
 
-export async function upsertRow<T extends Record<string, unknown>>(
-  table: string,
-  payload: T,
-  onConflict?: string
-): Promise<ApiItemResponse<T>> {
-  try {
-    const cleanPayload = { ...payload } as Record<string, unknown>;
-
-    if ('id' in cleanPayload && !cleanPayload.id) {
-      delete cleanPayload.id;
+    if (!response.ok) {
+      const error: ApiError = payload?.error ?? { message: 'Request failed', code: 'REQUEST_FAILED' };
+      return { data: null, error };
     }
 
-    const query = getSupabaseClient()
-      .from(table)
-      .upsert(cleanPayload, onConflict ? { onConflict } : undefined)
-      .select()
-      .single();
-    const { data, error } = await query;
-
-    if (error) {
-      return { data: null, error: mapError(error, error.code) };
-    }
-
-    return { data: data as T, error: null };
+    return { data: payload as T, error: null };
   } catch (error) {
     return { data: null, error: mapError(error) };
   }
 }
 
-export async function updateRow<T extends Record<string, unknown>>(
-  table: string,
-  id: string,
-  payload: Partial<T>
-): Promise<ApiItemResponse<T>> {
-  try {
-    const { data, error } = await getSupabaseClient().from(table).update(payload as any).eq('id', id).select().single();
-
-    if (error) {
-      return { data: null, error: mapError(error, error.code) };
-    }
-
-    return { data: data as T, error: null };
-  } catch (error) {
-    return { data: null, error: mapError(error) };
-  }
+export function apiGet<T>(path: string): Promise<Envelope<T>> {
+  return request<T>('GET', path);
 }
 
-export async function deleteRow(table: string, id: string): Promise<ApiItemResponse<null>> {
-  try {
-    const { error } = await getSupabaseClient().from(table).delete().eq('id', id);
+export function apiPost<T>(path: string, body: unknown): Promise<Envelope<T>> {
+  return request<T>('POST', path, body);
+}
 
-    if (error) {
-      return { data: null, error: mapError(error, error.code) };
-    }
+export function apiPut<T>(path: string, body: unknown): Promise<Envelope<T>> {
+  return request<T>('PUT', path, body);
+}
 
-    return { data: null, error: null };
-  } catch (error) {
-    return { data: null, error: mapError(error) };
-  }
+export function apiDelete<T = null>(path: string): Promise<Envelope<T>> {
+  return request<T>('DELETE', path);
+}
+
+/** Builds a query string from defined params only. */
+export function queryString(params: Record<string, string | null | undefined>): string {
+  const entries = Object.entries(params).filter(([, v]) => v != null && v !== '');
+  if (!entries.length) return '';
+  const search = new URLSearchParams(entries as [string, string][]);
+  return `?${search.toString()}`;
 }

@@ -1,8 +1,9 @@
 import { fetchTestCaseDistribution, saveTestCaseDistribution } from '../../../src/api/testCases';
 
 vi.mock('../../../src/api/client', () => ({
-  listRows: vi.fn().mockResolvedValue({ data: [{ id: 't1' }], error: null }),
-  upsertRow: vi.fn().mockResolvedValue({ data: { id: 't1' }, error: null })
+  apiGet: vi.fn().mockResolvedValue({ data: [{ id: 't1' }], error: null }),
+  apiPost: vi.fn().mockResolvedValue({ data: { id: 't1' }, error: null }),
+  queryString: vi.fn(() => '?q')
 }));
 
 it('fetches distribution', async () => {
@@ -11,6 +12,6 @@ it('fetches distribution', async () => {
 });
 
 it('saves distribution', async () => {
-  const response = await saveTestCaseDistribution({ week_id: 'w1', project_id: 'p1', automated_count: 1, pending_auto_count: 1, not_auto_count: 1 } as any);
+  const response = await saveTestCaseDistribution({ week_id: 'w1', project_id: 'p1', automated_count: 1, pending_auto_count: 1, not_auto_count: 1 } as never);
   expect(response.error).toBeNull();
 });
