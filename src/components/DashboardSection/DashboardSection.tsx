@@ -55,7 +55,7 @@ export function DashboardSection() {
 
   const issues = useIssueHistory(selectedProjectId, selectedWeekId, issueHistoryRange);
   const distributions = useTestCaseDistribution(selectedWeekId, selectedProjectId);
-  const releases = useReleases(selectedWeekId, selectedProjectId);
+  const releases = useReleases(selectedWeek, selectedProjectId);
   const notes = useNotes(selectedWeekId, selectedProjectId);
 
   const hasProject = Boolean(selectedProjectId);

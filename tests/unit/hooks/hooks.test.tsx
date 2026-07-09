@@ -21,7 +21,7 @@ vi.mock('../../../src/api/testCases', () => ({
   fetchTestCaseDistribution: vi.fn().mockResolvedValue({ data: [{ id: 't1', week_id: 'w1', project_id: 'p1', automated_count: 5, pending_auto_count: 2, not_auto_count: 1 }], error: null })
 }));
 vi.mock('../../../src/api/releases', () => ({
-  fetchReleases: vi.fn().mockResolvedValue({ data: [{ id: 'r1', week_id: 'w1', project_id: 'p1', version: 'v1', date: '2026-07-03', status: 'Approved', issue_count_a: 0, issue_count_b: 0, issue_count_c: 0, release_notes: '' }], error: null })
+  fetchReleases: vi.fn().mockResolvedValue({ data: [{ id: 'r1', week_id: 'w1', project_id: 'p1', version: 'v1', released_date: '2026-07-03', verified_date: null, status: 'Approved', tests_pass: 4, tests_fail: 0, tests_not_tested: 1, issue_count_a: 0, issue_count_b: 0, issue_count_c: 0, release_notes: '' }], error: null })
 }));
 vi.mock('../../../src/api/notes', () => ({
   fetchNotes: vi.fn().mockResolvedValue({ data: [{ id: 'n1', week_id: 'w1', project_id: 'p1', priority: 1, note_text: 'Watch', author: null }], error: null })
@@ -51,7 +51,7 @@ it('loads weeks and projects hooks', async () => {
 it('loads issue, distribution, release, and note hooks', async () => {
   const issueHook = renderHook(() => useIssueHistory('p1'));
   const distributionHook = renderHook(() => useTestCaseDistribution('w1', 'p1'));
-  const releaseHook = renderHook(() => useReleases('w1', 'p1'));
+  const releaseHook = renderHook(() => useReleases({ id: 'w1', end_date: '2026-07-05' }, 'p1'));
   const notesHook = renderHook(() => useNotes('w1', 'p1'));
 
   await waitFor(() => expect(issueHook.result.current.data).toHaveLength(1));

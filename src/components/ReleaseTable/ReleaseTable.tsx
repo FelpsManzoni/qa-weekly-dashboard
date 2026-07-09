@@ -35,9 +35,13 @@ export function ReleaseTable({ releases }: ReleaseTableProps) {
         <table>
           <thead>
             <tr>
-              <th>{t(copy.date)}</th>
               <th>{t(copy.version)}</th>
+              <th>{t(copy.releasedDate)}</th>
+              <th>{t(copy.verifiedDate)}</th>
               <th>{t(copy.status)}</th>
+              <th>{t(copy.testsPass)}</th>
+              <th>{t(copy.testsFail)}</th>
+              <th>{t(copy.testsNotTested)}</th>
               <th>{t(copy.issuesFound)}</th>
               <th>{t(copy.releaseNotes)}</th>
             </tr>
@@ -45,11 +49,15 @@ export function ReleaseTable({ releases }: ReleaseTableProps) {
           <tbody>
             {releases.map((release) => (
               <tr key={release.id}>
-                <td>{formatDateBr(release.date)}</td>
                 <td>{release.version}</td>
+                <td>{formatDateBr(release.released_date)}</td>
+                <td>{release.verified_date ? formatDateBr(release.verified_date) : '-'}</td>
                 <td>
                   <span className={`release-table__status ${STATUS_CLASS[release.status]}`}>{release.status}</span>
                 </td>
+                <td>{release.tests_pass}</td>
+                <td>{release.tests_fail}</td>
+                <td>{release.tests_not_tested}</td>
                 <td>
                   <span className="release-table__issues">A:{release.issue_count_a} · B:{release.issue_count_b} · C:{release.issue_count_c}</span>
                 </td>

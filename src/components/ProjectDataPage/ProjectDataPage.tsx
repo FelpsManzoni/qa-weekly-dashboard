@@ -83,39 +83,19 @@ export function ProjectDataPage() {
       <div className="project-data-page__sections">
         <fieldset className="project-data-page__section">
           <legend>{t(copy.issueHistory)}</legend>
-          <label className="project-data-page__inline">
-            <input
-              type="checkbox"
-              checked={editor.issueEnabled}
-              onChange={(e) => editor.setIssueEnabled(e.target.checked)}
-            />
-            {t(copy.active)}
-          </label>
-          {editor.issueEnabled ? (
-            <div className="project-data-page__grid">
-              <label>{t(copy.reported)}<input type="number" value={editor.reported} onChange={(e) => editor.setReported(Number(e.target.value))} /></label>
-              <label>{t(copy.fixed)}<input type="number" value={editor.fixed} onChange={(e) => editor.setFixed(Number(e.target.value))} /></label>
-            </div>
-          ) : null}
+          <div className="project-data-page__grid">
+            <label>{t(copy.reported)}<input type="number" value={editor.reported} onChange={(e) => editor.setReported(Number(e.target.value))} /></label>
+            <label>{t(copy.fixed)}<input type="number" value={editor.fixed} onChange={(e) => editor.setFixed(Number(e.target.value))} /></label>
+          </div>
         </fieldset>
 
         <fieldset className="project-data-page__section">
           <legend>{t(copy.testCaseDistribution)}</legend>
-          <label className="project-data-page__inline">
-            <input
-              type="checkbox"
-              checked={editor.testEnabled}
-              onChange={(e) => editor.setTestEnabled(e.target.checked)}
-            />
-            {t(copy.active)}
-          </label>
-          {editor.testEnabled ? (
-            <div className="project-data-page__grid">
-              <label>{t(copy.formAutomated)}<input type="number" value={editor.automated} onChange={(e) => editor.setAutomated(Number(e.target.value))} /></label>
-              <label>{t(copy.formPending)}<input type="number" value={editor.pending} onChange={(e) => editor.setPending(Number(e.target.value))} /></label>
-              <label>{t(copy.formNotAutomated)}<input type="number" value={editor.notAuto} onChange={(e) => editor.setNotAuto(Number(e.target.value))} /></label>
-            </div>
-          ) : null}
+          <div className="project-data-page__grid">
+            <label>{t(copy.formAutomated)}<input type="number" value={editor.automated} onChange={(e) => editor.setAutomated(Number(e.target.value))} /></label>
+            <label>{t(copy.formPending)}<input type="number" value={editor.pending} onChange={(e) => editor.setPending(Number(e.target.value))} /></label>
+            <label>{t(copy.formNotAutomated)}<input type="number" value={editor.notAuto} onChange={(e) => editor.setNotAuto(Number(e.target.value))} /></label>
+          </div>
         </fieldset>
 
         <fieldset className="project-data-page__section">
@@ -177,10 +157,16 @@ function ReleaseEditor({
     <div className="project-data-page__item">
       <div className="project-data-page__grid">
         <label>{t(copy.version)}<input value={release.version} onChange={(e) => onChange(index, { version: e.target.value })} /></label>
-        <label>{t(copy.date)}<input type="date" value={release.date} onChange={(e) => onChange(index, { date: e.target.value })} /></label>
+        <label>{t(copy.releasedDate)}<input type="date" value={release.released_date} onChange={(e) => onChange(index, { released_date: e.target.value })} /></label>
+        <label>{t(copy.verifiedDate)}<input type="date" value={release.verified_date} onChange={(e) => onChange(index, { verified_date: e.target.value })} /></label>
         <label>{t(copy.status)}<select value={release.status} onChange={(e) => onChange(index, { status: e.target.value as ReleaseDraft['status'] })}>
           {RELEASE_STATUSES.map((status) => <option key={status} value={status}>{status}</option>)}
         </select></label>
+      </div>
+      <div className="project-data-page__grid">
+        <label>{t(copy.testsPass)}<input type="number" value={release.tests_pass} onChange={(e) => onChange(index, { tests_pass: Number(e.target.value) })} /></label>
+        <label>{t(copy.testsFail)}<input type="number" value={release.tests_fail} onChange={(e) => onChange(index, { tests_fail: Number(e.target.value) })} /></label>
+        <label>{t(copy.testsNotTested)}<input type="number" value={release.tests_not_tested} onChange={(e) => onChange(index, { tests_not_tested: Number(e.target.value) })} /></label>
       </div>
       <div className="project-data-page__grid">
         <label>{t(copy.issueCountA)}<input type="number" value={release.issue_count_a} onChange={(e) => onChange(index, { issue_count_a: Number(e.target.value) })} /></label>
@@ -188,7 +174,7 @@ function ReleaseEditor({
         <label>{t(copy.issueCountC)}<input type="number" value={release.issue_count_c} onChange={(e) => onChange(index, { issue_count_c: Number(e.target.value) })} /></label>
       </div>
       <label>{t(copy.releaseNotes)}<textarea value={release.release_notes} onChange={(e) => onChange(index, { release_notes: e.target.value })} /></label>
-      <button type="button" className="maintenance-form__secondary" onClick={() => onRemove(index)}>{t(copy.cancel)}</button>
+      <button type="button" className="maintenance-form__secondary" onClick={() => onRemove(index)}>{t(copy.delete)}</button>
     </div>
   );
 }
@@ -213,10 +199,9 @@ function NoteEditor({
           <option value={1}>1</option>
           <option value={2}>2</option>
         </select></label>
-        <label>{t(copy.author)}<input value={note.author} onChange={(e) => onChange(index, { author: e.target.value })} /></label>
       </div>
       <label>{t(copy.note)}<textarea value={note.note_text} onChange={(e) => onChange(index, { note_text: e.target.value })} /></label>
-      <button type="button" className="maintenance-form__secondary" onClick={() => onRemove(index)}>{t(copy.cancel)}</button>
+      <button type="button" className="maintenance-form__secondary" onClick={() => onRemove(index)}>{t(copy.delete)}</button>
     </div>
   );
 }

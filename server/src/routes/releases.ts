@@ -10,12 +10,36 @@ releasesRouter.get(
   asyncHandler(async (req, res) => {
     const weekId = req.query.week_id as string | undefined;
     const projectId = req.query.project_id as string | undefined;
-    if (!weekId || !projectId) {
+    const releasedBefore = req.query.released_before as string | undefined;
+    const rawLimit = req.query.limit as string | undefined;
+    const parsedLimit = rawLimit ? Number(rawLimit) : null;
+
+    if (!projectId) {
       res.json([]);
       return;
     }
+
+    if (releasedBefore) {
+      const rows = await query(
+        `select *
+         from release_versions
+         where project_id = $1
+           and released_date <= $2
+         order by released_date desc, created_at desc
+         limit $3`,
+        [projectId, releasedBefore, Number.isFinite(parsedLimit) && parsedLimit ? parsedLimit : 5]
+      );
+      res.json(rows);
+      return;
+    }
+
+    if (!weekId) {
+      res.json([]);
+      return;
+    }
+
     const rows = await query(
-      'select * from release_versions where week_id = $1 and project_id = $2 order by date desc',
+      'select * from release_versions where week_id = $1 and project_id = $2 order by released_date desc, created_at desc',
       [weekId, projectId]
     );
     res.json(rows);
@@ -28,14 +52,18 @@ releasesRouter.post(
     const body = parseBody(releaseSchema, req.body);
     const row = await queryOne(
       `insert into release_versions
-        (week_id, project_id, version, date, status, issue_count_a, issue_count_b, issue_count_c, release_notes)
-       values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning *`,
+        (week_id, project_id, version, released_date, verified_date, status, tests_pass, tests_fail, tests_not_tested, issue_count_a, issue_count_b, issue_count_c, release_notes)
+       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) returning *`,
       [
         body.week_id,
         body.project_id,
         body.version,
-        body.date,
+        body.released_date,
+        body.verified_date,
         body.status,
+        body.tests_pass,
+        body.tests_fail,
+        body.tests_not_tested,
         body.issue_count_a,
         body.issue_count_b,
         body.issue_count_c,
@@ -51,15 +79,21 @@ releasesRouter.put(
   asyncHandler(async (req, res) => {
     const body = parseBody(releaseSchema, req.body);
     const row = await queryOne(
-      `update release_versions set week_id = $1, project_id = $2, version = $3, date = $4, status = $5,
-         issue_count_a = $6, issue_count_b = $7, issue_count_c = $8, release_notes = $9, updated_at = now()
-       where id = $10 returning *`,
+      `update release_versions
+       set week_id = $1, project_id = $2, version = $3, released_date = $4, verified_date = $5, status = $6,
+         tests_pass = $7, tests_fail = $8, tests_not_tested = $9, issue_count_a = $10, issue_count_b = $11,
+         issue_count_c = $12, release_notes = $13, updated_at = now()
+       where id = $14 returning *`,
       [
         body.week_id,
         body.project_id,
         body.version,
-        body.date,
+        body.released_date,
+        body.verified_date,
         body.status,
+        body.tests_pass,
+        body.tests_fail,
+        body.tests_not_tested,
         body.issue_count_a,
         body.issue_count_b,
         body.issue_count_c,

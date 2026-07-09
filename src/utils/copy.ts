@@ -281,9 +281,29 @@ export const copy = {
     en: 'Date',
     pt: 'Data'
   },
+  releasedDate: {
+    en: 'Released date',
+    pt: 'Data de release'
+  },
+  verifiedDate: {
+    en: 'Verified date',
+    pt: 'Data de verificacao'
+  },
   status: {
     en: 'Status',
     pt: 'Status'
+  },
+  testsPass: {
+    en: 'Tests pass',
+    pt: 'Testes aprovados'
+  },
+  testsFail: {
+    en: 'Tests fail',
+    pt: 'Testes falhos'
+  },
+  testsNotTested: {
+    en: 'Tests not tested',
+    pt: 'Testes nao executados'
   },
   criticalIssues: {
     en: 'Critical issues',
@@ -300,6 +320,10 @@ export const copy = {
   author: {
     en: 'Author',
     pt: 'Autor'
+  },
+  delete: {
+    en: 'Delete',
+    pt: 'Excluir'
   },
   note: {
     en: 'Note',

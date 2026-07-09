@@ -55,13 +55,21 @@ on conflict (week_id, project_id) do update set
   pending_auto_count = excluded.pending_auto_count,
   not_auto_count = excluded.not_auto_count;
 
-insert into release_versions (week_id, project_id, version, date, status, issue_count_a, issue_count_b, issue_count_c, release_notes)
-select w.id, p.id, data.version, data.release_date, data.status, data.issue_count_a, data.issue_count_b, data.issue_count_c, data.release_notes
+insert into release_versions (
+  week_id, project_id, version, released_date, verified_date, status,
+  tests_pass, tests_fail, tests_not_tested, issue_count_a, issue_count_b, issue_count_c, release_notes
+)
+select
+  w.id, p.id, data.version, data.released_date, data.verified_date, data.status,
+  data.tests_pass, data.tests_fail, data.tests_not_tested, data.issue_count_a, data.issue_count_b, data.issue_count_c, data.release_notes
 from (
   values
-    (27, 'HAM', 'v2.7.0', '2026-07-03', 'Approved', 0, 1, 0, 'Mixer stability fixes and audio route validation'),
-    (27, 'HAI', 'v1.9.2', '2026-07-02', 'Conditionally Approved', 1, 0, 2, 'Model retuning and fallback improvements')
-) as data(week_number, project_code, version, release_date, status, issue_count_a, issue_count_b, issue_count_c, release_notes)
+    (27, 'HAM', 'v2.7.0', '2026-07-03', '2026-07-04', 'Approved', 42, 0, 3, 0, 1, 0, 'Mixer stability fixes and audio route validation'),
+    (27, 'HAI', 'v1.9.2', '2026-07-02', '2026-07-05', 'Conditionally Approved', 28, 2, 8, 1, 0, 2, 'Model retuning and fallback improvements')
+) as data(
+  week_number, project_code, version, released_date, verified_date, status,
+  tests_pass, tests_fail, tests_not_tested, issue_count_a, issue_count_b, issue_count_c, release_notes
+)
 join weeks w on w.week_number = data.week_number
 join projects p on p.code = data.project_code;
 

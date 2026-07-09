@@ -19,7 +19,7 @@ beforeEach(() => vi.clearAllMocks());
 it('returns empty and does not fetch when ids are missing (disabled)', async () => {
   const issues = renderHook(() => useIssueHistory(null));
   const notes = renderHook(() => useNotes(null, null));
-  const releases = renderHook(() => useReleases('w1', null));
+  const releases = renderHook(() => useReleases({ id: 'w1', end_date: '2026-07-05' }, null));
   const dist = renderHook(() => useTestCaseDistribution(null, 'p1'));
 
   await waitFor(() => expect(issues.result.current.data).toEqual([]));

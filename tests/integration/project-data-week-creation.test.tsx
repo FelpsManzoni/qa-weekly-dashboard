@@ -17,7 +17,7 @@ const fetchProjectData = vi.fn().mockImplementation((request: { week_id?: string
       data: {
         issueMetric: { id: 'im1', week_id: 'w1', project_id: 'p1', reported_count: 4, fixed_count: 3 },
         testCase: { id: 'tc1', week_id: 'w1', project_id: 'p1', automated_count: 8, pending_auto_count: 2, not_auto_count: 1 },
-        releases: [{ id: 'r1', week_id: 'w1', project_id: 'p1', version: 'v1.0.0', date: '2026-07-03', status: 'Approved', issue_count_a: 1, issue_count_b: 0, issue_count_c: 0, release_notes: 'Existing release' }],
+        releases: [{ id: 'r1', week_id: 'w1', project_id: 'p1', version: 'v1.0.0', released_date: '2026-07-03', verified_date: '2026-07-04', status: 'Approved', tests_pass: 10, tests_fail: 1, tests_not_tested: 0, issue_count_a: 1, issue_count_b: 0, issue_count_c: 0, release_notes: 'Existing release' }],
         notes: [{ id: 'n1', week_id: 'w1', project_id: 'p1', priority: 1, note_text: 'Existing note', author: 'QA' }]
       },
       error: null
@@ -82,6 +82,15 @@ vi.mock('../../src/api/releases', () => ({
 vi.mock('../../src/api/notes', () => ({
   saveNote: (payload: unknown) => saveNote(payload)
 }));
+vi.mock('../../src/hooks/useAuth', () => ({
+  useAuth: () => ({
+    user: { id: 'u1', username: 'qauser', email: 'qa@example.com', display_name: 'QA User' },
+    isLoading: false,
+    login: vi.fn(),
+    register: vi.fn(),
+    logout: vi.fn()
+  })
+}));
 
 vi.mock('../../src/api/client', async () => {
   const actual = await vi.importActual<typeof import('../../src/api/client')>('../../src/api/client');
@@ -103,9 +112,6 @@ it('saves first project data for a newly selected week', async () => {
     })
   );
 
-  fireEvent.click(screen.getAllByRole('checkbox', { name: /Active/i })[0]);
-  fireEvent.click(screen.getAllByRole('checkbox', { name: /Active/i })[1]);
-
   fireEvent.change(screen.getByLabelText(/Reported/i), { target: { value: '7' } });
   fireEvent.change(screen.getByLabelText(/Fixed/i), { target: { value: '5' } });
   fireEvent.change(screen.getByLabelText(/^Automated$/i), { target: { value: '10' } });
@@ -116,7 +122,11 @@ it('saves first project data for a newly selected week', async () => {
   fireEvent.click(screen.getAllByRole('button', { name: /\+ New/i })[1]);
 
   fireEvent.change(screen.getByLabelText(/Version/i), { target: { value: 'v2.8.0' } });
-  fireEvent.change(screen.getByLabelText(/^Date$/i), { target: { value: '2026-07-10' } });
+  fireEvent.change(screen.getByLabelText(/Released date/i), { target: { value: '2026-07-10' } });
+  fireEvent.change(screen.getByLabelText(/Verified date/i), { target: { value: '2026-07-11' } });
+  fireEvent.change(screen.getByLabelText(/Tests pass/i), { target: { value: '12' } });
+  fireEvent.change(screen.getByLabelText(/Tests fail/i), { target: { value: '2' } });
+  fireEvent.change(screen.getByLabelText(/Tests not tested/i), { target: { value: '1' } });
   fireEvent.change(screen.getByLabelText(/Category A/i), { target: { value: '2' } });
   fireEvent.change(screen.getByLabelText(/Category B/i), { target: { value: '1' } });
   fireEvent.change(screen.getByLabelText(/Category C/i), { target: { value: '0' } });
@@ -160,8 +170,12 @@ it('saves first project data for a newly selected week', async () => {
       week_id: 'w28',
       project_id: 'p1',
       version: 'v2.8.0',
-      date: '2026-07-10',
+      released_date: '2026-07-10',
+      verified_date: '2026-07-11',
       status: 'Approved',
+      tests_pass: 12,
+      tests_fail: 2,
+      tests_not_tested: 1,
       issue_count_a: 2,
       issue_count_b: 1,
       issue_count_c: 0,
@@ -175,7 +189,7 @@ it('saves first project data for a newly selected week', async () => {
       project_id: 'p1',
       priority: 0,
       note_text: 'Start smoke coverage',
-      author: null
+      author: 'QA User'
     })
   );
   await waitFor(() =>
