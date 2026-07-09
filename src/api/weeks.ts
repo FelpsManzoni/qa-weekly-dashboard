@@ -1,8 +1,9 @@
-import { apiGet, apiPost, apiPut } from './client';
+import { apiGet, apiPost, apiPut, queryString } from './client';
 import type { Week, ApiItemResponse, ApiListResponse } from '../types';
 
-export async function fetchWeeks(): Promise<ApiListResponse<Week>> {
-  const { data, error } = await apiGet<Week[]>('/weeks');
+export async function fetchWeeks(projectId?: string | null): Promise<ApiListResponse<Week>> {
+  const qs = projectId ? queryString({ project_id: projectId }) : '';
+  const { data, error } = await apiGet<Week[]>(`/weeks${qs}`);
   return { data: data ?? [], error };
 }
 

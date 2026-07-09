@@ -27,9 +27,20 @@ releasesRouter.post(
   asyncHandler(async (req, res) => {
     const body = parseBody(releaseSchema, req.body);
     const row = await queryOne(
-      `insert into release_versions (week_id, project_id, version, date, status, critical_issues, changelog)
-       values ($1, $2, $3, $4, $5, $6, $7) returning *`,
-      [body.week_id, body.project_id, body.version, body.date, body.status, body.critical_issues ?? null, body.changelog ?? null]
+      `insert into release_versions
+        (week_id, project_id, version, date, status, issue_count_a, issue_count_b, issue_count_c, release_notes)
+       values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning *`,
+      [
+        body.week_id,
+        body.project_id,
+        body.version,
+        body.date,
+        body.status,
+        body.issue_count_a,
+        body.issue_count_b,
+        body.issue_count_c,
+        body.release_notes ?? null
+      ]
     );
     res.status(201).json(row);
   })
@@ -41,9 +52,20 @@ releasesRouter.put(
     const body = parseBody(releaseSchema, req.body);
     const row = await queryOne(
       `update release_versions set week_id = $1, project_id = $2, version = $3, date = $4, status = $5,
-         critical_issues = $6, changelog = $7, updated_at = now()
-       where id = $8 returning *`,
-      [body.week_id, body.project_id, body.version, body.date, body.status, body.critical_issues ?? null, body.changelog ?? null, req.params.id]
+         issue_count_a = $6, issue_count_b = $7, issue_count_c = $8, release_notes = $9, updated_at = now()
+       where id = $10 returning *`,
+      [
+        body.week_id,
+        body.project_id,
+        body.version,
+        body.date,
+        body.status,
+        body.issue_count_a,
+        body.issue_count_b,
+        body.issue_count_c,
+        body.release_notes ?? null,
+        req.params.id
+      ]
     );
     if (!row) throw new HttpError(404, 'Release not found', 'NOT_FOUND');
     res.json(row);

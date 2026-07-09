@@ -21,16 +21,23 @@ export type ApiItemResponse<T> = {
 export type Week = {
   id: string;
   week_number: number;
+  calendar_year: number;
   start_date: string;
   end_date: string;
   is_active: boolean;
 };
+
+export const RELEASE_STATUSES = ['Approved', 'Failed', 'Conditionally Approved', 'Blocked'] as const;
+export type ReleaseStatus = (typeof RELEASE_STATUSES)[number];
 
 export type Project = {
   id: string;
   code: string;
   name: string;
   description: string | null;
+  lead_qa_user_id: string | null;
+  client: string | null;
+  main_technology_scope: string | null;
   display_order: number;
   is_active: boolean;
 };
@@ -58,9 +65,11 @@ export type ReleaseVersion = {
   project_id: string;
   version: string;
   date: string;
-  status: string;
-  critical_issues: string | null;
-  changelog: string | null;
+  status: ReleaseStatus;
+  issue_count_a: number;
+  issue_count_b: number;
+  issue_count_c: number;
+  release_notes: string | null;
 };
 
 export type PriorityNote = {
@@ -92,6 +101,15 @@ export type DashboardSelection = {
   selectedWeekId: string | null;
   selectedProjectId: string | null;
 };
+
+export type ProjectDataPayload = {
+  issueMetric: IssueMetric | null;
+  testCase: TestCaseDistribution | null;
+  releases: ReleaseVersion[];
+  notes: PriorityNote[];
+};
+
+export type AppSection = 'dashboard' | 'projects' | 'project-data';
 
 export type MaintenanceMode =
   | 'weeks'

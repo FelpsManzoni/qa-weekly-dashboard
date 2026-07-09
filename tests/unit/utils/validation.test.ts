@@ -6,10 +6,10 @@ it('requireNonNegative flags negatives only', () => {
 });
 
 it('validateWeek enforces range and date order', () => {
-  expect(validateWeek({ week_number: 0, start_date: '2026-01-01', end_date: '2026-01-08' })).toMatch(/between 1 and 53/);
-  expect(validateWeek({ week_number: 54, start_date: '2026-01-01', end_date: '2026-01-08' })).toMatch(/between 1 and 53/);
-  expect(validateWeek({ week_number: 5, start_date: '2026-01-08', end_date: '2026-01-01' })).toMatch(/after start date/);
-  expect(validateWeek({ week_number: 5, start_date: '2026-01-01', end_date: '2026-01-08' })).toBeNull();
+  expect(validateWeek({ week_number: 0, calendar_year: 2026, start_date: '2026-01-01', end_date: '2026-01-08' })).toMatch(/between 1 and 53/);
+  expect(validateWeek({ week_number: 54, calendar_year: 2026, start_date: '2026-01-01', end_date: '2026-01-08' })).toMatch(/between 1 and 53/);
+  expect(validateWeek({ week_number: 5, calendar_year: 2026, start_date: '2026-01-08', end_date: '2026-01-01' })).toMatch(/after start date/);
+  expect(validateWeek({ week_number: 5, calendar_year: 2026, start_date: '2026-01-01', end_date: '2026-01-08' })).toBeNull();
 });
 
 it('validateProject enforces code format and name', () => {

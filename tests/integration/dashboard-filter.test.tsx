@@ -13,8 +13,8 @@ vi.mock('../../src/hooks/useAuth', () => ({
 
 vi.mock('../../src/hooks/useWeeks', () => ({
   useWeeks: () => ({
-    data: [{ id: 'w1', week_number: 27, start_date: '2026-06-29', end_date: '2026-07-05', is_active: true }],
-    activeWeeks: [{ id: 'w1', week_number: 27, start_date: '2026-06-29', end_date: '2026-07-05', is_active: true }],
+    data: [{ id: 'w1', week_number: 27, calendar_year: 2026, start_date: '2026-06-29', end_date: '2026-07-05', is_active: true }],
+    activeWeeks: [{ id: 'w1', week_number: 27, calendar_year: 2026, start_date: '2026-06-29', end_date: '2026-07-05', is_active: true }],
     refresh: vi.fn(),
     isLoading: false,
     error: null
@@ -23,8 +23,8 @@ vi.mock('../../src/hooks/useWeeks', () => ({
 
 vi.mock('../../src/hooks/useProjects', () => ({
   useProjects: () => ({
-    data: [{ id: 'p1', code: 'HAM', name: 'Harman Audio Mixer', description: 'Audio', display_order: 1, is_active: true }],
-    activeProjects: [{ id: 'p1', code: 'HAM', name: 'Harman Audio Mixer', description: 'Audio', display_order: 1, is_active: true }],
+    data: [{ id: 'p1', code: 'HAM', name: 'Harman Audio Mixer', description: 'Audio', lead_qa_user_id: null, client: null, main_technology_scope: null, display_order: 1, is_active: true }],
+    activeProjects: [{ id: 'p1', code: 'HAM', name: 'Harman Audio Mixer', description: 'Audio', lead_qa_user_id: null, client: null, main_technology_scope: null, display_order: 1, is_active: true }],
     refresh: vi.fn(),
     isLoading: false,
     error: null
@@ -41,5 +41,5 @@ it('renders the filter flow', async () => {
   expect(screen.getByRole('heading', { name: /Weekly report/i })).toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: /Week 27/i }));
   fireEvent.click(screen.getByRole('button', { name: /HAM/i }));
-  await waitFor(() => expect(screen.getByText(/Projects \/ modules/i)).toBeInTheDocument());
+  await waitFor(() => expect(screen.getAllByText(/Projects \/ modules/i).length).toBeGreaterThan(0));
 });

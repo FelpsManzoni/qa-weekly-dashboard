@@ -57,7 +57,7 @@ issuesRouter.get(
       `select im.* from issue_metrics im
        join weeks w on w.id = im.week_id
        where im.project_id = $1
-       order by w.week_number asc`,
+       order by w.start_date asc`,
       [projectId]
     );
     res.json(rows);

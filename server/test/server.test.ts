@@ -99,3 +99,74 @@ it('upserts an issue metric', async () => {
   expect(res.status).toBe(201);
   expect(res.body.id).toBe('i1');
 });
+
+it('rejects a week that does not start on Monday', async () => {
+  const token = await registerAndToken();
+  const res = await request(app)
+    .post('/api/weeks')
+    .set('Authorization', `Bearer ${token}`)
+    .send({ week_number: 5, calendar_year: 2026, start_date: '2026-01-01', end_date: '2026-01-08', is_active: true });
+  expect(res.status).toBe(400);
+  expect(res.body.error.code).toBe('VALIDATION_ERROR');
+});
+
+it('rejects a release with an unsupported status', async () => {
+  const token = await registerAndToken();
+  const res = await request(app)
+    .post('/api/releases')
+    .set('Authorization', `Bearer ${token}`)
+    .send({
+      week_id: '00000000-0000-0000-0000-000000000001',
+      project_id: '00000000-0000-0000-0000-000000000002',
+      version: 'v1',
+      date: '2026-07-03',
+      status: 'Ready'
+    });
+  expect(res.status).toBe(400);
+  expect(res.body.error.code).toBe('VALIDATION_ERROR');
+});
+
+it('accepts a valid release with structured issue counts', async () => {
+  const token = await registerAndToken();
+  queryOne.mockResolvedValueOnce({ id: 'rv1' });
+  const res = await request(app)
+    .post('/api/releases')
+    .set('Authorization', `Bearer ${token}`)
+    .send({
+      week_id: '00000000-0000-0000-0000-000000000001',
+      project_id: '00000000-0000-0000-0000-000000000002',
+      version: 'v1',
+      date: '2026-07-03',
+      status: 'Approved',
+      issue_count_a: 1,
+      issue_count_b: 2,
+      issue_count_c: 3,
+      release_notes: 'Notes'
+    });
+  expect(res.status).toBe(201);
+  expect(res.body.id).toBe('rv1');
+});
+
+it('lists users', async () => {
+  const token = await registerAndToken();
+  query.mockResolvedValueOnce([{ id: 'u2', username: 'qa2', email: 'qa2@e.com', display_name: 'QA Two' }]);
+  const res = await request(app).get('/api/users').set('Authorization', `Bearer ${token}`);
+  expect(res.status).toBe(200);
+  expect(res.body).toHaveLength(1);
+  expect(res.body[0].username).toBe('qa2');
+});
+
+it('returns aggregated project data', async () => {
+  const token = await registerAndToken();
+  queryOne.mockResolvedValueOnce({ id: 'im1', reported_count: 1, fixed_count: 1 });
+  queryOne.mockResolvedValueOnce(null);
+  query.mockResolvedValueOnce([]);
+  query.mockResolvedValueOnce([]);
+  const res = await request(app)
+    .get('/api/project-data?week_id=00000000-0000-0000-0000-000000000001&project_id=00000000-0000-0000-0000-000000000002')
+    .set('Authorization', `Bearer ${token}`);
+  expect(res.status).toBe(200);
+  expect(res.body.issueMetric.id).toBe('im1');
+  expect(res.body.releases).toEqual([]);
+});
+

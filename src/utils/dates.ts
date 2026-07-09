@@ -6,6 +6,16 @@ export function formatDate(date: string): string {
   return new Intl.DateTimeFormat('en-GB').format(parsed);
 }
 
+// dd/mm/yyyy with zero-padding, used for release dates in the spec.
+export function formatDateBr(date: string): string {
+  const parsed = new Date(date);
+  const day = String(parsed.getUTCDate()).padStart(2, '0');
+  const month = String(parsed.getUTCMonth() + 1).padStart(2, '0');
+  const year = parsed.getUTCFullYear();
+
+  return `${day}/${month}/${year}`;
+}
+
 export function formatWeekRange(week: Week): string {
   return `${formatDate(week.start_date)} - ${formatDate(week.end_date)}`;
 }

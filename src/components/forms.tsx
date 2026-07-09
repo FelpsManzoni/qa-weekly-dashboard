@@ -9,7 +9,9 @@ import { copy, maintenanceTitles } from '../utils/copy';
 import { usePreferences } from '../hooks/usePreferences';
 import { validateNote, validateProject, validateWeek, requireNonNegative } from '../utils/validation';
 import { useEditLock } from '../hooks/useEditLock';
-import type { IssueMetric, PriorityNote, Project, ReleaseVersion, TestCaseDistribution, Week } from '../types';
+import { useUsers } from '../hooks/useUsers';
+import type { IssueMetric, PriorityNote, Project, ReleaseStatus, ReleaseVersion, TestCaseDistribution, Week } from '../types';
+import { RELEASE_STATUSES } from '../types';
 import './shared/Form.css';
 
 type SaveHandler = () => void;
@@ -85,13 +87,25 @@ export function WeekForm({ selected, onSaved }: { selected: Week | null; onSaved
 }
 
 export function ProjectForm({ selected, onSaved }: { selected: Project | null; onSaved: SaveHandler }) {
-  const [values, setValues] = useState({ code: '', name: '', description: '', display_order: 1, is_active: true });
+  const [values, setValues] = useState({ code: '', name: '', description: '', client: '', main_technology_scope: '', lead_qa_user_id: '', display_order: 1, is_active: true });
   const [error, setError] = useState<string | null>(null);
   const lock = useEditLock('projects', selected?.id ?? null, Boolean(selected?.id));
   const { t } = usePreferences();
+  const users = useUsers();
 
   useEffect(() => {
-    if (selected) setValues({ ...selected, description: selected.description ?? '' });
+    if (selected) {
+      setValues({
+        code: selected.code,
+        name: selected.name,
+        description: selected.description ?? '',
+        client: selected.client ?? '',
+        main_technology_scope: selected.main_technology_scope ?? '',
+        lead_qa_user_id: selected.lead_qa_user_id ?? '',
+        display_order: selected.display_order,
+        is_active: selected.is_active
+      });
+    }
   }, [selected]);
 
   const handleSubmit = async (event: FormEvent) => {
@@ -99,7 +113,18 @@ export function ProjectForm({ selected, onSaved }: { selected: Project | null; o
     if (lock.error) return setError(lock.error);
     const validation = validateProject(values as Project);
     if (validation) return setError(validation);
-    const response = await saveProject({ ...selected, ...values });
+    const payload: Partial<Project> = {
+      ...selected,
+      code: values.code,
+      name: values.name,
+      description: values.description || null,
+      client: values.client || null,
+      main_technology_scope: values.main_technology_scope || null,
+      lead_qa_user_id: values.lead_qa_user_id || null,
+      display_order: values.display_order,
+      is_active: values.is_active
+    };
+    const response = await saveProject(payload);
     setError(response.error?.message ?? null);
     if (!response.error) {
       await lock.release();
@@ -118,7 +143,18 @@ export function ProjectForm({ selected, onSaved }: { selected: Project | null; o
         <label>{t(copy.order)}<input type="number" value={values.display_order} onChange={(e) => setValues({ ...values, display_order: Number(e.target.value) })} /></label>
       </div>
       <label>{t(copy.description)}<textarea value={values.description} onChange={(e) => setValues({ ...values, description: e.target.value })} /></label>
-      <FormActions onCancel={() => { if (selected) setValues({ ...selected, description: selected.description ?? '' }); void lock.release(); }} />
+      <label>{t(copy.leadQa)}<select value={values.lead_qa_user_id} onChange={(e) => setValues({ ...values, lead_qa_user_id: e.target.value })}>
+        <option value="">{t(copy.selectProject)}</option>
+        {users.data.map((user) => (
+          <option key={user.id} value={user.id}>{user.display_name || user.username}</option>
+        ))}
+      </select></label>
+      <div className="maintenance-form__grid">
+        <label>{t(copy.client)}<input value={values.client} onChange={(e) => setValues({ ...values, client: e.target.value })} /></label>
+        <label>{t(copy.mainTechScope)}<input value={values.main_technology_scope} onChange={(e) => setValues({ ...values, main_technology_scope: e.target.value })} /></label>
+      </div>
+      <label className="maintenance-form__checkbox"><input type="checkbox" checked={values.is_active} onChange={(e) => setValues({ ...values, is_active: e.target.checked })} /> {t(copy.active)}</label>
+      <FormActions onCancel={() => { if (selected) setValues({ ...selected, description: selected.description ?? '', client: selected.client ?? '', main_technology_scope: selected.main_technology_scope ?? '', lead_qa_user_id: selected.lead_qa_user_id ?? '' }); void lock.release(); }} />
     </form>
   );
 }
@@ -207,7 +243,15 @@ export function TestCaseDistributionForm({ weekId, projectId, selected, onSaved 
 }
 
 export function ReleaseForm({ weekId, projectId, selected, onSaved }: { weekId: string | null; projectId: string | null; selected: ReleaseVersion | null; onSaved: SaveHandler }) {
-  const [values, setValues] = useState({ version: '', date: '', status: '', critical_issues: '', changelog: '' });
+  const [values, setValues] = useState({
+    version: '',
+    date: '',
+    status: 'Approved' as ReleaseStatus,
+    issue_count_a: 0,
+    issue_count_b: 0,
+    issue_count_c: 0,
+    release_notes: ''
+  });
   const [error, setError] = useState<string | null>(null);
   const lock = useEditLock('release_versions', selected?.id ?? null, Boolean(selected?.id));
   const { t } = usePreferences();
@@ -218,11 +262,13 @@ export function ReleaseForm({ weekId, projectId, selected, onSaved }: { weekId: 
         version: selected.version,
         date: selected.date,
         status: selected.status,
-        critical_issues: selected.critical_issues ?? '',
-        changelog: selected.changelog ?? ''
+        issue_count_a: selected.issue_count_a,
+        issue_count_b: selected.issue_count_b,
+        issue_count_c: selected.issue_count_c,
+        release_notes: selected.release_notes ?? ''
       });
     } else {
-      setValues({ version: '', date: '', status: '', critical_issues: '', changelog: '' });
+      setValues({ version: '', date: '', status: 'Approved', issue_count_a: 0, issue_count_b: 0, issue_count_c: 0, release_notes: '' });
     }
   }, [selected]);
 
@@ -246,10 +292,16 @@ export function ReleaseForm({ weekId, projectId, selected, onSaved }: { weekId: 
       <div className="maintenance-form__grid">
         <label>{t(copy.version)}<input value={values.version} onChange={(e) => setValues({ ...values, version: e.target.value })} /></label>
         <label>{t(copy.date)}<input type="date" value={values.date} onChange={(e) => setValues({ ...values, date: e.target.value })} /></label>
-        <label>{t(copy.status)}<input value={values.status} onChange={(e) => setValues({ ...values, status: e.target.value })} /></label>
+        <label>{t(copy.status)}<select value={values.status} onChange={(e) => setValues({ ...values, status: e.target.value as ReleaseStatus })}>
+          {RELEASE_STATUSES.map((status) => <option key={status} value={status}>{status}</option>)}
+        </select></label>
       </div>
-      <label>{t(copy.criticalIssues)}<textarea value={values.critical_issues} onChange={(e) => setValues({ ...values, critical_issues: e.target.value })} /></label>
-      <label>{t(copy.changelog)}<textarea value={values.changelog} onChange={(e) => setValues({ ...values, changelog: e.target.value })} /></label>
+      <div className="maintenance-form__grid">
+        <label>{t(copy.issueCountA)}<input type="number" value={values.issue_count_a} onChange={(e) => setValues({ ...values, issue_count_a: Number(e.target.value) })} /></label>
+        <label>{t(copy.issueCountB)}<input type="number" value={values.issue_count_b} onChange={(e) => setValues({ ...values, issue_count_b: Number(e.target.value) })} /></label>
+        <label>{t(copy.issueCountC)}<input type="number" value={values.issue_count_c} onChange={(e) => setValues({ ...values, issue_count_c: Number(e.target.value) })} /></label>
+      </div>
+      <label>{t(copy.releaseNotes)}<textarea value={values.release_notes} onChange={(e) => setValues({ ...values, release_notes: e.target.value })} /></label>
       <FormActions onCancel={() => void lock.release()} />
     </form>
   );

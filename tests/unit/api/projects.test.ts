@@ -12,11 +12,11 @@ it('fetches projects', async () => {
 });
 
 it('creates a new project (POST)', async () => {
-  const response = await saveProject({ code: 'HAM', name: 'Harman Audio Mixer', display_order: 1, is_active: true });
+  const response = await saveProject({ code: 'HAM', name: 'Harman Audio Mixer', lead_qa_user_id: null, client: null, main_technology_scope: null, display_order: 1, is_active: true });
   expect(response.error).toBeNull();
 });
 
 it('updates an existing project (PUT)', async () => {
-  const response = await saveProject({ id: 'p1', code: 'HAM', name: 'Harman', display_order: 2, is_active: true });
+  const response = await saveProject({ id: 'p1', code: 'HAM', name: 'Harman', lead_qa_user_id: null, client: null, main_technology_scope: null, display_order: 2, is_active: true });
   expect(response.data?.id).toBe('p1');
 });

@@ -23,7 +23,7 @@ beforeEach(() => {
   saveIssueMetric.mockResolvedValue({ data: { id: 'i1' }, error: null });
 });
 
-const release = { id: 'r1', week_id: 'w1', project_id: 'p1', version: 'v2.0', date: '2026-07-03', status: 'Ready', critical_issues: '', changelog: '' };
+const release = { id: 'r1', week_id: 'w1', project_id: 'p1', version: 'v2.0', date: '2026-07-03', status: 'Approved', issue_count_a: 0, issue_count_b: 0, issue_count_c: 0, release_notes: '' } as const;
 
 it('blocks save and shows a validation error for invalid week dates', async () => {
   render(<WeekForm selected={null} onSaved={vi.fn()} />);

@@ -14,8 +14,8 @@ it('renders history and highlights the selected week', () => {
         { id: 'i2', week_id: 'w2', project_id: 'p1', reported_count: 5, fixed_count: 4 }
       ]}
       weeks={[
-        { id: 'w1', week_number: 26, start_date: '2026-06-22', end_date: '2026-06-28', is_active: true },
-        { id: 'w2', week_number: 27, start_date: '2026-06-29', end_date: '2026-07-05', is_active: true }
+        { id: 'w1', week_number: 26, calendar_year: 2026, start_date: '2026-06-22', end_date: '2026-06-28', is_active: true },
+        { id: 'w2', week_number: 27, calendar_year: 2026, start_date: '2026-06-29', end_date: '2026-07-05', is_active: true }
       ]}
       selectedWeekId="w2"
     />

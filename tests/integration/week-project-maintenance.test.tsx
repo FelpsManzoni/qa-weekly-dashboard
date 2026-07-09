@@ -17,12 +17,10 @@ vi.mock('../../src/hooks/useWeeks', () => ({
 vi.mock('../../src/hooks/useProjects', () => ({
   useProjects: () => ({ data: [], activeProjects: [], refresh: vi.fn(), isLoading: false, error: null })
 }));
-vi.mock('../../src/hooks/useIssueHistory', () => ({ useIssueHistory: () => ({ data: [], refresh: vi.fn(), isLoading: false, error: null }) }));
-vi.mock('../../src/hooks/useTestCaseDistribution', () => ({ useTestCaseDistribution: () => ({ data: [], refresh: vi.fn(), isLoading: false, error: null }) }));
-vi.mock('../../src/hooks/useReleases', () => ({ useReleases: () => ({ data: [], refresh: vi.fn(), isLoading: false, error: null }) }));
-vi.mock('../../src/hooks/useNotes', () => ({ useNotes: () => ({ data: [], refresh: vi.fn(), isLoading: false, error: null }) }));
 
-it('shows maintenance forms', () => {
+it('renders the dashboard shell with the side menu sections', () => {
   render(<App />);
-  expect(screen.getAllByText(/Manage weeks/i)).toHaveLength(2);
+  expect(screen.getByRole('heading', { name: /Weekly report/i })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /Projects \/ modules/i })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /Project Data/i })).toBeInTheDocument();
 });

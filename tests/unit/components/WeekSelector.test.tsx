@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { WeekSelector } from '../../../src/components/WeekSelector/WeekSelector';
 
 const weeks = [
-  { id: 'w1', week_number: 27, start_date: '2026-06-29', end_date: '2026-07-05', is_active: true }
+  { id: 'w1', week_number: 27, calendar_year: 2026, start_date: '2026-06-29', end_date: '2026-07-05', is_active: true }
 ];
 
 it('renders weeks and supports selection', () => {

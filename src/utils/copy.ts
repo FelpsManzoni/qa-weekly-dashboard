@@ -17,6 +17,66 @@ export const copy = {
     en: 'Projects / modules',
     pt: 'Projetos / modulos'
   },
+  projectData: {
+    en: 'Project Data',
+    pt: 'Dados do Projeto'
+  },
+  leadQa: {
+    en: 'Lead QA',
+    pt: 'QA Lider'
+  },
+  client: {
+    en: 'Client',
+    pt: 'Cliente'
+  },
+  mainTechScope: {
+    en: 'Main Technology Scope',
+    pt: 'Escopo Principal de Tecnologia'
+  },
+  releaseNotes: {
+    en: 'Release notes',
+    pt: 'Notas do release'
+  },
+  issuesFound: {
+    en: 'Issues found',
+    pt: 'Issues encontradas'
+  },
+  issueCountA: {
+    en: 'Category A',
+    pt: 'Categoria A'
+  },
+  issueCountB: {
+    en: 'Category B',
+    pt: 'Categoria B'
+  },
+  issueCountC: {
+    en: 'Category C',
+    pt: 'Categoria C'
+  },
+  addProject: {
+    en: 'Add new',
+    pt: 'Adicionar'
+  },
+  selectProject: {
+    en: 'Select project',
+    pt: 'Selecionar projeto'
+  },
+  selectWeek: {
+    en: 'Select week',
+    pt: 'Selecionar semana'
+  },
+  calendar: {
+    en: 'Calendar',
+    pt: 'Calendario'
+  },
+  noWeeks: {
+    en: 'No weeks with data for this project yet.',
+    pt: 'Ainda nao ha semanas com dados para este projeto.'
+  },
+  languageLabel: {
+    en: 'Language',
+    pt: 'Idioma'
+  },
   issueHistory: {
     en: 'Issue history',
     pt: 'Historico de issues'
