@@ -1,11 +1,10 @@
-import { apiGet } from './client';
-import type { ApiItemResponse, ProjectDataPayload } from '../types';
+import { apiGet, queryString } from './client';
+import type { ApiItemResponse, ProjectDataPayload, ProjectDataRequest } from '../types';
 
 export async function fetchProjectData(
-  weekId: string,
-  projectId: string
+  request: ProjectDataRequest
 ): Promise<ApiItemResponse<ProjectDataPayload>> {
-  const qs = `?week_id=${encodeURIComponent(weekId)}&project_id=${encodeURIComponent(projectId)}`;
+  const qs = queryString(request);
   const { data, error } = await apiGet<ProjectDataPayload>(`/project-data${qs}`);
   return { data, error };
 }

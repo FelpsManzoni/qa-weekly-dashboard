@@ -4,8 +4,9 @@ import { saveIssueMetric } from '../api/issues';
 import { saveTestCaseDistribution } from '../api/testCases';
 import { saveRelease } from '../api/releases';
 import { saveNote } from '../api/notes';
+import { ensureWeek } from '../api/weeks';
 import { apiDelete } from '../api/client';
-import type { ReleaseStatus } from '../types';
+import type { ProjectDataRequest, ReleaseStatus, Week, WeekDraft } from '../types';
 
 export type ReleaseDraft = {
   id: string | null;
@@ -34,7 +35,25 @@ type Loaded = {
 
 const emptyLoaded: Loaded = { issueId: null, testId: null, releaseIds: [], noteIds: [] };
 
-export function useProjectDataEditor(weekId: string | null, projectId: string | null) {
+function resetLoadedState() {
+  return {
+    reported: 0,
+    fixed: 0,
+    issueEnabled: false,
+    automated: 0,
+    pending: 0,
+    notAuto: 0,
+    testEnabled: false,
+    releases: [] as ReleaseDraft[],
+    notes: [] as NoteDraft[]
+  };
+}
+
+export function useProjectDataEditor(
+  selectedWeek: WeekDraft | null,
+  projectId: string | null,
+  onWeekResolved?: (week: Week) => void
+) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -54,14 +73,31 @@ export function useProjectDataEditor(weekId: string | null, projectId: string | 
 
   const loadedRef = useRef<Loaded>(emptyLoaded);
 
-  const load = useCallback(async () => {
-    if (!weekId || !projectId) {
+  const reset = useCallback(() => {
+    const state = resetLoadedState();
+    setReported(state.reported);
+    setFixed(state.fixed);
+    setIssueEnabled(state.issueEnabled);
+    setAutomated(state.automated);
+    setPending(state.pending);
+    setNotAuto(state.notAuto);
+    setTestEnabled(state.testEnabled);
+    setReleases(state.releases);
+    setNotes(state.notes);
+    loadedRef.current = emptyLoaded;
+  }, []);
+
+  const loadByRequest = useCallback(async (request: ProjectDataRequest) => {
+    if (!projectId) {
+      reset();
+      setError(null);
+      setLoading(false);
       return;
     }
     setLoading(true);
     setError(null);
     try {
-      const { data, error: loadError } = await fetchProjectData(weekId, projectId);
+      const { data, error: loadError } = await fetchProjectData(request);
       if (loadError) {
         throw new Error(loadError.message);
       }
@@ -104,7 +140,22 @@ export function useProjectDataEditor(weekId: string | null, projectId: string | 
     } finally {
       setLoading(false);
     }
-  }, [weekId, projectId]);
+  }, [projectId, reset]);
+
+  const load = useCallback(async () => {
+    if (!selectedWeek || !projectId) {
+      reset();
+      setError(null);
+      setLoading(false);
+      return;
+    }
+
+    await loadByRequest({
+      project_id: projectId,
+      week_id: selectedWeek.id,
+      week_start_date: selectedWeek.start_date
+    });
+  }, [loadByRequest, projectId, reset, selectedWeek]);
 
   useEffect(() => {
     void load();
@@ -138,13 +189,28 @@ export function useProjectDataEditor(weekId: string | null, projectId: string | 
   }, []);
 
   const save = useCallback(async () => {
-    if (!weekId || !projectId) {
+    if (!selectedWeek || !projectId) {
       return;
     }
     setSaving(true);
     setSaveError(null);
     const loaded = loadedRef.current;
     try {
+      let weekId = selectedWeek.id;
+      if (!weekId) {
+        const ensured = await ensureWeek({
+          week_number: selectedWeek.week_number,
+          calendar_year: selectedWeek.calendar_year,
+          start_date: selectedWeek.start_date,
+          end_date: selectedWeek.end_date,
+          is_active: selectedWeek.is_active
+        });
+        if (ensured.error) throw new Error(ensured.error.message);
+        if (!ensured.data) throw new Error('Failed to create week');
+        weekId = ensured.data.id;
+        onWeekResolved?.(ensured.data);
+      }
+
       if (issueEnabled) {
         const res = await saveIssueMetric({
           id: loaded.issueId ?? '',
@@ -208,13 +274,17 @@ export function useProjectDataEditor(weekId: string | null, projectId: string | 
       }
 
       // Re-sync local ids so subsequent saves don't re-create records.
-      await load();
+      await loadByRequest({
+        project_id: projectId,
+        week_id: weekId,
+        week_start_date: selectedWeek.start_date
+      });
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : 'Failed to save');
     } finally {
       setSaving(false);
     }
-  }, [weekId, projectId, issueEnabled, reported, fixed, testEnabled, automated, pending, notAuto, releases, notes, load]);
+  }, [selectedWeek, projectId, issueEnabled, reported, fixed, testEnabled, automated, pending, notAuto, releases, notes, loadByRequest, onWeekResolved]);
 
   return {
     loading,

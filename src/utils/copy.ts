@@ -77,6 +77,10 @@ export const copy = {
     en: 'No weeks with data for this project yet.',
     pt: 'Ainda nao ha semanas com dados para este projeto.'
   },
+  noActiveWeeks: {
+    en: 'No active weeks are available yet.',
+    pt: 'Ainda nao ha semanas ativas disponiveis.'
+  },
   languageLabel: {
     en: 'Language',
     pt: 'Idioma'

@@ -27,6 +27,10 @@ export type Week = {
   is_active: boolean;
 };
 
+export type WeekDraft = Omit<Week, 'id'> & {
+  id: string | null;
+};
+
 export const RELEASE_STATUSES = ['Approved', 'Failed', 'Conditionally Approved', 'Blocked'] as const;
 export type ReleaseStatus = (typeof RELEASE_STATUSES)[number];
 
@@ -108,6 +112,12 @@ export type ProjectDataPayload = {
   testCase: TestCaseDistribution | null;
   releases: ReleaseVersion[];
   notes: PriorityNote[];
+};
+
+export type ProjectDataRequest = {
+  project_id: string;
+  week_id?: string | null;
+  week_start_date?: string | null;
 };
 
 export type AppSection = 'dashboard' | 'projects' | 'project-data';
