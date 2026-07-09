@@ -10,7 +10,8 @@ import {
   YAxis
 } from 'recharts';
 import { EmptyState } from '../EmptyState/EmptyState';
-import { bilingualText, copy } from '../../utils/copy';
+import { copy } from '../../utils/copy';
+import { usePreferences } from '../../hooks/usePreferences';
 import type { IssueMetric, Week } from '../../types';
 import './IssueHistoryChart.css';
 
@@ -21,8 +22,10 @@ type IssueHistoryChartProps = {
 };
 
 export function IssueHistoryChart({ metrics, weeks, selectedWeekId = null }: IssueHistoryChartProps) {
+  const { t } = usePreferences();
+
   if (!metrics.length) {
-    return <EmptyState title={bilingualText(copy.issueHistory)} body={bilingualText(copy.emptyGeneric)} />;
+    return <EmptyState title={t(copy.issueHistory)} body={t(copy.emptyGeneric)} />;
   }
 
   const data = metrics.map((metric) => {
@@ -41,7 +44,7 @@ export function IssueHistoryChart({ metrics, weeks, selectedWeekId = null }: Iss
 
   return (
     <section className="chart-card">
-      <div className="section-heading">{bilingualText(copy.issueHistory)}</div>
+      <div className="section-heading">{t(copy.issueHistory)}</div>
       <div className="chart-card__canvas">
         <ResponsiveContainer width="100%" height={260}>
           <LineChart data={data}>
@@ -51,8 +54,8 @@ export function IssueHistoryChart({ metrics, weeks, selectedWeekId = null }: Iss
             <Tooltip />
             <Legend />
             {selectedLabel ? <ReferenceLine x={selectedLabel} stroke="var(--brand-primary)" strokeDasharray="4 4" /> : null}
-            <Line dataKey="fixed" name="Fixed issues" stroke="var(--status-pass)" strokeWidth={3} />
-            <Line dataKey="reported" name="Reported issues" stroke="var(--status-fail)" strokeWidth={3} />
+            <Line dataKey="fixed" name={t(copy.fixedIssues)} stroke="var(--status-pass)" strokeWidth={3} />
+            <Line dataKey="reported" name={t(copy.reportedIssues)} stroke="var(--status-fail)" strokeWidth={3} />
           </LineChart>
         </ResponsiveContainer>
       </div>

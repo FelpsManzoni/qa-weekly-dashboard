@@ -1,12 +1,14 @@
 import { useState, type FormEvent } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { bilingualText, copy } from '../../utils/copy';
+import { copy } from '../../utils/copy';
+import { usePreferences } from '../../hooks/usePreferences';
 import './AuthScreen.css';
 
 type Mode = 'login' | 'register';
 
 export function AuthScreen() {
   const { login, register } = useAuth();
+  const { t } = usePreferences();
   const [mode, setMode] = useState<Mode>('login');
   const [values, setValues] = useState({ username: '', email: '', password: '', display_name: '' });
   const [error, setError] = useState<string | null>(null);
@@ -40,31 +42,31 @@ export function AuthScreen() {
     <div className="auth-screen">
       <form className="auth-card" onSubmit={handleSubmit}>
         <div className="auth-card__brand">SiDi QA</div>
-        <h1 className="auth-card__title">{bilingualText(mode === 'login' ? copy.signIn : copy.signUp)}</h1>
-        <p className="auth-card__subtitle">{bilingualText(copy.authSubtitle)}</p>
+        <h1 className="auth-card__title">{t(mode === 'login' ? copy.signIn : copy.signUp)}</h1>
+        <p className="auth-card__subtitle">{t(copy.authSubtitle)}</p>
 
         {error ? <div className="auth-card__error">{error}</div> : null}
 
         <label className="auth-card__field">
-          {bilingualText(copy.username)}
+          {t(copy.username)}
           <input value={values.username} onChange={update('username')} autoComplete="username" required />
         </label>
 
         {mode === 'register' ? (
           <>
             <label className="auth-card__field">
-              {bilingualText(copy.email)}
+              {t(copy.email)}
               <input type="email" value={values.email} onChange={update('email')} autoComplete="email" required />
             </label>
             <label className="auth-card__field">
-              {bilingualText(copy.displayName)}
+              {t(copy.displayName)}
               <input value={values.display_name} onChange={update('display_name')} autoComplete="name" />
             </label>
           </>
         ) : null}
 
         <label className="auth-card__field">
-          {bilingualText(copy.password)}
+          {t(copy.password)}
           <input
             type="password"
             value={values.password}
@@ -75,7 +77,7 @@ export function AuthScreen() {
         </label>
 
         <button className="auth-card__submit" type="submit" disabled={submitting}>
-          {bilingualText(mode === 'login' ? copy.signIn : copy.signUp)}
+          {t(mode === 'login' ? copy.signIn : copy.signUp)}
         </button>
 
         <button
@@ -86,7 +88,7 @@ export function AuthScreen() {
             setMode((current) => (current === 'login' ? 'register' : 'login'));
           }}
         >
-          {bilingualText(mode === 'login' ? copy.needAccount : copy.haveAccount)}
+          {t(mode === 'login' ? copy.needAccount : copy.haveAccount)}
         </button>
       </form>
     </div>

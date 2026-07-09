@@ -5,7 +5,8 @@ import { saveIssueMetric } from '../api/issues';
 import { saveTestCaseDistribution } from '../api/testCases';
 import { saveRelease } from '../api/releases';
 import { saveNote } from '../api/notes';
-import { bilingualText, copy } from '../utils/copy';
+import { copy, maintenanceTitles } from '../utils/copy';
+import { usePreferences } from '../hooks/usePreferences';
 import { validateNote, validateProject, validateWeek, requireNonNegative } from '../utils/validation';
 import { useEditLock } from '../hooks/useEditLock';
 import type { IssueMetric, PriorityNote, Project, ReleaseVersion, TestCaseDistribution, Week } from '../types';
@@ -14,13 +15,15 @@ import './shared/Form.css';
 type SaveHandler = () => void;
 
 function FormActions({ onCancel }: { onCancel: () => void }) {
+  const { t } = usePreferences();
+
   return (
     <div className="maintenance-form__actions">
       <button className="maintenance-form__primary" type="submit">
-        {bilingualText(copy.save)}
+        {t(copy.save)}
       </button>
       <button className="maintenance-form__secondary" onClick={onCancel} type="button">
-        {bilingualText(copy.cancel)}
+        {t(copy.cancel)}
       </button>
     </div>
   );
@@ -36,14 +39,15 @@ function LockNotice({ message }: { message: string | null }) {
 
 // Shared edit-lock message: shows the "locked by another editor" error, otherwise the
 // expiry hint while this user holds the lock.
-function lockMessage(lock: { error: string | null; lock: unknown }): string | null {
-  return lock.error || (lock.lock ? bilingualText(copy.lockExpires) : null);
+function lockMessage(lock: { error: string | null; lock: unknown }, t: (text: typeof copy.lockExpires) => string): string | null {
+  return lock.error || (lock.lock ? t(copy.lockExpires) : null);
 }
 
 export function WeekForm({ selected, onSaved }: { selected: Week | null; onSaved: SaveHandler }) {
   const [values, setValues] = useState({ week_number: 27, start_date: '', end_date: '', is_active: true });
   const [error, setError] = useState<string | null>(null);
   const lock = useEditLock('weeks', selected?.id ?? null, Boolean(selected?.id));
+  const { t } = usePreferences();
 
   useEffect(() => {
     if (selected) {
@@ -66,15 +70,15 @@ export function WeekForm({ selected, onSaved }: { selected: Week | null; onSaved
 
   return (
     <form className="maintenance-form" onSubmit={handleSubmit}>
-      <div className="section-heading">Manage weeks / Gerenciar semanas</div>
-      <LockNotice message={lockMessage(lock)} />
+      <div className="section-heading">{t(maintenanceTitles.weeks)}</div>
+      <LockNotice message={lockMessage(lock, t)} />
       {error ? <div className="maintenance-form__error">{error}</div> : null}
       <div className="maintenance-form__grid">
-        <label>Week number / Numero da semana<input type="number" value={values.week_number} onChange={(e) => setValues({ ...values, week_number: Number(e.target.value) })} /></label>
-        <label>Start date / Data inicial<input type="date" value={values.start_date} onChange={(e) => setValues({ ...values, start_date: e.target.value })} /></label>
-        <label>End date / Data final<input type="date" value={values.end_date} onChange={(e) => setValues({ ...values, end_date: e.target.value })} /></label>
+        <label>{t(copy.weekNumber)}<input type="number" value={values.week_number} onChange={(e) => setValues({ ...values, week_number: Number(e.target.value) })} /></label>
+        <label>{t(copy.startDate)}<input type="date" value={values.start_date} onChange={(e) => setValues({ ...values, start_date: e.target.value })} /></label>
+        <label>{t(copy.endDate)}<input type="date" value={values.end_date} onChange={(e) => setValues({ ...values, end_date: e.target.value })} /></label>
       </div>
-      <label><input checked={values.is_active} type="checkbox" onChange={(e) => setValues({ ...values, is_active: e.target.checked })} /> Active / Ativa</label>
+      <label><input checked={values.is_active} type="checkbox" onChange={(e) => setValues({ ...values, is_active: e.target.checked })} />  {t(copy.active)}</label>
       <FormActions onCancel={() => { if (selected) setValues(selected); void lock.release(); }} />
     </form>
   );
@@ -84,6 +88,7 @@ export function ProjectForm({ selected, onSaved }: { selected: Project | null; o
   const [values, setValues] = useState({ code: '', name: '', description: '', display_order: 1, is_active: true });
   const [error, setError] = useState<string | null>(null);
   const lock = useEditLock('projects', selected?.id ?? null, Boolean(selected?.id));
+  const { t } = usePreferences();
 
   useEffect(() => {
     if (selected) setValues({ ...selected, description: selected.description ?? '' });
@@ -104,15 +109,15 @@ export function ProjectForm({ selected, onSaved }: { selected: Project | null; o
 
   return (
     <form className="maintenance-form" onSubmit={handleSubmit}>
-      <div className="section-heading">Manage projects / Gerenciar projetos</div>
-      <LockNotice message={lockMessage(lock)} />
+      <div className="section-heading">{t(maintenanceTitles.projects)}</div>
+      <LockNotice message={lockMessage(lock, t)} />
       {error ? <div className="maintenance-form__error">{error}</div> : null}
       <div className="maintenance-form__grid">
-        <label>Code / Codigo<input value={values.code} onChange={(e) => setValues({ ...values, code: e.target.value.toUpperCase() })} /></label>
-        <label>Name / Nome<input value={values.name} onChange={(e) => setValues({ ...values, name: e.target.value })} /></label>
-        <label>Order / Ordem<input type="number" value={values.display_order} onChange={(e) => setValues({ ...values, display_order: Number(e.target.value) })} /></label>
+        <label>{t(copy.code)}<input value={values.code} onChange={(e) => setValues({ ...values, code: e.target.value.toUpperCase() })} /></label>
+        <label>{t(copy.name)}<input value={values.name} onChange={(e) => setValues({ ...values, name: e.target.value })} /></label>
+        <label>{t(copy.order)}<input type="number" value={values.display_order} onChange={(e) => setValues({ ...values, display_order: Number(e.target.value) })} /></label>
       </div>
-      <label>Description / Descricao<textarea value={values.description} onChange={(e) => setValues({ ...values, description: e.target.value })} /></label>
+      <label>{t(copy.description)}<textarea value={values.description} onChange={(e) => setValues({ ...values, description: e.target.value })} /></label>
       <FormActions onCancel={() => { if (selected) setValues({ ...selected, description: selected.description ?? '' }); void lock.release(); }} />
     </form>
   );
@@ -123,6 +128,7 @@ export function IssueMetricForm({ weekId, projectId, selected, onSaved }: { week
   const [fixed, setFixed] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const lock = useEditLock('issue_metrics', selected?.id ?? null, Boolean(selected?.id));
+  const { t } = usePreferences();
 
   useEffect(() => {
     setReported(selected?.reported_count ?? 0);
@@ -145,12 +151,12 @@ export function IssueMetricForm({ weekId, projectId, selected, onSaved }: { week
 
   return (
     <form className="maintenance-form" onSubmit={handleSubmit}>
-      <div className="section-heading">Manage issue metrics / Gerenciar metricas de issues</div>
-      <LockNotice message={lockMessage(lock)} />
+      <div className="section-heading">{t(maintenanceTitles.issues)}</div>
+      <LockNotice message={lockMessage(lock, t)} />
       {error ? <div className="maintenance-form__error">{error}</div> : null}
       <div className="maintenance-form__grid">
-        <label>Reported / Reportadas<input type="number" value={reported} onChange={(e) => setReported(Number(e.target.value))} /></label>
-        <label>Fixed / Corrigidas<input type="number" value={fixed} onChange={(e) => setFixed(Number(e.target.value))} /></label>
+        <label>{t(copy.reported)}<input type="number" value={reported} onChange={(e) => setReported(Number(e.target.value))} /></label>
+        <label>{t(copy.fixed)}<input type="number" value={fixed} onChange={(e) => setFixed(Number(e.target.value))} /></label>
       </div>
       <FormActions onCancel={() => { setReported(selected?.reported_count ?? 0); setFixed(selected?.fixed_count ?? 0); void lock.release(); }} />
     </form>
@@ -161,6 +167,7 @@ export function TestCaseDistributionForm({ weekId, projectId, selected, onSaved 
   const [values, setValues] = useState({ automated_count: 0, pending_auto_count: 0, not_auto_count: 0 });
   const [error, setError] = useState<string | null>(null);
   const lock = useEditLock('test_case_distributions', selected?.id ?? null, Boolean(selected?.id));
+  const { t } = usePreferences();
 
   useEffect(() => {
     setValues({
@@ -186,13 +193,13 @@ export function TestCaseDistributionForm({ weekId, projectId, selected, onSaved 
 
   return (
     <form className="maintenance-form" onSubmit={handleSubmit}>
-      <div className="section-heading">Manage test coverage / Gerenciar cobertura de testes</div>
-      <LockNotice message={lockMessage(lock)} />
+      <div className="section-heading">{t(maintenanceTitles['test-cases'])}</div>
+      <LockNotice message={lockMessage(lock, t)} />
       {error ? <div className="maintenance-form__error">{error}</div> : null}
       <div className="maintenance-form__grid">
-        <label>Automated / Automatizados<input type="number" value={values.automated_count} onChange={(e) => setValues({ ...values, automated_count: Number(e.target.value) })} /></label>
-        <label>Pending / Pendentes<input type="number" value={values.pending_auto_count} onChange={(e) => setValues({ ...values, pending_auto_count: Number(e.target.value) })} /></label>
-        <label>Not automated / Nao automatizados<input type="number" value={values.not_auto_count} onChange={(e) => setValues({ ...values, not_auto_count: Number(e.target.value) })} /></label>
+        <label>{t(copy.formAutomated)}<input type="number" value={values.automated_count} onChange={(e) => setValues({ ...values, automated_count: Number(e.target.value) })} /></label>
+        <label>{t(copy.formPending)}<input type="number" value={values.pending_auto_count} onChange={(e) => setValues({ ...values, pending_auto_count: Number(e.target.value) })} /></label>
+        <label>{t(copy.formNotAutomated)}<input type="number" value={values.not_auto_count} onChange={(e) => setValues({ ...values, not_auto_count: Number(e.target.value) })} /></label>
       </div>
       <FormActions onCancel={() => { setValues({ automated_count: selected?.automated_count ?? 0, pending_auto_count: selected?.pending_auto_count ?? 0, not_auto_count: selected?.not_auto_count ?? 0 }); void lock.release(); }} />
     </form>
@@ -203,6 +210,7 @@ export function ReleaseForm({ weekId, projectId, selected, onSaved }: { weekId: 
   const [values, setValues] = useState({ version: '', date: '', status: '', critical_issues: '', changelog: '' });
   const [error, setError] = useState<string | null>(null);
   const lock = useEditLock('release_versions', selected?.id ?? null, Boolean(selected?.id));
+  const { t } = usePreferences();
 
   useEffect(() => {
     if (selected) {
@@ -232,16 +240,16 @@ export function ReleaseForm({ weekId, projectId, selected, onSaved }: { weekId: 
 
   return (
     <form className="maintenance-form" onSubmit={handleSubmit}>
-      <div className="section-heading">Manage releases / Gerenciar releases</div>
-      <LockNotice message={lockMessage(lock)} />
+      <div className="section-heading">{t(maintenanceTitles.releases)}</div>
+      <LockNotice message={lockMessage(lock, t)} />
       {error ? <div className="maintenance-form__error">{error}</div> : null}
       <div className="maintenance-form__grid">
-        <label>Version / Versao<input value={values.version} onChange={(e) => setValues({ ...values, version: e.target.value })} /></label>
-        <label>Date / Data<input type="date" value={values.date} onChange={(e) => setValues({ ...values, date: e.target.value })} /></label>
-        <label>Status<input value={values.status} onChange={(e) => setValues({ ...values, status: e.target.value })} /></label>
+        <label>{t(copy.version)}<input value={values.version} onChange={(e) => setValues({ ...values, version: e.target.value })} /></label>
+        <label>{t(copy.date)}<input type="date" value={values.date} onChange={(e) => setValues({ ...values, date: e.target.value })} /></label>
+        <label>{t(copy.status)}<input value={values.status} onChange={(e) => setValues({ ...values, status: e.target.value })} /></label>
       </div>
-      <label>Critical issues / Issues criticas<textarea value={values.critical_issues} onChange={(e) => setValues({ ...values, critical_issues: e.target.value })} /></label>
-      <label>Changelog<textarea value={values.changelog} onChange={(e) => setValues({ ...values, changelog: e.target.value })} /></label>
+      <label>{t(copy.criticalIssues)}<textarea value={values.critical_issues} onChange={(e) => setValues({ ...values, critical_issues: e.target.value })} /></label>
+      <label>{t(copy.changelog)}<textarea value={values.changelog} onChange={(e) => setValues({ ...values, changelog: e.target.value })} /></label>
       <FormActions onCancel={() => void lock.release()} />
     </form>
   );
@@ -251,6 +259,7 @@ export function NoteForm({ weekId, projectId, selected, onSaved }: { weekId: str
   const [values, setValues] = useState({ priority: 0 as 0 | 1 | 2, note_text: '', author: '' });
   const [error, setError] = useState<string | null>(null);
   const lock = useEditLock('notes', selected?.id ?? null, Boolean(selected?.id));
+  const { t } = usePreferences();
 
   useEffect(() => {
     if (selected) {
@@ -276,14 +285,14 @@ export function NoteForm({ weekId, projectId, selected, onSaved }: { weekId: str
 
   return (
     <form className="maintenance-form" onSubmit={handleSubmit}>
-      <div className="section-heading">Manage notes / Gerenciar notas</div>
-      <LockNotice message={lockMessage(lock)} />
+      <div className="section-heading">{t(maintenanceTitles.notes)}</div>
+      <LockNotice message={lockMessage(lock, t)} />
       {error ? <div className="maintenance-form__error">{error}</div> : null}
       <div className="maintenance-form__grid">
-        <label>Priority / Prioridade<select value={values.priority} onChange={(e) => setValues({ ...values, priority: Number(e.target.value) as 0 | 1 | 2 })}><option value={0}>0</option><option value={1}>1</option><option value={2}>2</option></select></label>
-        <label>Author / Autor<input value={values.author} onChange={(e) => setValues({ ...values, author: e.target.value })} /></label>
+        <label>{t(copy.priority)}<select value={values.priority} onChange={(e) => setValues({ ...values, priority: Number(e.target.value) as 0 | 1 | 2 })}><option value={0}>0</option><option value={1}>1</option><option value={2}>2</option></select></label>
+        <label>{t(copy.author)}<input value={values.author} onChange={(e) => setValues({ ...values, author: e.target.value })} /></label>
       </div>
-      <label>Note / Nota<textarea value={values.note_text} onChange={(e) => setValues({ ...values, note_text: e.target.value })} /></label>
+      <label>{t(copy.note)}<textarea value={values.note_text} onChange={(e) => setValues({ ...values, note_text: e.target.value })} /></label>
       <FormActions onCancel={() => void lock.release()} />
     </form>
   );

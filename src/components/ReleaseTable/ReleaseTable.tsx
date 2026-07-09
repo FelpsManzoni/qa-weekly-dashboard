@@ -1,5 +1,6 @@
 import { EmptyState } from '../EmptyState/EmptyState';
-import { bilingualText, copy } from '../../utils/copy';
+import { copy } from '../../utils/copy';
+import { usePreferences } from '../../hooks/usePreferences';
 import type { ReleaseVersion } from '../../types';
 import './ReleaseTable.css';
 
@@ -8,13 +9,15 @@ type ReleaseTableProps = {
 };
 
 export function ReleaseTable({ releases }: ReleaseTableProps) {
+  const { t } = usePreferences();
+
   if (!releases.length) {
-    return <EmptyState title={bilingualText(copy.releases)} body={copy.emptyRelease.pt} />;
+    return <EmptyState title={t(copy.releases)} body={t(copy.emptyRelease)} />;
   }
 
   return (
     <section className="release-table">
-      <div className="section-heading">{bilingualText(copy.releases)}</div>
+      <div className="section-heading">{t(copy.releases)}</div>
       <table>
         <thead>
           <tr>

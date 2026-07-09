@@ -48,3 +48,22 @@ textarea {
   color: var(--text-primary);
   padding: var(--space-2) var(--space-3);
 }
+
+:root[data-theme='dark'] {
+  --surface-page: var(--neutral-900);
+  --surface-card: var(--neutral-800);
+  --surface-sunken: var(--neutral-700);
+  --surface-inverse: var(--neutral-0);
+  --border-subtle: var(--neutral-700);
+  --border-default: var(--neutral-600);
+  --border-strong: var(--neutral-300);
+  --text-primary: var(--neutral-0);
+  --text-secondary: var(--neutral-300);
+  --text-tertiary: var(--neutral-400);
+  --text-inverse: var(--neutral-900);
+  --status-pass-bg: #0c2f17;
+  --status-fail-bg: #3a1414;
+  --status-warning-bg: #3a2e10;
+  --status-running-bg: #2a1740;
+  --status-blocked-bg: var(--neutral-700);
+}

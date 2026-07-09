@@ -54,7 +54,7 @@ it('surfaces a save error and does not call onSaved', async () => {
   saveNote.mockResolvedValue({ data: null, error: { message: 'DB down', code: 'X' } });
   const onSaved = vi.fn();
   render(<NoteForm weekId="w1" projectId="p1" selected={null} onSaved={onSaved} />);
-  fireEvent.change(screen.getByLabelText(/Note \/ Nota/i), { target: { value: 'hello' } });
+  fireEvent.change(screen.getByLabelText(/^Note$/i), { target: { value: 'hello' } });
   fireEvent.click(screen.getByRole('button', { name: /Save/i }));
   await waitFor(() => expect(screen.getByText(/DB down/i)).toBeInTheDocument());
   expect(onSaved).not.toHaveBeenCalled();

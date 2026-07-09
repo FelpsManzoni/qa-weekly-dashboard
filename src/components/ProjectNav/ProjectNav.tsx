@@ -1,4 +1,5 @@
-import { bilingualText, copy } from '../../utils/copy';
+import { copy } from '../../utils/copy';
+import { usePreferences } from '../../hooks/usePreferences';
 import type { Project } from '../../types';
 import './ProjectNav.css';
 
@@ -9,9 +10,11 @@ type ProjectNavProps = {
 };
 
 export function ProjectNav({ projects, selectedProjectId, onSelect }: ProjectNavProps) {
+  const { t } = usePreferences();
+
   return (
     <aside className="project-nav">
-      <div className="section-heading">{bilingualText(copy.projects)}</div>
+      <div className="section-heading">{t(copy.projects)}</div>
       <div className="project-nav__list">
         {projects.map((project) => {
           const isSelected = selectedProjectId === project.id;

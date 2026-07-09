@@ -63,5 +63,5 @@ it('shows the signed-in user and a working record picker for notes and releases'
   fireEvent.click(screen.getByRole('button', { name: /Manage notes/i }));
   const notePicker = screen.getByLabelText(/Edit note/i);
   fireEvent.change(notePicker, { target: { value: 'n1' } });
-  expect(screen.getByLabelText(/Note \/ Nota/i)).toHaveValue('Watch smoke suite');
+  expect(screen.getByLabelText(/^Note$/i)).toHaveValue('Watch smoke suite');
 });
