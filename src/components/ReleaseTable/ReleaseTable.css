@@ -4,12 +4,16 @@
   border-radius: var(--radius-md);
   display: grid;
   gap: var(--space-3);
-  overflow: hidden;
   padding: var(--space-5);
+}
+
+.release-table__scroll {
+  overflow-x: auto;
 }
 
 .release-table table {
   border-collapse: collapse;
+  min-width: 100%;
   width: 100%;
 }
 

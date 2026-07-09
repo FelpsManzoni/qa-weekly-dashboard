@@ -22,6 +22,7 @@ export function DashboardSection() {
   const projects = useProjects();
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [selectedWeekId, setSelectedWeekId] = useState<string | null>(null);
+  const [issueHistoryRange, setIssueHistoryRange] = useState<5 | 10>(5);
 
   // Default to the first active project.
   useEffect(() => {
@@ -47,8 +48,12 @@ export function DashboardSection() {
     () => weeks.data.find((week) => week.id === selectedWeekId) ?? null,
     [weeks.data, selectedWeekId]
   );
+  const selectedProject = useMemo(
+    () => projects.activeProjects.find((project) => project.id === selectedProjectId) ?? null,
+    [projects.activeProjects, selectedProjectId]
+  );
 
-  const issues = useIssueHistory(selectedProjectId, selectedWeekId);
+  const issues = useIssueHistory(selectedProjectId, selectedWeekId, issueHistoryRange);
   const distributions = useTestCaseDistribution(selectedWeekId, selectedProjectId);
   const releases = useReleases(selectedWeekId, selectedProjectId);
   const notes = useNotes(selectedWeekId, selectedProjectId);
@@ -64,11 +69,25 @@ export function DashboardSection() {
           selectedProjectId={selectedProjectId}
           onSelect={setSelectedProjectId}
         />
+        {selectedProject ? (
+          <section className="dashboard-project-summary" aria-label="Selected project">
+            <h2 className="dashboard-project-summary__title">{selectedProject.name}</h2>
+            <p className="dashboard-project-summary__meta">
+              {t(copy.leadQa)}: {selectedProject.lead_qa_name ?? t(copy.notAssigned)}
+            </p>
+          </section>
+        ) : null}
       </div>
       <div className="dashboard-grid">
         <main className="dashboard-main">
           {hasProject ? (
-            <IssueHistoryChart metrics={issues.data} weeks={weeks.data} selectedWeekId={selectedWeekId} />
+            <IssueHistoryChart
+              metrics={issues.data}
+              weeks={weeks.data}
+              selectedWeekId={selectedWeekId}
+              rangeWeeks={issueHistoryRange}
+              onRangeChange={setIssueHistoryRange}
+            />
           ) : (
             <EmptyState title={t(copy.issueHistory)} body={t(copy.emptyGeneric)} />
           )}

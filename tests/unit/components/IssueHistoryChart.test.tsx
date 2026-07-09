@@ -2,11 +2,13 @@ import { render, screen } from '@testing-library/react';
 import { IssueHistoryChart } from '../../../src/components/IssueHistoryChart/IssueHistoryChart';
 
 it('shows empty state when no history exists', () => {
-  render(<IssueHistoryChart metrics={[]} weeks={[]} />);
+  render(<IssueHistoryChart metrics={[]} weeks={[]} rangeWeeks={5} onRangeChange={vi.fn()} />);
   expect(screen.getByText(/Issue history/i)).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /Last 5 weeks/i })).toBeInTheDocument();
 });
 
 it('renders history and highlights the selected week', () => {
+  const onRangeChange = vi.fn();
   render(
     <IssueHistoryChart
       metrics={[
@@ -18,8 +20,11 @@ it('renders history and highlights the selected week', () => {
         { id: 'w2', week_number: 27, calendar_year: 2026, start_date: '2026-06-29', end_date: '2026-07-05', is_active: true }
       ]}
       selectedWeekId="w2"
+      rangeWeeks={5}
+      onRangeChange={onRangeChange}
     />
   );
   // The mocked recharts ReferenceLine renders when a selected week is present.
   expect(document.querySelector('[data-chart="reference-line"]')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /Last 10 weeks/i })).toBeInTheDocument();
 });

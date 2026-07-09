@@ -35,3 +35,9 @@ it('surfaces loader errors as hook error state', async () => {
   const notes = renderHook(() => useNotes('w1', 'p1'));
   await waitFor(() => expect(notes.result.current.error).toBe('boom'));
 });
+
+it('passes selected week and range through the issue history hook', async () => {
+  fetchIssueHistory.mockResolvedValue({ data: [], error: null });
+  renderHook(() => useIssueHistory('p1', 'w1', 10));
+  await waitFor(() => expect(fetchIssueHistory).toHaveBeenCalledWith('p1', 'w1', 10));
+});

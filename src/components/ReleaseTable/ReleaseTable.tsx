@@ -31,36 +31,38 @@ export function ReleaseTable({ releases }: ReleaseTableProps) {
   return (
     <section className="release-table">
       <div className="section-heading">{t(copy.releases)}</div>
-      <table>
-        <thead>
-          <tr>
-            <th>{t(copy.date)}</th>
-            <th>{t(copy.version)}</th>
-            <th>{t(copy.status)}</th>
-            <th>{t(copy.issuesFound)}</th>
-            <th>{t(copy.releaseNotes)}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {releases.map((release) => (
-            <tr key={release.id}>
-              <td>{formatDateBr(release.date)}</td>
-              <td>{release.version}</td>
-              <td>
-                <span className={`release-table__status ${STATUS_CLASS[release.status]}`}>{release.status}</span>
-              </td>
-              <td>
-                <span className="release-table__issues">A:{release.issue_count_a} · B:{release.issue_count_b} · C:{release.issue_count_c}</span>
-              </td>
-              <td>
-                <button type="button" className="release-table__notes-button" onClick={() => setOpenId(release.id)}>
-                  {t(copy.releaseNotes)}
-                </button>
-              </td>
+      <div className="release-table__scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>{t(copy.date)}</th>
+              <th>{t(copy.version)}</th>
+              <th>{t(copy.status)}</th>
+              <th>{t(copy.issuesFound)}</th>
+              <th>{t(copy.releaseNotes)}</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {releases.map((release) => (
+              <tr key={release.id}>
+                <td>{formatDateBr(release.date)}</td>
+                <td>{release.version}</td>
+                <td>
+                  <span className={`release-table__status ${STATUS_CLASS[release.status]}`}>{release.status}</span>
+                </td>
+                <td>
+                  <span className="release-table__issues">A:{release.issue_count_a} · B:{release.issue_count_b} · C:{release.issue_count_c}</span>
+                </td>
+                <td>
+                  <button type="button" className="release-table__notes-button" onClick={() => setOpenId(release.id)}>
+                    {t(copy.releaseNotes)}
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       {openRelease ? (
         <ReleaseNotesModal
           version={openRelease.version}

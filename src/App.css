@@ -3,10 +3,26 @@
   gap: var(--space-4);
 }
 
+.dashboard-project-summary {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.dashboard-project-summary__title {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  margin: 0;
+}
+
+.dashboard-project-summary__meta {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
 .dashboard-grid {
   display: grid;
   gap: var(--space-5);
-  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 360px);
+  grid-template-columns: minmax(0, 550px) minmax(0, 1fr);
 }
 
 .dashboard-main,

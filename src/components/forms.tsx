@@ -154,7 +154,21 @@ export function ProjectForm({ selected, onSaved }: { selected: Project | null; o
         <label>{t(copy.mainTechScope)}<input value={values.main_technology_scope} onChange={(e) => setValues({ ...values, main_technology_scope: e.target.value })} /></label>
       </div>
       <label className="maintenance-form__checkbox"><input type="checkbox" checked={values.is_active} onChange={(e) => setValues({ ...values, is_active: e.target.checked })} /> {t(copy.active)}</label>
-      <FormActions onCancel={() => { if (selected) setValues({ ...selected, description: selected.description ?? '', client: selected.client ?? '', main_technology_scope: selected.main_technology_scope ?? '', lead_qa_user_id: selected.lead_qa_user_id ?? '' }); void lock.release(); }} />
+      <FormActions onCancel={() => {
+        if (selected) {
+          setValues({
+            code: selected.code,
+            name: selected.name,
+            description: selected.description ?? '',
+            client: selected.client ?? '',
+            main_technology_scope: selected.main_technology_scope ?? '',
+            lead_qa_user_id: selected.lead_qa_user_id ?? '',
+            display_order: selected.display_order,
+            is_active: selected.is_active
+          });
+        }
+        void lock.release();
+      }} />
     </form>
   );
 }
