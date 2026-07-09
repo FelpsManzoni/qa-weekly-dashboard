@@ -46,7 +46,14 @@ weeksRouter.post(
     const body = parseBody(weekSchema, req.body);
     const row = await queryOne(
       `insert into weeks (week_number, calendar_year, start_date, end_date, is_active)
-       values ($1, $2, $3, $4, $5) returning *`,
+       values ($1, $2, $3, $4, $5)
+       on conflict (start_date) do update set
+         week_number = excluded.week_number,
+         calendar_year = excluded.calendar_year,
+         end_date = excluded.end_date,
+         is_active = excluded.is_active,
+         updated_at = now()
+       returning *`,
       [body.week_number, body.calendar_year, body.start_date, body.end_date, body.is_active]
     );
     res.status(201).json(row);

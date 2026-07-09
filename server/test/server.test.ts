@@ -110,6 +110,17 @@ it('rejects a week that does not start on Monday', async () => {
   expect(res.body.error.code).toBe('VALIDATION_ERROR');
 });
 
+it('upserts an existing ISO week by start_date', async () => {
+  const token = await registerAndToken();
+  queryOne.mockResolvedValueOnce({ id: 'w28', week_number: 28, calendar_year: 2026, start_date: '2026-07-06', end_date: '2026-07-12', is_active: true });
+  const res = await request(app)
+    .post('/api/weeks')
+    .set('Authorization', `Bearer ${token}`)
+    .send({ week_number: 28, calendar_year: 2026, start_date: '2026-07-06', end_date: '2026-07-12', is_active: true });
+  expect(res.status).toBe(201);
+  expect(res.body.id).toBe('w28');
+});
+
 it('rejects a release with an unsupported status', async () => {
   const token = await registerAndToken();
   const res = await request(app)
@@ -170,3 +181,36 @@ it('returns aggregated project data', async () => {
   expect(res.body.releases).toEqual([]);
 });
 
+it('returns aggregated project data by week_start_date when the week exists', async () => {
+  const token = await registerAndToken();
+  queryOne.mockResolvedValueOnce({ id: 'w1' });
+  queryOne.mockResolvedValueOnce({ id: 'im1', reported_count: 1, fixed_count: 1 });
+  queryOne.mockResolvedValueOnce(null);
+  query.mockResolvedValueOnce([]);
+  query.mockResolvedValueOnce([]);
+  const res = await request(app)
+    .get('/api/project-data?week_start_date=2026-06-29&project_id=00000000-0000-0000-0000-000000000002')
+    .set('Authorization', `Bearer ${token}`);
+  expect(res.status).toBe(200);
+  expect(res.body.issueMetric.id).toBe('im1');
+});
+
+it('returns an empty aggregated payload by week_start_date when the week does not exist', async () => {
+  const token = await registerAndToken();
+  queryOne.mockResolvedValueOnce(null);
+  const res = await request(app)
+    .get('/api/project-data?week_start_date=2026-06-29&project_id=00000000-0000-0000-0000-000000000002')
+    .set('Authorization', `Bearer ${token}`);
+  expect(res.status).toBe(200);
+  expect(res.body).toEqual({ issueMetric: null, testCase: null, releases: [], notes: [] });
+});
+
+it('rejects mismatched week_id and week_start_date on project data load', async () => {
+  const token = await registerAndToken();
+  queryOne.mockResolvedValueOnce({ id: 'w1' });
+  const res = await request(app)
+    .get('/api/project-data?week_id=w2&week_start_date=2026-06-29&project_id=00000000-0000-0000-0000-000000000002')
+    .set('Authorization', `Bearer ${token}`);
+  expect(res.status).toBe(400);
+  expect(res.body.error.code).toBe('VALIDATION_ERROR');
+});

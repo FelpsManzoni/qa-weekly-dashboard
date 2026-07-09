@@ -1,18 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useProjects } from '../../hooks/useProjects';
 import { useWeeks } from '../../hooks/useWeeks';
 import { useProjectDataEditor, type NoteDraft, type ReleaseDraft } from '../../hooks/useProjectDataEditor';
 import { usePreferences } from '../../hooks/usePreferences';
 import { copy } from '../../utils/copy';
+import { formatWeekRange, isoWeekLabel, recentProjectDataWeeks } from '../../utils/dates';
 import { EmptyState } from '../EmptyState/EmptyState';
-import { RELEASE_STATUSES } from '../../types';
+import { RELEASE_STATUSES, type Week } from '../../types';
 import './ProjectDataPage.css';
 
 export function ProjectDataPage() {
   const { t } = usePreferences();
   const projects = useProjects();
   const [projectId, setProjectId] = useState<string | null>(null);
-  const [weekId, setWeekId] = useState<string | null>(null);
+  const [selectedWeekStart, setSelectedWeekStart] = useState<string | null>(null);
 
   useEffect(() => {
     if (!projectId && projects.activeProjects.length) {
@@ -20,24 +21,33 @@ export function ProjectDataPage() {
     }
   }, [projects.activeProjects, projectId]);
 
-  const weeks = useWeeks(projectId);
+  const weeks = useWeeks();
+  const weekOptions = useMemo(() => recentProjectDataWeeks(weeks.data), [weeks.data]);
 
   useEffect(() => {
-    if (weeks.data.length && !weeks.data.some((w) => w.id === weekId)) {
-      setWeekId(weeks.data[0].id);
+    if (weekOptions.length && !weekOptions.some((week) => week.start_date === selectedWeekStart)) {
+      setSelectedWeekStart(weekOptions[0].start_date);
     }
-    if (!weeks.data.length) {
-      setWeekId(null);
+    if (!weekOptions.length) {
+      setSelectedWeekStart(null);
     }
-  }, [weeks.data, weekId]);
+  }, [selectedWeekStart, weekOptions]);
 
-  const editor = useProjectDataEditor(weekId, projectId);
+  const selectedWeek = useMemo(
+    () => weekOptions.find((week) => week.start_date === selectedWeekStart) ?? null,
+    [selectedWeekStart, weekOptions]
+  );
+  const handleWeekResolved = (week: Week) => {
+    setSelectedWeekStart(week.start_date);
+    void weeks.refresh();
+  };
+  const editor = useProjectDataEditor(selectedWeek, projectId, handleWeekResolved);
 
-  if (!projectId || !weekId) {
+  if (!projectId || !selectedWeek) {
     return (
       <section className="project-data-page">
         <h2 className="section-heading">{t(copy.projectData)}</h2>
-        <EmptyState title={t(copy.projectData)} body={t(copy.noWeeks)} />
+        <EmptyState title={t(copy.projectData)} body={t(copy.noActiveWeeks)} />
       </section>
     );
   }
@@ -57,9 +67,11 @@ export function ProjectDataPage() {
         </label>
         <label>
           {t(copy.selectWeek)}
-          <select value={weekId} onChange={(e) => setWeekId(e.target.value)}>
-            {weeks.data.map((week) => (
-              <option key={week.id} value={week.id}>{`${t(copy.weeks)} ${week.week_number}`}</option>
+          <select value={selectedWeek.start_date} onChange={(e) => setSelectedWeekStart(e.target.value)}>
+            {weekOptions.map((week) => (
+              <option key={week.start_date} value={week.start_date}>
+                {`${isoWeekLabel(week)} (${formatWeekRange(week)})`}
+              </option>
             ))}
           </select>
         </label>

@@ -10,27 +10,52 @@ projectDataRouter.get(
   '/',
   asyncHandler(async (req, res) => {
     const weekId = req.query.week_id as string | undefined;
+    const weekStartDate = req.query.week_start_date as string | undefined;
     const projectId = req.query.project_id as string | undefined;
-    if (!weekId || !projectId) {
-      throw new HttpError(400, 'week_id and project_id are required', 'VALIDATION_ERROR');
+    if (!projectId || (!weekId && !weekStartDate)) {
+      throw new HttpError(400, 'project_id and a week selector are required', 'VALIDATION_ERROR');
+    }
+
+    let resolvedWeekId = weekId ?? null;
+
+    if (weekStartDate) {
+      const week = await queryOne<{ id: string }>(
+        'select id from weeks where start_date = $1',
+        [weekStartDate]
+      );
+
+      if (weekId && week && week.id !== weekId) {
+        throw new HttpError(400, 'week_id does not match week_start_date', 'VALIDATION_ERROR');
+      }
+
+      if (!week) {
+        res.json({ issueMetric: null, testCase: null, releases: [], notes: [] });
+        return;
+      }
+
+      resolvedWeekId = week.id;
+    }
+
+    if (!resolvedWeekId) {
+      throw new HttpError(400, 'Unable to resolve requested week', 'VALIDATION_ERROR');
     }
 
     const [issueMetric, testCase, releases, notes] = await Promise.all([
       queryOne(
         'select * from issue_metrics where week_id = $1 and project_id = $2',
-        [weekId, projectId]
+        [resolvedWeekId, projectId]
       ),
       queryOne(
         'select * from test_case_distributions where week_id = $1 and project_id = $2',
-        [weekId, projectId]
+        [resolvedWeekId, projectId]
       ),
       query(
         'select * from release_versions where week_id = $1 and project_id = $2 order by date desc',
-        [weekId, projectId]
+        [resolvedWeekId, projectId]
       ),
       query(
         'select * from notes where week_id = $1 and project_id = $2 order by priority asc, created_at asc',
-        [weekId, projectId]
+        [resolvedWeekId, projectId]
       )
     ]);
 
