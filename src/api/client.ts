@@ -88,9 +88,9 @@ export function apiDelete<T = null>(path: string): Promise<Envelope<T>> {
 }
 
 /** Builds a query string from defined params only. */
-export function queryString(params: Record<string, string | null | undefined>): string {
+export function queryString(params: Record<string, string | number | boolean | null | undefined>): string {
   const entries = Object.entries(params).filter(([, v]) => v != null && v !== '');
   if (!entries.length) return '';
-  const search = new URLSearchParams(entries as [string, string][]);
+  const search = new URLSearchParams(entries.map(([key, value]) => [key, String(value)]));
   return `?${search.toString()}`;
 }

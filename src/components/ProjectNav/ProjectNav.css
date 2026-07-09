@@ -10,16 +10,16 @@
 }
 
 .project-nav__item {
-  align-items: flex-start;
+  align-items: center;
   background: var(--surface-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   cursor: pointer;
-  display: grid;
-  gap: var(--space-1);
+  display: inline-flex;
+  justify-content: center;
   min-width: 88px;
   padding: var(--space-3);
-  text-align: left;
+  text-align: center;
 }
 
 .project-nav__item--selected {
@@ -31,11 +31,4 @@
   color: var(--text-primary);
   font-size: var(--text-sm);
   font-weight: var(--weight-bold);
-}
-
-.project-nav__name {
-  color: var(--text-secondary);
-  font-size: var(--text-xs);
-  line-height: 1.35;
-  max-width: 16ch;
 }

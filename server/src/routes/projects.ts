@@ -5,12 +5,18 @@ import { projectSchema } from '../validation.js';
 
 export const projectsRouter = Router();
 
+const PROJECT_SELECT = `select p.*,
+       coalesce(u.display_name, u.username) as lead_qa_name
+   from projects p
+   left join users u on u.id = p.lead_qa_user_id`;
+
 // Project-management screens need every registered project (active and inactive).
 // The dashboard continues to filter to active projects on the client.
 projectsRouter.get(
   '/',
   asyncHandler(async (_req, res) => {
-    const rows = await query('select * from projects order by display_order asc');
+    const rows = await query(`${PROJECT_SELECT}
+      order by p.display_order asc`);
     res.json(rows);
   })
 );
@@ -20,8 +26,15 @@ projectsRouter.post(
   asyncHandler(async (req, res) => {
     const body = parseBody(projectSchema, req.body);
     const row = await queryOne(
-      `insert into projects (code, name, description, lead_qa_user_id, client, main_technology_scope, display_order, is_active)
-       values ($1, $2, $3, $4, $5, $6, $7, $8) returning *`,
+      `with saved as (
+         insert into projects (code, name, description, lead_qa_user_id, client, main_technology_scope, display_order, is_active)
+         values ($1, $2, $3, $4, $5, $6, $7, $8)
+         returning *
+       )
+       select saved.*,
+              coalesce(u.display_name, u.username) as lead_qa_name
+       from saved
+       left join users u on u.id = saved.lead_qa_user_id`,
       [
         body.code,
         body.name,
@@ -42,9 +55,16 @@ projectsRouter.put(
   asyncHandler(async (req, res) => {
     const body = parseBody(projectSchema, req.body);
     const row = await queryOne(
-      `update projects set code = $1, name = $2, description = $3, lead_qa_user_id = $4,
-          client = $5, main_technology_scope = $6, display_order = $7, is_active = $8, updated_at = now()
-       where id = $9 returning *`,
+      `with saved as (
+         update projects set code = $1, name = $2, description = $3, lead_qa_user_id = $4,
+            client = $5, main_technology_scope = $6, display_order = $7, is_active = $8, updated_at = now()
+         where id = $9
+         returning *
+       )
+       select saved.*,
+              coalesce(u.display_name, u.username) as lead_qa_name
+       from saved
+       left join users u on u.id = saved.lead_qa_user_id`,
       [
         body.code,
         body.name,

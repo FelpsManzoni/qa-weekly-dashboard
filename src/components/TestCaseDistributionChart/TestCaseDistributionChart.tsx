@@ -1,4 +1,4 @@
-import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import { EmptyState } from '../EmptyState/EmptyState';
 import { copy } from '../../utils/copy';
 import { usePreferences } from '../../hooks/usePreferences';
@@ -9,7 +9,7 @@ type TestCaseDistributionChartProps = {
   distributions: TestCaseDistribution[];
 };
 
-const COLORS = ['var(--status-pass)', 'var(--status-warning)', 'var(--status-blocked)'];
+const COLORS = ['var(--status-pass)', 'var(--status-warning)', 'var(--status-blocked)'] as const;
 
 export function TestCaseDistributionChart({ distributions }: TestCaseDistributionChartProps) {
   const { t } = usePreferences();
@@ -20,26 +20,55 @@ export function TestCaseDistributionChart({ distributions }: TestCaseDistributio
   }
 
   const data = [
-    { name: t(copy.automated), value: distribution.automated_count },
-    { name: t(copy.pendingAutomation), value: distribution.pending_auto_count },
-    { name: t(copy.notAutomated), value: distribution.not_auto_count }
+    { name: t(copy.automated), value: distribution.automated_count, color: COLORS[0] },
+    { name: t(copy.pendingAutomation), value: distribution.pending_auto_count, color: COLORS[1] },
+    { name: t(copy.notAutomated), value: distribution.not_auto_count, color: COLORS[2] }
   ];
+  const total = data.reduce((sum, entry) => sum + entry.value, 0);
 
   return (
-    <section className="chart-card">
+    <section className="chart-card test-case-chart">
       <div className="section-heading">{t(copy.testCaseDistribution)}</div>
-      <div className="chart-card__canvas">
-        <ResponsiveContainer width="100%" height={280}>
-          <PieChart>
-            <Pie data={data} dataKey="value" nameKey="name" outerRadius={90} label>
-              {data.map((entry, index) => (
-                <Cell key={entry.name} fill={COLORS[index]} />
-              ))}
-            </Pie>
-            <Tooltip />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
+      <div className="test-case-chart__layout">
+        <div className="chart-card__canvas">
+          <ResponsiveContainer width="100%" height={240}>
+            <PieChart>
+              <Pie
+                data={data}
+                dataKey="value"
+                nameKey="name"
+                outerRadius={78}
+                label={({ value }) => {
+                  if (!total || typeof value !== 'number') {
+                    return '';
+                  }
+
+                  return `${Math.round((value / total) * 100)}%`;
+                }}
+              >
+                {data.map((entry) => (
+                  <Cell key={entry.name} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+        <dl className="test-case-chart__legend" aria-label="Test case distribution legend">
+          {data.map((entry) => (
+            <div key={entry.name} className="test-case-chart__legend-item">
+              <dt className="test-case-chart__legend-label">
+                <span
+                  className="test-case-chart__legend-swatch"
+                  aria-hidden="true"
+                  style={{ backgroundColor: entry.color }}
+                />
+                {entry.name}
+              </dt>
+              <dd className="test-case-chart__legend-value">{entry.value}</dd>
+            </div>
+          ))}
+        </dl>
       </div>
     </section>
   );

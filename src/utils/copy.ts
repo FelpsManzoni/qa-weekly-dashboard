@@ -25,6 +25,10 @@ export const copy = {
     en: 'Lead QA',
     pt: 'QA Lider'
   },
+  notAssigned: {
+    en: 'Not assigned',
+    pt: 'Nao atribuido'
+  },
   client: {
     en: 'Client',
     pt: 'Cliente'
@@ -80,6 +84,14 @@ export const copy = {
   issueHistory: {
     en: 'Issue history',
     pt: 'Historico de issues'
+  },
+  last5Weeks: {
+    en: 'Last 5 weeks',
+    pt: 'Ultimas 5 semanas'
+  },
+  last10Weeks: {
+    en: 'Last 10 weeks',
+    pt: 'Ultimas 10 semanas'
   },
   testCaseDistribution: {
     en: 'Test case distribution',

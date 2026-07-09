@@ -12,7 +12,7 @@ vi.mock('../../../src/api/weeks', () => ({
   fetchWeeks: vi.fn().mockResolvedValue({ data: [{ id: 'w1', week_number: 27, calendar_year: 2026, start_date: '2026-06-29', end_date: '2026-07-05', is_active: true }], error: null })
 }));
 vi.mock('../../../src/api/projects', () => ({
-  fetchProjects: vi.fn().mockResolvedValue({ data: [{ id: 'p1', code: 'HAM', name: 'Harman Audio Mixer', description: 'Audio', lead_qa_user_id: null, client: null, main_technology_scope: null, display_order: 1, is_active: true }], error: null })
+  fetchProjects: vi.fn().mockResolvedValue({ data: [{ id: 'p1', code: 'HAM', name: 'Harman Audio Mixer', description: 'Audio', lead_qa_user_id: null, lead_qa_name: null, client: null, main_technology_scope: null, display_order: 1, is_active: true }], error: null })
 }));
 vi.mock('../../../src/api/issues', () => ({
   fetchIssueHistory: vi.fn().mockResolvedValue({ data: [{ id: 'i1', week_id: 'w1', project_id: 'p1', reported_count: 4, fixed_count: 3 }], error: null })

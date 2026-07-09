@@ -9,6 +9,7 @@ vi.mock('../../../src/api/client', () => ({
 it('fetches projects', async () => {
   const response = await fetchProjects();
   expect(response.data).toHaveLength(1);
+  expect(response.data[0].id).toBe('p1');
 });
 
 it('creates a new project (POST)', async () => {

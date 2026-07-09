@@ -36,6 +36,7 @@ export type Project = {
   name: string;
   description: string | null;
   lead_qa_user_id: string | null;
+  lead_qa_name: string | null;
   client: string | null;
   main_technology_scope: string | null;
   display_order: number;
