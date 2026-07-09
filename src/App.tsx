@@ -7,7 +7,8 @@ import { TestCaseDistributionChart } from './components/TestCaseDistributionChar
 import { ReleaseTable } from './components/ReleaseTable/ReleaseTable';
 import { NotesSection } from './components/NotesSection/NotesSection';
 import { IssueMetricForm, NoteForm, ProjectForm, ReleaseForm, TestCaseDistributionForm, WeekForm } from './components/forms';
-import { maintenanceTitles, bilingualText } from './utils/copy';
+import { copy, maintenanceTitles } from './utils/copy';
+import { usePreferences } from './hooks/usePreferences';
 import { useAuth } from './hooks/useAuth';
 import { useWeeks } from './hooks/useWeeks';
 import { useProjects } from './hooks/useProjects';
@@ -21,6 +22,8 @@ import './styles/globals.css';
 import './App.css';
 
 function PanelTabs({ active, onChange }: { active: keyof typeof maintenanceTitles; onChange: (value: keyof typeof maintenanceTitles) => void }) {
+  const { t } = usePreferences();
+
   return (
     <div className="panel-tabs">
       {Object.entries(maintenanceTitles).map(([key, label]) => (
@@ -30,7 +33,7 @@ function PanelTabs({ active, onChange }: { active: keyof typeof maintenanceTitle
           onClick={() => onChange(key as keyof typeof maintenanceTitles)}
           type="button"
         >
-          {bilingualText(label)}
+          {t(label)}
         </button>
       ))}
     </div>
@@ -50,11 +53,13 @@ function RecordPicker({
   options: { id: string; label: string }[];
   onChange: (id: string | null) => void;
 }) {
+  const { t } = usePreferences();
+
   return (
     <label className="record-picker">
       {label}
       <select value={value ?? ''} onChange={(event) => onChange(event.target.value || null)}>
-        <option value="">+ New / Novo</option>
+          <option value="">{t(copy.newRecord)}</option>
         {options.map((option) => (
           <option key={option.id} value={option.id}>
             {option.label}
@@ -66,6 +71,7 @@ function RecordPicker({
 }
 
 export default function App() {
+  const { t } = usePreferences();
   const { user, logout } = useAuth();
   const weeks = useWeeks();
   const projects = useProjects();
@@ -118,7 +124,7 @@ export default function App() {
         </aside>
       </div>
       <section className="maintenance-panel">
-        <div className="section-heading">Maintenance / Manutencao</div>
+        <div className="section-heading">{t(copy.maintenance)}</div>
         <PanelTabs active={dashboard.activePanel} onChange={dashboard.setActivePanel} />
         <div className="maintenance-panel__content">
           {dashboard.activePanel === 'weeks' ? <WeekForm selected={dashboard.selectedWeek} onSaved={() => void refreshAll()} /> : null}
@@ -141,9 +147,9 @@ export default function App() {
           ) : null}
           {dashboard.activePanel === 'releases' ? (
             <>
-              <RecordPicker
-                label="Edit release / Editar release"
-                value={selectedReleaseId}
+                <RecordPicker
+                  label={t(copy.editRelease)}
+                  value={selectedReleaseId}
                 options={releases.data.map((item) => ({ id: item.id, label: item.version }))}
                 onChange={setSelectedReleaseId}
               />
@@ -160,9 +166,9 @@ export default function App() {
           ) : null}
           {dashboard.activePanel === 'notes' ? (
             <>
-              <RecordPicker
-                label="Edit note / Editar nota"
-                value={selectedNoteId}
+                <RecordPicker
+                  label={t(copy.editNote)}
+                  value={selectedNoteId}
                 options={notes.data.map((item) => ({
                   id: item.id,
                   label: `P${item.priority} · ${item.note_text.slice(0, 30)}`

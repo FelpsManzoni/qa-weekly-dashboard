@@ -1,4 +1,5 @@
-import { bilingualText, copy } from '../../utils/copy';
+import { copy } from '../../utils/copy';
+import { usePreferences } from '../../hooks/usePreferences';
 import { formatWeekRange, weekLabel } from '../../utils/dates';
 import type { Week } from '../../types';
 import './WeekSelector.css';
@@ -10,9 +11,11 @@ type WeekSelectorProps = {
 };
 
 export function WeekSelector({ weeks, selectedWeekId, onSelect }: WeekSelectorProps) {
+  const { t } = usePreferences();
+
   return (
     <section className="week-selector">
-      <div className="section-heading">{bilingualText(copy.weeks)}</div>
+      <div className="section-heading">{t(copy.weeks)}</div>
       <div className="week-selector__list">
         {weeks.map((week) => {
           const isSelected = selectedWeekId === week.id;

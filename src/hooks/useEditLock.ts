@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { acquireLock, extendLock, releaseLock } from '../api/locks';
 import { copy } from '../utils/copy';
+import { usePreferences } from './usePreferences';
 import type { EditLock } from '../types';
 
 // Heartbeat cadence: extend the lock well before the 15-minute server expiry so an
@@ -9,6 +10,7 @@ const HEARTBEAT_MS = 5 * 60 * 1000;
 const ACTIVITY_THROTTLE_MS = 30 * 1000;
 
 export function useEditLock(resourceType: string, resourceId: string | null, enabled = true) {
+  const { t } = usePreferences();
   const [lock, setLock] = useState<EditLock | null>(null);
   const [error, setError] = useState<string | null>(null);
   const lockRef = useRef<EditLock | null>(null);
@@ -35,7 +37,7 @@ export function useEditLock(resourceType: string, resourceId: string | null, ena
     const response = await acquireLock(resourceType, resourceId);
 
     if (response.error) {
-      setError(`${copy.lockActive.en} / ${copy.lockActive.pt}`);
+      setError(`${t(copy.lockActive)}`);
       return;
     }
 
