@@ -6,21 +6,8 @@
   padding: var(--space-5);
 }
 
-.app-shell__body {
-  display: grid;
-  gap: var(--space-5);
-  grid-template-columns: 220px 1fr;
-  align-items: start;
-}
-
 .app-shell__content {
   display: grid;
   gap: var(--space-5);
   min-width: 0;
-}
-
-@media (max-width: 1180px) {
-  .app-shell__body {
-    grid-template-columns: 1fr;
-  }
 }

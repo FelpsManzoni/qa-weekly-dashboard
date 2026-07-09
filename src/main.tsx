@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { PreferencesProvider } from './hooks/usePreferences';
-import { PreferencesControls } from './components/PreferencesControls/PreferencesControls';
 import { AuthScreen } from './components/Auth/AuthScreen';
 import { usePreferences } from './hooks/usePreferences';
 import { copy } from './utils/copy';
@@ -24,7 +23,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <AuthProvider>
       <PreferencesProvider>
-        <PreferencesControls />
         <Gate />
       </PreferencesProvider>
     </AuthProvider>

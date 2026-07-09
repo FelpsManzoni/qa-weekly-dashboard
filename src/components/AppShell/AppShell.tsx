@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Header } from '../Header/Header';
-import { SideMenu } from '../SideMenu/SideMenu';
+import { SectionTabs } from '../SectionTabs/SectionTabs';
 import { DashboardSection } from '../DashboardSection/DashboardSection';
 import { ProjectsPage } from '../ProjectsPage/ProjectsPage';
 import { ProjectDataPage } from '../ProjectDataPage/ProjectDataPage';
@@ -11,7 +11,6 @@ import './AppShell.css';
 export function AppShell() {
   const { user, logout } = useAuth();
   const { section, setSection } = useAppSection();
-  const [collapsed, setCollapsed] = useState(false);
   // Bumping this key remounts the active section, forcing a clean data refetch.
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -20,19 +19,12 @@ export function AppShell() {
   return (
     <div className="app-shell">
       <Header user={user} onRefresh={refresh} onLogout={logout} />
-      <div className="app-shell__body">
-        <SideMenu
-          section={section}
-          onSelect={setSection}
-          collapsed={collapsed}
-          onToggle={() => setCollapsed((value) => !value)}
-        />
-        <main className="app-shell__content" key={refreshKey}>
-          {section === 'dashboard' ? <DashboardSection /> : null}
-          {section === 'projects' ? <ProjectsPage /> : null}
-          {section === 'project-data' ? <ProjectDataPage /> : null}
-        </main>
-      </div>
+      <SectionTabs section={section} onSelect={setSection} />
+      <main className="app-shell__content" key={refreshKey}>
+        {section === 'dashboard' ? <DashboardSection /> : null}
+        {section === 'projects' ? <ProjectsPage /> : null}
+        {section === 'project-data' ? <ProjectDataPage /> : null}
+      </main>
     </div>
   );
 }

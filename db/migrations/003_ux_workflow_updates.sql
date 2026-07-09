@@ -10,16 +10,85 @@ alter table weeks add column if not exists calendar_year integer;
 update weeks set calendar_year = extract(year from start_date) where calendar_year is null;
 alter table weeks alter column calendar_year set not null;
 
+-- Normalize legacy rows to the Monday/Sunday convention before adding checks.
+with normalized as (
+  select id, date_trunc('week', start_date)::date as monday_start
+  from weeks
+  where extract(isodow from start_date) <> 1
+     or extract(isodow from end_date) <> 7
+     or end_date <> start_date + interval '6 days'
+)
+update weeks w
+set start_date = normalized.monday_start,
+    end_date = normalized.monday_start + interval '6 days',
+    calendar_year = extract(year from normalized.monday_start)
+from normalized
+where w.id = normalized.id;
+
 -- The old rule "one week_number for all time" cannot represent year-over-year weeks.
 alter table weeks drop constraint if exists weeks_week_number_key;
 
 -- start_date is now the canonical unique key for a week.
-alter table weeks add constraint if not exists weeks_start_date_key unique (start_date);
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint c
+    join pg_class t on t.oid = c.conrelid
+    join pg_namespace n on n.oid = t.relnamespace
+    where c.conname = 'weeks_start_date_key'
+      and t.relname = 'weeks'
+      and n.nspname = current_schema()
+  ) then
+    alter table weeks add constraint weeks_start_date_key unique (start_date);
+  end if;
+end $$;
 
 -- Enforce the Monday→Sunday, exact 7-day rule.
-alter table weeks add constraint if not exists weeks_monday_check check (extract(isodow from start_date) = 1);
-alter table weeks add constraint if not exists weeks_sunday_check check (extract(isodow from end_date) = 7);
-alter table weeks add constraint if not exists weeks_span_check check (end_date = start_date + interval '6 days');
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint c
+    join pg_class t on t.oid = c.conrelid
+    join pg_namespace n on n.oid = t.relnamespace
+    where c.conname = 'weeks_monday_check'
+      and t.relname = 'weeks'
+      and n.nspname = current_schema()
+  ) then
+    alter table weeks add constraint weeks_monday_check check (extract(isodow from start_date) = 1);
+  end if;
+end $$;
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint c
+    join pg_class t on t.oid = c.conrelid
+    join pg_namespace n on n.oid = t.relnamespace
+    where c.conname = 'weeks_sunday_check'
+      and t.relname = 'weeks'
+      and n.nspname = current_schema()
+  ) then
+    alter table weeks add constraint weeks_sunday_check check (extract(isodow from end_date) = 7);
+  end if;
+end $$;
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint c
+    join pg_class t on t.oid = c.conrelid
+    join pg_namespace n on n.oid = t.relnamespace
+    where c.conname = 'weeks_span_check'
+      and t.relname = 'weeks'
+      and n.nspname = current_schema()
+  ) then
+    alter table weeks add constraint weeks_span_check check (end_date = start_date + interval '6 days');
+  end if;
+end $$;
 
 -- ---------------------------------------------------------------------------
 -- Projects: lead QA (FK to users), client, and main technology scope.
@@ -37,11 +106,38 @@ alter table release_versions add column if not exists issue_count_c integer not 
 alter table release_versions add column if not exists release_notes text;
 
 -- Migrate existing changelog text into the new release_notes field.
-update release_versions set release_notes = changelog where release_notes is null and changelog is not null;
+do $$
+begin
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = current_schema()
+      and table_name = 'release_versions'
+      and column_name = 'changelog'
+  ) then
+    execute 'update release_versions set release_notes = changelog where release_notes is null and changelog is not null';
+  end if;
+end $$;
+
+-- Normalize legacy status labels before enforcing the allowed set.
+update release_versions set status = 'Failed' where status = 'Fail';
 
 -- Restrict status to the four allowed business values.
-alter table release_versions add constraint if not exists release_versions_status_check
-  check (status in ('Approved', 'Failed', 'Conditionally Approved', 'Blocked'));
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint c
+    join pg_class t on t.oid = c.conrelid
+    join pg_namespace n on n.oid = t.relnamespace
+    where c.conname = 'release_versions_status_check'
+      and t.relname = 'release_versions'
+      and n.nspname = current_schema()
+  ) then
+    alter table release_versions add constraint release_versions_status_check
+      check (status in ('Approved', 'Failed', 'Conditionally Approved', 'Blocked'));
+  end if;
+end $$;
 
 -- The legacy free-text fields are superseded by the structured columns above.
 alter table release_versions drop column if exists critical_issues;

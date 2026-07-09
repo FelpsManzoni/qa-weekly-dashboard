@@ -39,7 +39,9 @@ vi.mock('../../src/hooks/useNotes', () => ({ useNotes: () => ({ data: [], refres
 it('renders the filter flow', async () => {
   render(<App />);
   expect(screen.getByRole('heading', { name: /Weekly report/i })).toBeInTheDocument();
+  expect(screen.getByRole('tab', { name: /Weekly report/i })).toHaveAttribute('aria-selected', 'true');
   fireEvent.click(screen.getByRole('button', { name: /Week 27/i }));
   fireEvent.click(screen.getByRole('button', { name: /HAM/i }));
   await waitFor(() => expect(screen.getAllByText(/Projects \/ modules/i).length).toBeGreaterThan(0));
+  expect(screen.getByText('Harman Audio Mixer')).toBeInTheDocument();
 });

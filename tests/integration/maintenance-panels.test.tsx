@@ -20,12 +20,13 @@ vi.mock('../../src/hooks/useProjects', () => ({
 it('shows the signed-in user and navigates to the projects list', () => {
   render(<App />);
 
-  // Header shows the authenticated display name and a sign-out control.
-  expect(screen.getByText('QA Lead')).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: /Sign out/i })).toBeInTheDocument();
+  // Header shows the authenticated display name and exposes actions through the user menu.
+  expect(screen.getByRole('button', { name: /QA Lead/i })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: /QA Lead/i }));
+  expect(screen.getByRole('menuitem', { name: /Sign out/i })).toBeInTheDocument();
 
-  // The side menu exposes the Projects management screen.
-  const projectsButton = screen.getByRole('button', { name: /Projects \/ modules/i });
+  // The top tabs expose the Projects management screen.
+  const projectsButton = screen.getByRole('tab', { name: /Projects \/ modules/i });
   fireEvent.click(projectsButton);
 
   // Selecting it lists the registered projects.

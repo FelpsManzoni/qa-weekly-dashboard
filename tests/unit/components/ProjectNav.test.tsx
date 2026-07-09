@@ -9,6 +9,15 @@ it('renders projects and supports selection', () => {
   const onSelect = vi.fn();
   render(<ProjectNav projects={projects} selectedProjectId={null} onSelect={onSelect} />);
 
-  fireEvent.click(screen.getByRole('button', { name: /HAM/i }));
+  const button = screen.getByRole('button', { name: /HAM/i });
+  fireEvent.mouseEnter(button);
+  expect(screen.getByText('Harman Audio Mixer')).toBeInTheDocument();
+  fireEvent.click(button);
   expect(onSelect).toHaveBeenCalledWith('p1');
+});
+
+it('reveals the selected project name inline', () => {
+  render(<ProjectNav projects={projects} selectedProjectId="p1" onSelect={vi.fn()} />);
+
+  expect(screen.getByText('Harman Audio Mixer')).toBeInTheDocument();
 });

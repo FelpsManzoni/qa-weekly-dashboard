@@ -57,13 +57,15 @@ export function DashboardSection() {
 
   return (
     <>
-      <WeekSelector weeks={weeks.activeWeeks} selectedWeekId={selectedWeekId} onSelect={setSelectedWeekId} />
-      <div className="dashboard-grid">
+      <div className="dashboard-filters">
+        <WeekSelector weeks={weeks.activeWeeks} selectedWeekId={selectedWeekId} onSelect={setSelectedWeekId} />
         <ProjectNav
           projects={projects.activeProjects}
           selectedProjectId={selectedProjectId}
           onSelect={setSelectedProjectId}
         />
+      </div>
+      <div className="dashboard-grid">
         <main className="dashboard-main">
           {hasProject ? (
             <IssueHistoryChart metrics={issues.data} weeks={weeks.data} selectedWeekId={selectedWeekId} />

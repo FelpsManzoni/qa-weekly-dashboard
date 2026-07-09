@@ -1,0 +1,32 @@
+.section-tabs {
+  border-bottom: 1px solid var(--border-subtle);
+  overflow-x: auto;
+}
+
+.section-tabs__list {
+  display: inline-flex;
+  gap: var(--space-2);
+  min-width: max-content;
+}
+
+.section-tabs__tab {
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font: inherit;
+  font-weight: var(--weight-semibold);
+  padding: var(--space-3) var(--space-1);
+  white-space: nowrap;
+}
+
+.section-tabs__tab:hover,
+.section-tabs__tab:focus-visible {
+  color: var(--text-primary);
+}
+
+.section-tabs__tab--active {
+  border-bottom-color: var(--brand-primary);
+  color: var(--text-primary);
+}
