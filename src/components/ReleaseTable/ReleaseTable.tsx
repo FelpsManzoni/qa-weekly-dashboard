@@ -31,50 +31,47 @@ export function ReleaseTable({ releases }: ReleaseTableProps) {
   return (
     <section className="release-table">
       <div className="section-heading">{t(copy.releases)}</div>
-      <div className="release-table__scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>{t(copy.version)}</th>
-              <th>{t(copy.releasedDate)}</th>
-              <th>{t(copy.verifiedDate)}</th>
-              <th>{t(copy.status)}</th>
-              <th>{t(copy.testsPass)}</th>
-              <th>{t(copy.testsFail)}</th>
-              <th>{t(copy.testsNotTested)}</th>
-              <th>{t(copy.issuesFound)}</th>
-              <th>{t(copy.releaseNotes)}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {releases.map((release) => (
-              <tr key={release.id}>
-                <td>{release.version}</td>
-                <td>{formatDateBr(release.released_date)}</td>
-                <td>{release.verified_date ? formatDateBr(release.verified_date) : '-'}</td>
-                <td>
-                  <span className={`release-table__status ${STATUS_CLASS[release.status]}`}>{release.status}</span>
-                </td>
-                <td>{release.tests_pass}</td>
-                <td>{release.tests_fail}</td>
-                <td>{release.tests_not_tested}</td>
-                <td>
-                  <span className="release-table__issues">A:{release.issue_count_a} · B:{release.issue_count_b} · C:{release.issue_count_c}</span>
-                </td>
-                <td>
-                  <button type="button" className="release-table__notes-button" onClick={() => setOpenId(release.id)}>
-                    {t(copy.releaseNotes)}
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="release-table__list">
+        {releases.map((release) => (
+          <article className="release-table__card" key={release.id}>
+            <div className="release-table__card-header">
+              <div>
+                <div className="release-table__version">{release.version}</div>
+                <div className="release-table__date">{t(copy.releasedDate)}: {formatDateBr(release.released_date)}</div>
+              </div>
+              <span className={`release-table__status ${STATUS_CLASS[release.status]}`}>{release.status}</span>
+            </div>
+
+            <div className="release-table__verified">
+              {t(copy.verifiedDate)}: {release.verified_date ? formatDateBr(release.verified_date) : '-'}
+            </div>
+
+            <div className="release-table__metrics" aria-label={t(copy.testCaseReport)}>
+              <span className="release-table__metric">{t(copy.testsPass)} <strong>{release.tests_pass}</strong></span>
+              <span className="release-table__metric">{t(copy.testsFail)} <strong>{release.tests_fail}</strong></span>
+              <span className="release-table__metric">{t(copy.testsNotTested)} <strong>{release.tests_not_tested}</strong></span>
+            </div>
+
+            <div className="release-table__footer">
+              <div className="release-table__issues" aria-label={t(copy.issuesFound)}>
+                <span className={`release-table__issue ${release.issue_count_a > 0 ? 'release-table__issue--active' : ''}`}>A:{release.issue_count_a}</span>
+                <span className={`release-table__issue ${release.issue_count_b > 0 ? 'release-table__issue--active' : ''}`}>B:{release.issue_count_b}</span>
+                <span className={`release-table__issue ${release.issue_count_c > 0 ? 'release-table__issue--active' : ''}`}>C:{release.issue_count_c}</span>
+              </div>
+              <button type="button" className="release-table__notes-button" onClick={() => setOpenId(release.id)}>
+                {t(copy.notesAction)}
+              </button>
+            </div>
+          </article>
+        ))}
       </div>
       {openRelease ? (
         <ReleaseNotesModal
           version={openRelease.version}
           notes={openRelease.release_notes ?? ''}
+          testsPass={openRelease.tests_pass}
+          testsFail={openRelease.tests_fail}
+          testsNotTested={openRelease.tests_not_tested}
           onClose={() => setOpenId(null)}
         />
       ) : null}

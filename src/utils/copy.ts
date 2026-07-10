@@ -41,6 +41,18 @@ export const copy = {
     en: 'Release notes',
     pt: 'Notas do release'
   },
+  notesAction: {
+    en: 'Notes',
+    pt: 'Notas'
+  },
+  testCaseReport: {
+    en: 'Test case report',
+    pt: 'Relatorio de casos de teste'
+  },
+  passRate: {
+    en: 'Pass rate',
+    pt: 'Taxa de aprovacao'
+  },
   issuesFound: {
     en: 'Issues found',
     pt: 'Issues encontradas'
@@ -102,8 +114,8 @@ export const copy = {
     pt: 'Distribuicao de casos de teste'
   },
   releases: {
-    en: 'Release / version table',
-    pt: 'Tabela de release / versao'
+    en: 'Release summary',
+    pt: 'Resumo do release'
   },
   notes: {
     en: 'Priority notes',
