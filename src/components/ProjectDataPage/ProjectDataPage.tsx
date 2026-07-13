@@ -101,6 +101,12 @@ export function ProjectDataPage() {
           <h2 className="project-data-page__title">{t(copy.projectDataPageTitle)}</h2>
           <p className="project-data-page__subtitle">{t(copy.projectDataCapture)}</p>
         </div>
+        {editor.isDirty ? (
+          <div className="project-data-page__change-pill">
+            <span className="project-data-page__change-dot" aria-hidden="true" />
+            {t(copy.unsavedChanges)}
+          </div>
+        ) : null}
       </div>
 
       <section className="project-data-page__context" aria-label="Reporting context">

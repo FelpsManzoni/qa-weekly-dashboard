@@ -22,8 +22,8 @@ export const copy = {
     pt: 'Dados do Projeto'
   },
   projectDataPageTitle: {
-    en: 'Project data',
-    pt: 'Dados do projeto'
+    en: 'Quality Report Hub',
+    pt: 'Quality Report Hub'
   },
   projectDataCapture: {
     en: 'Capture weekly delivery, test coverage and release information.',

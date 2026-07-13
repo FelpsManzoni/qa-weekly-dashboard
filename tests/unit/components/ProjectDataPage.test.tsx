@@ -2,7 +2,10 @@ import { render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { ProjectDataPage } from '../../../src/components/ProjectDataPage/ProjectDataPage';
 
+let editorIsDirty = false;
+
 beforeEach(() => {
+  editorIsDirty = false;
   vi.useFakeTimers();
   vi.setSystemTime(new Date('2026-07-09T12:00:00Z'));
 });
@@ -43,7 +46,7 @@ vi.mock('../../../src/hooks/useProjectDataEditor', () => ({
     saveError: null,
     copying: false,
     copyMessage: null,
-    isDirty: false,
+    isDirty: editorIsDirty,
     reported: 0,
     fixed: 0,
     issueEnabled: false,
@@ -76,8 +79,19 @@ it('shows recent ISO weeks in Project Data even when the current week does not e
   render(<ProjectDataPage />);
 
   expect(useWeeks).toHaveBeenCalledWith();
+  expect(screen.getByRole('heading', { name: 'Quality Report Hub' })).toBeInTheDocument();
+  expect(screen.queryByText('Unsaved changes')).not.toBeInTheDocument();
   expect(screen.getByRole('option', { name: /2026-W28/i })).toBeInTheDocument();
   expect(screen.getByRole('option', { name: /2026-W27/i })).toBeInTheDocument();
+});
+
+it('shows an unsaved changes pill in the Project Data header when the editor is dirty', () => {
+  editorIsDirty = true;
+
+  render(<ProjectDataPage />);
+
+  expect(screen.getByRole('heading', { name: 'Quality Report Hub' })).toBeInTheDocument();
+  expect(screen.getByText('Unsaved changes', { selector: '.project-data-page__change-pill' })).toBeInTheDocument();
 });
 
 it('shows the full P0-P3 priority display scale in Project Data notes', () => {
