@@ -29,6 +29,7 @@ it('renders release summary cards instead of a wide table', () => {
   expect(screen.getByText('Verified date: 04/07/2026')).toBeInTheDocument();
   expect(screen.getByText('B:2')).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Notes' })).toBeInTheDocument();
+  expect(container.querySelector('.release-table__footer-left')).toBeInTheDocument();
   expect(container.querySelector('table')).not.toBeInTheDocument();
 });
 
