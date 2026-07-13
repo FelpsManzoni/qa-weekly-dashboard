@@ -50,7 +50,7 @@ projectDataRouter.get(
         [resolvedWeekId, projectId]
       ),
       query(
-        'select * from release_versions where week_id = $1 and project_id = $2 order by date desc',
+        'select * from release_versions where week_id = $1 and project_id = $2 order by released_date desc, created_at desc',
         [resolvedWeekId, projectId]
       ),
       query(

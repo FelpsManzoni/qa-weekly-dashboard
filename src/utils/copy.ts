@@ -41,6 +41,18 @@ export const copy = {
     en: 'Release notes',
     pt: 'Notas do release'
   },
+  notesAction: {
+    en: 'Notes',
+    pt: 'Notas'
+  },
+  testCaseReport: {
+    en: 'Test case report',
+    pt: 'Relatorio de casos de teste'
+  },
+  passRate: {
+    en: 'Pass rate',
+    pt: 'Taxa de aprovacao'
+  },
   issuesFound: {
     en: 'Issues found',
     pt: 'Issues encontradas'
@@ -102,8 +114,8 @@ export const copy = {
     pt: 'Distribuicao de casos de teste'
   },
   releases: {
-    en: 'Release / version table',
-    pt: 'Tabela de release / versao'
+    en: 'Release summary',
+    pt: 'Resumo do release'
   },
   notes: {
     en: 'Priority notes',
@@ -281,9 +293,29 @@ export const copy = {
     en: 'Date',
     pt: 'Data'
   },
+  releasedDate: {
+    en: 'Released date',
+    pt: 'Data de release'
+  },
+  verifiedDate: {
+    en: 'Verified date',
+    pt: 'Data de verificacao'
+  },
   status: {
     en: 'Status',
     pt: 'Status'
+  },
+  testsPass: {
+    en: 'Tests pass',
+    pt: 'Testes aprovados'
+  },
+  testsFail: {
+    en: 'Tests fail',
+    pt: 'Testes falhos'
+  },
+  testsNotTested: {
+    en: 'Tests not tested',
+    pt: 'Testes nao executados'
   },
   criticalIssues: {
     en: 'Critical issues',
@@ -300,6 +332,10 @@ export const copy = {
   author: {
     en: 'Author',
     pt: 'Autor'
+  },
+  delete: {
+    en: 'Delete',
+    pt: 'Excluir'
   },
   note: {
     en: 'Note',

@@ -9,6 +9,7 @@ import { copy, maintenanceTitles } from '../utils/copy';
 import { usePreferences } from '../hooks/usePreferences';
 import { validateNote, validateProject, validateWeek, requireNonNegative } from '../utils/validation';
 import { useEditLock } from '../hooks/useEditLock';
+import { useAuth } from '../hooks/useAuth';
 import { useUsers } from '../hooks/useUsers';
 import type { IssueMetric, PriorityNote, Project, ReleaseStatus, ReleaseVersion, TestCaseDistribution, Week } from '../types';
 import { RELEASE_STATUSES } from '../types';
@@ -259,8 +260,12 @@ export function TestCaseDistributionForm({ weekId, projectId, selected, onSaved 
 export function ReleaseForm({ weekId, projectId, selected, onSaved }: { weekId: string | null; projectId: string | null; selected: ReleaseVersion | null; onSaved: SaveHandler }) {
   const [values, setValues] = useState({
     version: '',
-    date: '',
+    released_date: '',
+    verified_date: '',
     status: 'Approved' as ReleaseStatus,
+    tests_pass: 0,
+    tests_fail: 0,
+    tests_not_tested: 0,
     issue_count_a: 0,
     issue_count_b: 0,
     issue_count_c: 0,
@@ -274,15 +279,31 @@ export function ReleaseForm({ weekId, projectId, selected, onSaved }: { weekId: 
     if (selected) {
       setValues({
         version: selected.version,
-        date: selected.date,
+        released_date: selected.released_date,
+        verified_date: selected.verified_date ?? '',
         status: selected.status,
+        tests_pass: selected.tests_pass,
+        tests_fail: selected.tests_fail,
+        tests_not_tested: selected.tests_not_tested,
         issue_count_a: selected.issue_count_a,
         issue_count_b: selected.issue_count_b,
         issue_count_c: selected.issue_count_c,
         release_notes: selected.release_notes ?? ''
       });
     } else {
-      setValues({ version: '', date: '', status: 'Approved', issue_count_a: 0, issue_count_b: 0, issue_count_c: 0, release_notes: '' });
+      setValues({
+        version: '',
+        released_date: '',
+        verified_date: '',
+        status: 'Approved',
+        tests_pass: 0,
+        tests_fail: 0,
+        tests_not_tested: 0,
+        issue_count_a: 0,
+        issue_count_b: 0,
+        issue_count_c: 0,
+        release_notes: ''
+      });
     }
   }, [selected]);
 
@@ -305,10 +326,16 @@ export function ReleaseForm({ weekId, projectId, selected, onSaved }: { weekId: 
       {error ? <div className="maintenance-form__error">{error}</div> : null}
       <div className="maintenance-form__grid">
         <label>{t(copy.version)}<input value={values.version} onChange={(e) => setValues({ ...values, version: e.target.value })} /></label>
-        <label>{t(copy.date)}<input type="date" value={values.date} onChange={(e) => setValues({ ...values, date: e.target.value })} /></label>
+        <label>{t(copy.releasedDate)}<input type="date" value={values.released_date} onChange={(e) => setValues({ ...values, released_date: e.target.value })} /></label>
+        <label>{t(copy.verifiedDate)}<input type="date" value={values.verified_date} onChange={(e) => setValues({ ...values, verified_date: e.target.value })} /></label>
         <label>{t(copy.status)}<select value={values.status} onChange={(e) => setValues({ ...values, status: e.target.value as ReleaseStatus })}>
           {RELEASE_STATUSES.map((status) => <option key={status} value={status}>{status}</option>)}
         </select></label>
+      </div>
+      <div className="maintenance-form__grid">
+        <label>{t(copy.testsPass)}<input type="number" value={values.tests_pass} onChange={(e) => setValues({ ...values, tests_pass: Number(e.target.value) })} /></label>
+        <label>{t(copy.testsFail)}<input type="number" value={values.tests_fail} onChange={(e) => setValues({ ...values, tests_fail: Number(e.target.value) })} /></label>
+        <label>{t(copy.testsNotTested)}<input type="number" value={values.tests_not_tested} onChange={(e) => setValues({ ...values, tests_not_tested: Number(e.target.value) })} /></label>
       </div>
       <div className="maintenance-form__grid">
         <label>{t(copy.issueCountA)}<input type="number" value={values.issue_count_a} onChange={(e) => setValues({ ...values, issue_count_a: Number(e.target.value) })} /></label>
@@ -322,16 +349,17 @@ export function ReleaseForm({ weekId, projectId, selected, onSaved }: { weekId: 
 }
 
 export function NoteForm({ weekId, projectId, selected, onSaved }: { weekId: string | null; projectId: string | null; selected: PriorityNote | null; onSaved: SaveHandler }) {
-  const [values, setValues] = useState({ priority: 0 as 0 | 1 | 2, note_text: '', author: '' });
+  const { user } = useAuth();
+  const [values, setValues] = useState({ priority: 0 as 0 | 1 | 2, note_text: '' });
   const [error, setError] = useState<string | null>(null);
   const lock = useEditLock('notes', selected?.id ?? null, Boolean(selected?.id));
   const { t } = usePreferences();
 
   useEffect(() => {
     if (selected) {
-      setValues({ priority: selected.priority, note_text: selected.note_text, author: selected.author ?? '' });
+      setValues({ priority: selected.priority, note_text: selected.note_text });
     } else {
-      setValues({ priority: 0, note_text: '', author: '' });
+      setValues({ priority: 0, note_text: '' });
     }
   }, [selected]);
 
@@ -341,7 +369,13 @@ export function NoteForm({ weekId, projectId, selected, onSaved }: { weekId: str
     const validation = validateNote(values);
     if (validation) return setError(validation);
     if (!weekId || !projectId) return setError('Select week and project first.');
-    const response = await saveNote({ id: selected?.id, week_id: weekId, project_id: projectId, ...values });
+    const response = await saveNote({
+      id: selected?.id,
+      week_id: weekId,
+      project_id: projectId,
+      ...values,
+      author: user?.display_name?.trim() || user?.username || null
+    });
     setError(response.error?.message ?? null);
     if (!response.error) {
       await lock.release();
@@ -356,7 +390,6 @@ export function NoteForm({ weekId, projectId, selected, onSaved }: { weekId: str
       {error ? <div className="maintenance-form__error">{error}</div> : null}
       <div className="maintenance-form__grid">
         <label>{t(copy.priority)}<select value={values.priority} onChange={(e) => setValues({ ...values, priority: Number(e.target.value) as 0 | 1 | 2 })}><option value={0}>0</option><option value={1}>1</option><option value={2}>2</option></select></label>
-        <label>{t(copy.author)}<input value={values.author} onChange={(e) => setValues({ ...values, author: e.target.value })} /></label>
       </div>
       <label>{t(copy.note)}<textarea value={values.note_text} onChange={(e) => setValues({ ...values, note_text: e.target.value })} /></label>
       <FormActions onCancel={() => void lock.release()} />

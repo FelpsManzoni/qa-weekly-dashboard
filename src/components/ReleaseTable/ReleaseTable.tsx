@@ -31,42 +31,42 @@ export function ReleaseTable({ releases }: ReleaseTableProps) {
   return (
     <section className="release-table">
       <div className="section-heading">{t(copy.releases)}</div>
-      <div className="release-table__scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>{t(copy.date)}</th>
-              <th>{t(copy.version)}</th>
-              <th>{t(copy.status)}</th>
-              <th>{t(copy.issuesFound)}</th>
-              <th>{t(copy.releaseNotes)}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {releases.map((release) => (
-              <tr key={release.id}>
-                <td>{formatDateBr(release.date)}</td>
-                <td>{release.version}</td>
-                <td>
-                  <span className={`release-table__status ${STATUS_CLASS[release.status]}`}>{release.status}</span>
-                </td>
-                <td>
-                  <span className="release-table__issues">A:{release.issue_count_a} · B:{release.issue_count_b} · C:{release.issue_count_c}</span>
-                </td>
-                <td>
-                  <button type="button" className="release-table__notes-button" onClick={() => setOpenId(release.id)}>
-                    {t(copy.releaseNotes)}
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="release-table__list">
+        {releases.map((release) => (
+          <article className="release-table__card" key={release.id}>
+            <div className="release-table__card-header">
+              <div>
+                <div className="release-table__version">{release.version}</div>
+                <div className="release-table__date">{t(copy.releasedDate)}: {formatDateBr(release.released_date)}</div>
+              </div>
+              <span className={`release-table__status ${STATUS_CLASS[release.status]}`}>{release.status}</span>
+            </div>
+
+            <div className="release-table__footer">
+              <div className="release-table__footer-left">
+                <div className="release-table__verified">
+                  {t(copy.verifiedDate)}: {release.verified_date ? formatDateBr(release.verified_date) : '-'}
+                </div>
+                <div className="release-table__issues" aria-label={t(copy.issuesFound)}>
+                  <span className={`release-table__issue ${release.issue_count_a > 0 ? 'release-table__issue--active' : ''}`}>A:{release.issue_count_a}</span>
+                  <span className={`release-table__issue ${release.issue_count_b > 0 ? 'release-table__issue--active' : ''}`}>B:{release.issue_count_b}</span>
+                  <span className={`release-table__issue ${release.issue_count_c > 0 ? 'release-table__issue--active' : ''}`}>C:{release.issue_count_c}</span>
+                </div>
+              </div>
+              <button type="button" className="release-table__notes-button" onClick={() => setOpenId(release.id)}>
+                {t(copy.notesAction)}
+              </button>
+            </div>
+          </article>
+        ))}
       </div>
       {openRelease ? (
         <ReleaseNotesModal
           version={openRelease.version}
           notes={openRelease.release_notes ?? ''}
+          testsPass={openRelease.tests_pass}
+          testsFail={openRelease.tests_fail}
+          testsNotTested={openRelease.tests_not_tested}
           onClose={() => setOpenId(null)}
         />
       ) : null}

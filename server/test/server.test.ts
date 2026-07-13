@@ -130,7 +130,8 @@ it('rejects a release with an unsupported status', async () => {
       week_id: '00000000-0000-0000-0000-000000000001',
       project_id: '00000000-0000-0000-0000-000000000002',
       version: 'v1',
-      date: '2026-07-03',
+      released_date: '2026-07-03',
+      verified_date: '2026-07-04',
       status: 'Ready'
     });
   expect(res.status).toBe(400);
@@ -147,8 +148,12 @@ it('accepts a valid release with structured issue counts', async () => {
       week_id: '00000000-0000-0000-0000-000000000001',
       project_id: '00000000-0000-0000-0000-000000000002',
       version: 'v1',
-      date: '2026-07-03',
+      released_date: '2026-07-03',
+      verified_date: '2026-07-04',
       status: 'Approved',
+      tests_pass: 10,
+      tests_fail: 1,
+      tests_not_tested: 0,
       issue_count_a: 1,
       issue_count_b: 2,
       issue_count_c: 3,
@@ -156,6 +161,21 @@ it('accepts a valid release with structured issue counts', async () => {
     });
   expect(res.status).toBe(201);
   expect(res.body.id).toBe('rv1');
+});
+
+it('lists the latest release history up to the selected week end date', async () => {
+  const token = await registerAndToken();
+  query.mockResolvedValueOnce([{ id: 'rv2' }, { id: 'rv1' }]);
+  const res = await request(app)
+    .get('/api/releases?project_id=00000000-0000-0000-0000-000000000002&released_before=2026-07-05&limit=5')
+    .set('Authorization', `Bearer ${token}`);
+  expect(res.status).toBe(200);
+  expect(res.body).toHaveLength(2);
+  expect(query).toHaveBeenCalledWith(expect.stringContaining('released_date <= $2'), [
+    '00000000-0000-0000-0000-000000000002',
+    '2026-07-05',
+    5
+  ]);
 });
 
 it('lists users', async () => {

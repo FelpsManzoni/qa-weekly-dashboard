@@ -100,10 +100,31 @@ alter table projects add column if not exists main_technology_scope varchar(255)
 -- ---------------------------------------------------------------------------
 -- Release versions: four fixed statuses, structured issue counts, long-text notes.
 -- ---------------------------------------------------------------------------
+alter table release_versions add column if not exists released_date date;
+alter table release_versions add column if not exists verified_date date;
+alter table release_versions add column if not exists tests_pass integer not null default 0;
+alter table release_versions add column if not exists tests_fail integer not null default 0;
+alter table release_versions add column if not exists tests_not_tested integer not null default 0;
 alter table release_versions add column if not exists issue_count_a integer not null default 0;
 alter table release_versions add column if not exists issue_count_b integer not null default 0;
 alter table release_versions add column if not exists issue_count_c integer not null default 0;
 alter table release_versions add column if not exists release_notes text;
+
+do $$
+begin
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = current_schema()
+      and table_name = 'release_versions'
+      and column_name = 'date'
+  ) then
+    execute 'update release_versions set released_date = date where released_date is null and date is not null';
+  end if;
+end $$;
+
+update release_versions set released_date = current_date where released_date is null;
+alter table release_versions alter column released_date set not null;
 
 -- Migrate existing changelog text into the new release_notes field.
 do $$
@@ -142,3 +163,4 @@ end $$;
 -- The legacy free-text fields are superseded by the structured columns above.
 alter table release_versions drop column if exists critical_issues;
 alter table release_versions drop column if exists changelog;
+alter table release_versions drop column if exists date;

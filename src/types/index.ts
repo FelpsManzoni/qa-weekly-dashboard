@@ -69,8 +69,12 @@ export type ReleaseVersion = {
   week_id: string;
   project_id: string;
   version: string;
-  date: string;
+  released_date: string;
+  verified_date: string | null;
   status: ReleaseStatus;
+  tests_pass: number;
+  tests_fail: number;
+  tests_not_tested: number;
   issue_count_a: number;
   issue_count_b: number;
   issue_count_c: number;
