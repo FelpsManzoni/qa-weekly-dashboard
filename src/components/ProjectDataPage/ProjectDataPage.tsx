@@ -33,6 +33,19 @@ function localizedCopyMessage(message: string | null, t: (text: typeof copy.proj
   return message;
 }
 
+const PRIORITY_OPTIONS = [
+  { value: 0, label: 'priority0' },
+  { value: 1, label: 'priority1' },
+  { value: 2, label: 'priority2' },
+  { value: 3, label: 'priority3' }
+] as const;
+
+function RequiredMark() {
+  const { t } = usePreferences();
+
+  return <span className="project-data-page__required" aria-label={t(copy.requiredField)}>*</span>;
+}
+
 export function ProjectDataPage() {
   const { t } = usePreferences();
   const projects = useProjects();
@@ -85,14 +98,14 @@ export function ProjectDataPage() {
     <section className={`project-data-page ${showStickyFooter ? 'project-data-page--with-footer' : ''}`}>
       <div className="project-data-page__header">
         <div>
-          <h2 className="section-heading">{t(copy.projectData)}</h2>
+          <h2 className="project-data-page__title">{t(copy.projectDataPageTitle)}</h2>
           <p className="project-data-page__subtitle">{t(copy.projectDataCapture)}</p>
         </div>
       </div>
 
       <section className="project-data-page__context" aria-label="Reporting context">
         <label className="project-data-page__field project-data-page__field--project">
-          <span>{t(copy.selectProject)}</span>
+          <span>{t(copy.selectProject)} <RequiredMark /></span>
           <select value={projectId} onChange={(e) => setProjectId(e.target.value)}>
             {projects.activeProjects.map((project) => (
               <option key={project.id} value={project.id}>{project.name}</option>
@@ -100,7 +113,7 @@ export function ProjectDataPage() {
           </select>
         </label>
         <label className="project-data-page__field project-data-page__field--week">
-          <span>{t(copy.selectWeek)}</span>
+          <span>{t(copy.selectWeek)} <RequiredMark /></span>
           <select value={selectedWeek.start_date} onChange={(e) => setSelectedWeekStart(e.target.value)}>
             {weekOptions.map((week) => (
               <option key={week.start_date} value={week.start_date}>
@@ -127,7 +140,10 @@ export function ProjectDataPage() {
         <div className="project-data-page__metrics">
           <section className="project-data-page__card">
             <div className="project-data-page__card-head">
-              <h3>{t(copy.issueHistory)}</h3>
+              <div>
+                <h3>{t(copy.issueHistory)}</h3>
+                <p>{t(copy.issueHistorySubtitle)}</p>
+              </div>
             </div>
             <div className="project-data-page__metric-grid">
               <label className="project-data-page__metric">
@@ -139,7 +155,7 @@ export function ProjectDataPage() {
                 <input min="0" type="number" value={editor.fixed} onChange={(e) => editor.setFixed(Number(e.target.value))} />
               </label>
               <div className="project-data-page__metric project-data-page__metric--derived">
-                <span>{t(copy.netChange)}</span>
+                <span>{t(copy.netChange)} <span className="project-data-page__info" tabIndex={0} title={t(copy.netChangeHelp)}>i</span></span>
                 <strong>{formatSigned(issueNetChange)}</strong>
               </div>
             </div>
@@ -147,8 +163,11 @@ export function ProjectDataPage() {
 
           <section className="project-data-page__card">
             <div className="project-data-page__card-head">
-              <h3>{t(copy.testCaseDistribution)}</h3>
-              <span className="project-data-page__badge">{automationCoverage}%</span>
+              <div>
+                <h3>{t(copy.testCaseDistribution)}</h3>
+                <p>{t(copy.testCaseDistributionSubtitle)}</p>
+              </div>
+              <span className="project-data-page__badge">{automationCoverage}% {t(copy.automatedSuffix)}</span>
             </div>
             <div className="project-data-page__metric-grid">
               <label className="project-data-page__metric">
@@ -178,7 +197,10 @@ export function ProjectDataPage() {
 
         <section className="project-data-page__card project-data-page__section">
           <div className="project-data-page__section-head">
-            <h3>{t(copy.releases)}</h3>
+            <div>
+              <h3>{t(copy.releases)}</h3>
+              <p>{t(copy.releaseSummarySubtitle)}</p>
+            </div>
             <button type="button" className="project-data-page__button project-data-page__button--primary" onClick={editor.addRelease}>
               + {t(copy.addRelease)}
             </button>
@@ -198,7 +220,10 @@ export function ProjectDataPage() {
 
         <section className="project-data-page__card project-data-page__section">
           <div className="project-data-page__section-head">
-            <h3>{t(copy.notes)}</h3>
+            <div>
+              <h3>{t(copy.notes)}</h3>
+              <p>{t(copy.priorityNotesSubtitle)}</p>
+            </div>
             <button type="button" className="project-data-page__button project-data-page__button--secondary" onClick={editor.addNote}>
               + {t(copy.addNote)}
             </button>
@@ -270,15 +295,20 @@ function ReleaseEditor({
           <strong>{release.version || `${t(copy.releases)} ${index + 1}`}</strong>
           <span className={`project-data-page__status project-data-page__status--${statusClass(release.status)}`}>{release.status}</span>
         </div>
-        <button type="button" className="project-data-page__button project-data-page__button--danger" onClick={() => onRemove(index)}>
-          {t(copy.deleteRelease)}
+        <button
+          type="button"
+          className="project-data-page__button project-data-page__button--icon project-data-page__button--danger"
+          aria-label={t(copy.deleteRelease)}
+          onClick={() => onRemove(index)}
+        >
+          🗑
         </button>
       </div>
       <div className="project-data-page__release-main">
-        <label className="project-data-page__field">{t(copy.version)}<input value={release.version} onChange={(e) => onChange(index, { version: e.target.value })} /></label>
-        <label className="project-data-page__field">{t(copy.releasedDate)}<input type="date" value={release.released_date} onChange={(e) => onChange(index, { released_date: e.target.value })} /></label>
+        <label className="project-data-page__field"><span>{t(copy.version)} <RequiredMark /></span><input value={release.version} onChange={(e) => onChange(index, { version: e.target.value })} /></label>
+        <label className="project-data-page__field"><span>{t(copy.releasedDate)} <RequiredMark /></span><input type="date" value={release.released_date} onChange={(e) => onChange(index, { released_date: e.target.value })} /></label>
         <label className="project-data-page__field">{t(copy.verifiedDate)}<input type="date" value={release.verified_date} onChange={(e) => onChange(index, { verified_date: e.target.value })} /></label>
-        <label className="project-data-page__field">{t(copy.status)}<select value={release.status} onChange={(e) => onChange(index, { status: e.target.value as ReleaseDraft['status'] })}>
+        <label className="project-data-page__field"><span>{t(copy.status)} <RequiredMark /></span><select value={release.status} onChange={(e) => onChange(index, { status: e.target.value as ReleaseDraft['status'] })}>
           {RELEASE_STATUSES.map((status) => <option key={status} value={status}>{status}</option>)}
         </select></label>
       </div>
@@ -309,14 +339,19 @@ function NoteEditor({
   const { t } = usePreferences();
   return (
     <div className="project-data-page__note-row">
-      <label className="project-data-page__field project-data-page__field--priority">{t(copy.priority)}<select value={note.priority} onChange={(e) => onChange(index, { priority: Number(e.target.value) as 0 | 1 | 2 })}>
-          <option value={0}>{t(copy.priority0)}</option>
-          <option value={1}>{t(copy.priority1)}</option>
-          <option value={2}>{t(copy.priority2)}</option>
+      <label className="project-data-page__field project-data-page__field--priority"><span>{t(copy.priority)} <RequiredMark /></span><select value={note.priority} onChange={(e) => onChange(index, { priority: Number(e.target.value) as NoteDraft['priority'] })}>
+          {PRIORITY_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>{t(copy[option.label])}</option>
+          ))}
         </select></label>
-      <label className="project-data-page__field">{t(copy.note)}<input value={note.note_text} onChange={(e) => onChange(index, { note_text: e.target.value })} /></label>
-      <button type="button" className="project-data-page__button project-data-page__button--danger" onClick={() => onRemove(index)}>
-        {t(copy.deleteNote)}
+      <label className="project-data-page__field"><span>{t(copy.note)} <RequiredMark /></span><input value={note.note_text} onChange={(e) => onChange(index, { note_text: e.target.value })} /></label>
+      <button
+        type="button"
+        className="project-data-page__button project-data-page__button--icon project-data-page__button--danger"
+        aria-label={t(copy.deleteNote)}
+        onClick={() => onRemove(index)}
+      >
+        🗑
       </button>
     </div>
   );

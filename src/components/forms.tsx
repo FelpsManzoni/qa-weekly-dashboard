@@ -16,6 +16,12 @@ import { RELEASE_STATUSES } from '../types';
 import './shared/Form.css';
 
 type SaveHandler = () => void;
+const PRIORITY_OPTIONS = [
+  { value: 0, label: 'priority0' },
+  { value: 1, label: 'priority1' },
+  { value: 2, label: 'priority2' },
+  { value: 3, label: 'priority3' }
+] as const;
 
 function FormActions({ onCancel }: { onCancel: () => void }) {
   const { t } = usePreferences();
@@ -350,7 +356,7 @@ export function ReleaseForm({ weekId, projectId, selected, onSaved }: { weekId: 
 
 export function NoteForm({ weekId, projectId, selected, onSaved }: { weekId: string | null; projectId: string | null; selected: PriorityNote | null; onSaved: SaveHandler }) {
   const { user } = useAuth();
-  const [values, setValues] = useState({ priority: 0 as 0 | 1 | 2, note_text: '' });
+  const [values, setValues] = useState({ priority: 0 as PriorityNote['priority'], note_text: '' });
   const [error, setError] = useState<string | null>(null);
   const lock = useEditLock('notes', selected?.id ?? null, Boolean(selected?.id));
   const { t } = usePreferences();
@@ -389,7 +395,9 @@ export function NoteForm({ weekId, projectId, selected, onSaved }: { weekId: str
       <LockNotice message={lockMessage(lock, t)} />
       {error ? <div className="maintenance-form__error">{error}</div> : null}
       <div className="maintenance-form__grid">
-        <label>{t(copy.priority)}<select value={values.priority} onChange={(e) => setValues({ ...values, priority: Number(e.target.value) as 0 | 1 | 2 })}><option value={0}>0</option><option value={1}>1</option><option value={2}>2</option></select></label>
+        <label>{t(copy.priority)}<select value={values.priority} onChange={(e) => setValues({ ...values, priority: Number(e.target.value) as PriorityNote['priority'] })}>
+          {PRIORITY_OPTIONS.map((option) => <option key={option.value} value={option.value}>{t(copy[option.label])}</option>)}
+        </select></label>
       </div>
       <label>{t(copy.note)}<textarea value={values.note_text} onChange={(e) => setValues({ ...values, note_text: e.target.value })} /></label>
       <FormActions onCancel={() => void lock.release()} />

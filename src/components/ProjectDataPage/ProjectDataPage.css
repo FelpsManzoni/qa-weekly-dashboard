@@ -1,4 +1,10 @@
 .project-data-page {
+  --project-data-accent: var(--brand-secondary);
+  --project-data-accent-secondary: var(--brand-primary);
+  --project-data-accent-hover: var(--brand-secondary-hover);
+  --project-data-accent-soft: var(--status-running-bg);
+  --project-data-accent-soft-pass: var(--status-pass-bg);
+
   display: grid;
   gap: var(--space-4);
 }
@@ -12,6 +18,13 @@
   display: flex;
   justify-content: space-between;
   gap: var(--space-4);
+}
+
+.project-data-page__title {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  line-height: var(--leading-tight);
+  margin: 0;
 }
 
 .project-data-page__subtitle {
@@ -71,13 +84,18 @@
 .project-data-page__field select:focus,
 .project-data-page__field textarea:focus,
 .project-data-page__metric input:focus {
-  border-color: var(--brand-primary);
+  border-color: var(--project-data-accent);
   box-shadow: var(--shadow-focus);
   outline: none;
 }
 
+.project-data-page__required {
+  color: var(--status-fail);
+  font-weight: var(--weight-bold);
+}
+
 .project-data-page__field--priority {
-  min-width: 132px;
+  min-width: 160px;
 }
 
 .project-data-page__button {
@@ -104,15 +122,15 @@
 }
 
 .project-data-page__button--primary {
-  background: var(--brand-primary);
-  border-color: var(--brand-primary);
+  background: var(--project-data-accent);
+  border-color: var(--project-data-accent);
   color: var(--text-inverse);
 }
 
 .project-data-page__button--primary:hover:not(:disabled),
 .project-data-page__button--primary:focus-visible {
-  background: var(--brand-primary-hover);
-  border-color: var(--brand-primary-hover);
+  background: var(--project-data-accent-hover);
+  border-color: var(--project-data-accent-hover);
 }
 
 .project-data-page__button--secondary {
@@ -143,6 +161,13 @@
 .project-data-page__button--danger:focus-visible {
   background: var(--status-fail-bg);
   border-color: var(--status-fail);
+}
+
+.project-data-page__button--icon {
+  font-size: var(--text-base);
+  min-width: 38px;
+  padding: 0;
+  width: 38px;
 }
 
 .project-data-page__hint {
@@ -177,7 +202,7 @@
 
 .project-data-page__card-head,
 .project-data-page__section-head {
-  align-items: center;
+  align-items: flex-start;
   display: flex;
   gap: var(--space-3);
   justify-content: space-between;
@@ -189,6 +214,14 @@
   font-size: var(--text-lg);
   line-height: var(--leading-tight);
   margin: 0;
+}
+
+.project-data-page__card-head p,
+.project-data-page__section-head p {
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  margin: var(--space-1) 0 0;
 }
 
 .project-data-page__metric-grid {
@@ -210,15 +243,36 @@
 }
 
 .project-data-page__metric--derived {
-  color: var(--brand-secondary);
+  background: #f8f6fb;
+  color: var(--project-data-accent);
 }
 
 .project-data-page__metric--derived strong {
   align-items: center;
-  color: var(--brand-secondary);
+  color: var(--project-data-accent);
   display: flex;
   font-size: var(--text-lg);
   min-height: 38px;
+}
+
+.project-data-page__info {
+  align-items: center;
+  border: 1px solid var(--border-default);
+  border-radius: 50%;
+  color: var(--text-tertiary);
+  cursor: help;
+  display: inline-flex;
+  font-size: 10px;
+  height: 16px;
+  justify-content: center;
+  line-height: 1;
+  margin-left: var(--space-1);
+  width: 16px;
+}
+
+.project-data-page__info:focus-visible {
+  box-shadow: var(--shadow-focus);
+  outline: none;
 }
 
 .project-data-page__badge,
@@ -233,8 +287,8 @@
 }
 
 .project-data-page__badge {
-  background: var(--status-pass-bg);
-  color: var(--brand-primary);
+  background: var(--project-data-accent-soft-pass);
+  color: var(--project-data-accent-secondary);
 }
 
 .project-data-page__coverage {
@@ -261,7 +315,7 @@
 }
 
 .project-data-page__coverage-bar span {
-  background: var(--brand-primary);
+  background: var(--project-data-accent);
   border-radius: inherit;
   display: block;
   height: 100%;
@@ -395,7 +449,7 @@
 }
 
 .project-data-page__dirty-dot {
-  background: var(--status-warning);
+  background: var(--project-data-accent);
   border-radius: 50%;
   flex: 0 0 10px;
   height: 10px;

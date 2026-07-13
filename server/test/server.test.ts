@@ -231,6 +231,23 @@ it('lists users', async () => {
   expect(res.body[0].username).toBe('qa2');
 });
 
+it('accepts a P3 low priority note', async () => {
+  const token = await registerAndToken();
+  queryOne.mockResolvedValueOnce({ id: 'n3', priority: 3, note_text: 'Low priority follow-up' });
+  const res = await request(app)
+    .post('/api/notes')
+    .set('Authorization', `Bearer ${token}`)
+    .send({
+      week_id: '00000000-0000-0000-0000-000000000001',
+      project_id: '00000000-0000-0000-0000-000000000002',
+      priority: 3,
+      note_text: 'Low priority follow-up',
+      author: 'QA'
+    });
+  expect(res.status).toBe(201);
+  expect(res.body.priority).toBe(3);
+});
+
 it('returns aggregated project data', async () => {
   const token = await registerAndToken();
   queryOne.mockResolvedValueOnce({ id: 'im1', reported_count: 1, fixed_count: 1 });

@@ -21,9 +21,33 @@ export const copy = {
     en: 'Project Data',
     pt: 'Dados do Projeto'
   },
+  projectDataPageTitle: {
+    en: 'Project data',
+    pt: 'Dados do projeto'
+  },
   projectDataCapture: {
-    en: 'Capture weekly QA metrics, releases and priority notes.',
-    pt: 'Registre metricas semanais de QA, releases e notas prioritarias.'
+    en: 'Capture weekly delivery, test coverage and release information.',
+    pt: 'Registre entrega semanal, cobertura de testes e informacoes de release.'
+  },
+  issueHistorySubtitle: {
+    en: 'Issues reported and resolved during this week.',
+    pt: 'Issues reportadas e resolvidas durante esta semana.'
+  },
+  testCaseDistributionSubtitle: {
+    en: 'Current test inventory by automation status.',
+    pt: 'Inventario atual de testes por status de automacao.'
+  },
+  releaseSummarySubtitle: {
+    en: 'Required fields are marked with an asterisk.',
+    pt: 'Campos obrigatorios sao marcados com asterisco.'
+  },
+  priorityNotesSubtitle: {
+    en: 'Capture only items that need attention in the weekly report.',
+    pt: 'Registre somente itens que precisam de atencao no relatorio semanal.'
+  },
+  requiredField: {
+    en: 'Required field',
+    pt: 'Campo obrigatorio'
   },
   leadQa: {
     en: 'Lead QA',
@@ -273,9 +297,17 @@ export const copy = {
     en: 'Net change',
     pt: 'Saldo'
   },
+  netChangeHelp: {
+    en: 'Calculated automatically from reported minus fixed issues.',
+    pt: 'Calculado automaticamente por issues reportadas menos corrigidas.'
+  },
   automationCoverage: {
     en: 'Automation coverage',
     pt: 'Cobertura de automacao'
+  },
+  automatedSuffix: {
+    en: 'automated',
+    pt: 'automatizado'
   },
   weekNumber: {
     en: 'Week number',
@@ -394,16 +426,20 @@ export const copy = {
     pt: 'Nota'
   },
   priority0: {
-    en: 'Priority 0',
-    pt: 'Prioridade 0'
+    en: 'P0 · Critical',
+    pt: 'P0 · Critica'
   },
   priority1: {
-    en: 'Priority 1',
-    pt: 'Prioridade 1'
+    en: 'P1 · High',
+    pt: 'P1 · Alta'
   },
   priority2: {
-    en: 'Priority 2',
-    pt: 'Prioridade 2'
+    en: 'P2 · Medium',
+    pt: 'P2 · Media'
+  },
+  priority3: {
+    en: 'P3 · Low',
+    pt: 'P3 · Baixa'
   }
 } satisfies Record<string, BilingualText>;
 

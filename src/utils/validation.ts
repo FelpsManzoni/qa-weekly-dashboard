@@ -33,8 +33,8 @@ export function validateProject(values: Pick<Project, 'code' | 'name'>): string 
 }
 
 export function validateNote(note: Pick<PriorityNote, 'priority' | 'note_text'>): string | null {
-  if (![0, 1, 2].includes(note.priority)) {
-    return 'Priority must be 0, 1, or 2.';
+  if (![0, 1, 2, 3].includes(note.priority)) {
+    return 'Priority must be 0, 1, 2, or 3.';
   }
 
   if (!note.note_text.trim()) {

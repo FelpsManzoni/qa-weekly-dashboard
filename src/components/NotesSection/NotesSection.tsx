@@ -8,7 +8,7 @@ type NotesSectionProps = {
   notes: PriorityNote[];
 };
 
-const PRIORITY_BLOCK = ['notes-section__block--p0', 'notes-section__block--p1', 'notes-section__block--p2'] as const;
+const PRIORITY_BLOCK = ['notes-section__block--p0', 'notes-section__block--p1', 'notes-section__block--p2', 'notes-section__block--p3'] as const;
 
 export function NotesSection({ notes }: NotesSectionProps) {
   const { t } = usePreferences();

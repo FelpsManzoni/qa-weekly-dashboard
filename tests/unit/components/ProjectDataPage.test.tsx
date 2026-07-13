@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { ProjectDataPage } from '../../../src/components/ProjectDataPage/ProjectDataPage';
 
 beforeEach(() => {
@@ -40,6 +41,9 @@ vi.mock('../../../src/hooks/useProjectDataEditor', () => ({
     error: null,
     saving: false,
     saveError: null,
+    copying: false,
+    copyMessage: null,
+    isDirty: false,
     reported: 0,
     fixed: 0,
     issueEnabled: false,
@@ -48,7 +52,7 @@ vi.mock('../../../src/hooks/useProjectDataEditor', () => ({
     notAuto: 0,
     testEnabled: false,
     releases: [],
-    notes: [],
+    notes: [{ id: 'n3', priority: 3, note_text: 'Low priority item', author: '' }],
     setReported: vi.fn(),
     setFixed: vi.fn(),
     setIssueEnabled: vi.fn(),
@@ -62,14 +66,25 @@ vi.mock('../../../src/hooks/useProjectDataEditor', () => ({
     addNote: vi.fn(),
     updateNote: vi.fn(),
     removeNote: vi.fn(),
+    copyFromPreviousWeek: vi.fn(),
+    discardChanges: vi.fn(),
     save: vi.fn()
   })
 }));
 
-it('shows recent ISO weeks in Project Data even when the current week does not exist yet', async () => {
+it('shows recent ISO weeks in Project Data even when the current week does not exist yet', () => {
   render(<ProjectDataPage />);
 
   expect(useWeeks).toHaveBeenCalledWith();
-  expect(await screen.findByRole('option', { name: /2026-W28/i })).toBeInTheDocument();
+  expect(screen.getByRole('option', { name: /2026-W28/i })).toBeInTheDocument();
   expect(screen.getByRole('option', { name: /2026-W27/i })).toBeInTheDocument();
+});
+
+it('shows the full P0-P3 priority display scale in Project Data notes', () => {
+  render(<ProjectDataPage />);
+
+  expect(screen.getByRole('option', { name: 'P0 · Critical' })).toBeInTheDocument();
+  expect(screen.getByRole('option', { name: 'P1 · High' })).toBeInTheDocument();
+  expect(screen.getByRole('option', { name: 'P2 · Medium' })).toBeInTheDocument();
+  expect(screen.getByRole('option', { name: 'P3 · Low' })).toBeInTheDocument();
 });

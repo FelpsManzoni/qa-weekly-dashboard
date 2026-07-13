@@ -66,7 +66,7 @@ create table if not exists notes (
   id uuid primary key default gen_random_uuid(),
   week_id uuid not null references weeks(id) on delete cascade,
   project_id uuid not null references projects(id) on delete cascade,
-  priority integer not null check (priority in (0, 1, 2)),
+  priority integer not null check (priority in (0, 1, 2, 3)),
   note_text text not null check (char_length(trim(note_text)) > 0),
   author varchar(255),
   created_at timestamptz not null default now(),

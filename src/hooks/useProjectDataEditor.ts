@@ -26,7 +26,7 @@ export type ReleaseDraft = {
 
 export type NoteDraft = {
   id: string | null;
-  priority: 0 | 1 | 2;
+  priority: 0 | 1 | 2 | 3;
   note_text: string;
   author: string;
 };
