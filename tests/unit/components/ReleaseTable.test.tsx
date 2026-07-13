@@ -30,18 +30,10 @@ it('renders release summary cards instead of a wide table', () => {
   expect(screen.getByText('B:2')).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Notes' })).toBeInTheDocument();
   expect(container.querySelector('.release-table__footer-left')).toBeInTheDocument();
+  expect(screen.queryByText('Tests pass')).not.toBeInTheDocument();
+  expect(screen.queryByText('Tests fail')).not.toBeInTheDocument();
+  expect(screen.queryByText('Tests not tested')).not.toBeInTheDocument();
   expect(container.querySelector('table')).not.toBeInTheDocument();
-});
-
-it('renders compact test count chips on the release card', () => {
-  render(<ReleaseTable releases={[baseRelease]} />);
-
-  const report = screen.getByLabelText('Test case report');
-  expect(within(report).getByText('Tests pass')).toBeInTheDocument();
-  expect(within(report).getByText('10')).toBeInTheDocument();
-  expect(within(report).getByText('Tests fail')).toBeInTheDocument();
-  expect(within(report).getAllByText('1')).toHaveLength(2);
-  expect(within(report).getByText('Tests not tested')).toBeInTheDocument();
 });
 
 it('opens the notes overlay with the test case report and pass rate', () => {
@@ -51,6 +43,12 @@ it('opens the notes overlay with the test case report and pass rate', () => {
 
   expect(screen.getByRole('dialog', { name: /v1 - Release notes/i })).toBeInTheDocument();
   expect(screen.getByRole('heading', { name: 'Test case report' })).toBeInTheDocument();
+  const report = screen.getByLabelText('Test case report');
+  expect(within(report).getByText('Tests pass')).toBeInTheDocument();
+  expect(within(report).getByText('10')).toBeInTheDocument();
+  expect(within(report).getByText('Tests fail')).toBeInTheDocument();
+  expect(within(report).getAllByText('1')).toHaveLength(2);
+  expect(within(report).getByText('Tests not tested')).toBeInTheDocument();
   expect(screen.getByText('Pass rate')).toBeInTheDocument();
   expect(screen.getByText('83%')).toBeInTheDocument();
   expect(screen.getByText('Updates')).toBeInTheDocument();
