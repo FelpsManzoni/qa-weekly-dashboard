@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { fetchProjectData } from '../api/projectData';
 import { saveIssueMetric } from '../api/issues';
 import { saveTestCaseDistribution } from '../api/testCases';
@@ -39,6 +39,7 @@ type Loaded = {
 };
 
 const emptyLoaded: Loaded = { issueId: null, testId: null, releaseIds: [], noteIds: [] };
+type EditorState = ReturnType<typeof resetLoadedState>;
 
 function resetLoadedState() {
   return {
@@ -50,6 +51,34 @@ function resetLoadedState() {
     releases: [] as ReleaseDraft[],
     notes: [] as NoteDraft[]
   };
+}
+
+function cloneEditorState(state: EditorState): EditorState {
+  return {
+    reported: state.reported,
+    fixed: state.fixed,
+    automated: state.automated,
+    pending: state.pending,
+    notAuto: state.notAuto,
+    releases: state.releases.map((release) => ({ ...release })),
+    notes: state.notes.map((note) => ({ ...note }))
+  };
+}
+
+function hasProjectData(state: EditorState): boolean {
+  return Boolean(
+    state.reported ||
+    state.fixed ||
+    state.automated ||
+    state.pending ||
+    state.notAuto ||
+    state.releases.length ||
+    state.notes.length
+  );
+}
+
+function editorStateKey(state: EditorState): string {
+  return JSON.stringify(state);
 }
 
 export function useProjectDataEditor(
@@ -68,6 +97,8 @@ export function useProjectDataEditor(
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [copying, setCopying] = useState(false);
+  const [copyMessage, setCopyMessage] = useState<string | null>(null);
 
   const [reported, setReported] = useState(0);
   const [fixed, setFixed] = useState(0);
@@ -80,18 +111,38 @@ export function useProjectDataEditor(
   const [notes, setNotes] = useState<NoteDraft[]>([]);
 
   const loadedRef = useRef<Loaded>(emptyLoaded);
+  const baselineRef = useRef<EditorState>(resetLoadedState());
 
-  const reset = useCallback(() => {
-    const state = resetLoadedState();
+  const applyState = useCallback((state: EditorState) => {
     setReported(state.reported);
     setFixed(state.fixed);
     setAutomated(state.automated);
     setPending(state.pending);
     setNotAuto(state.notAuto);
-    setReleases(state.releases);
-    setNotes(state.notes);
-    loadedRef.current = emptyLoaded;
+    setReleases(cloneEditorState(state).releases);
+    setNotes(cloneEditorState(state).notes);
   }, []);
+
+  const reset = useCallback(() => {
+    const state = resetLoadedState();
+    applyState(state);
+    baselineRef.current = cloneEditorState(state);
+    loadedRef.current = emptyLoaded;
+    setCopyMessage(null);
+    setSaveError(null);
+  }, [applyState]);
+
+  const currentState = useMemo<EditorState>(() => ({
+    reported,
+    fixed,
+    automated,
+    pending,
+    notAuto,
+    releases,
+    notes
+  }), [automated, fixed, notAuto, notes, pending, releases, reported]);
+
+  const isDirty = editorStateKey(currentState) !== editorStateKey(baselineRef.current);
 
   const loadByRequest = useCallback(async (request: ProjectDataRequest) => {
     if (!projectId) {
@@ -108,13 +159,13 @@ export function useProjectDataEditor(
         throw new Error(loadError.message);
       }
       const payload = data ?? { issueMetric: null, testCase: null, releases: [], notes: [] };
-      setReported(payload.issueMetric?.reported_count ?? 0);
-      setFixed(payload.issueMetric?.fixed_count ?? 0);
-      setAutomated(payload.testCase?.automated_count ?? 0);
-      setPending(payload.testCase?.pending_auto_count ?? 0);
-      setNotAuto(payload.testCase?.not_auto_count ?? 0);
-      setReleases(
-        payload.releases.map((release) => ({
+      const loadedState: EditorState = {
+        reported: payload.issueMetric?.reported_count ?? 0,
+        fixed: payload.issueMetric?.fixed_count ?? 0,
+        automated: payload.testCase?.automated_count ?? 0,
+        pending: payload.testCase?.pending_auto_count ?? 0,
+        notAuto: payload.testCase?.not_auto_count ?? 0,
+        releases: payload.releases.map((release) => ({
           id: release.id,
           version: release.version,
           released_date: release.released_date,
@@ -127,28 +178,30 @@ export function useProjectDataEditor(
           issue_count_b: release.issue_count_b,
           issue_count_c: release.issue_count_c,
           release_notes: release.release_notes ?? ''
-        }))
-      );
-      setNotes(
-        payload.notes.map((note) => ({
+        })),
+        notes: payload.notes.map((note) => ({
           id: note.id,
           priority: note.priority,
           note_text: note.note_text,
           author: note.author ?? ''
         }))
-      );
+      };
+      applyState(loadedState);
+      baselineRef.current = cloneEditorState(loadedState);
       loadedRef.current = {
         issueId: payload.issueMetric?.id ?? null,
         testId: payload.testCase?.id ?? null,
         releaseIds: payload.releases.map((release) => release.id),
         noteIds: payload.notes.map((note) => note.id)
       };
+      setCopyMessage(null);
+      setSaveError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load');
     } finally {
       setLoading(false);
     }
-  }, [projectId, reset]);
+  }, [applyState, projectId, reset]);
 
   const load = useCallback(async () => {
     if (!selectedWeekStart || !projectId) {
@@ -208,6 +261,70 @@ export function useProjectDataEditor(
   const removeNote = useCallback((index: number) => {
     setNotes((current) => current.filter((_, i) => i !== index));
   }, []);
+
+  const copyFromPreviousWeek = useCallback(async (previousWeekStart: string) => {
+    if (!projectId) return;
+
+    setCopying(true);
+    setCopyMessage(null);
+    setSaveError(null);
+    try {
+      const { data, error: copyError } = await fetchProjectData({
+        project_id: projectId,
+        week_start_date: previousWeekStart
+      });
+      if (copyError) {
+        throw new Error(copyError.message);
+      }
+
+      const payload = data ?? { issueMetric: null, testCase: null, releases: [], notes: [] };
+      const copiedState: EditorState = {
+        reported: payload.issueMetric?.reported_count ?? 0,
+        fixed: payload.issueMetric?.fixed_count ?? 0,
+        automated: payload.testCase?.automated_count ?? 0,
+        pending: payload.testCase?.pending_auto_count ?? 0,
+        notAuto: payload.testCase?.not_auto_count ?? 0,
+        releases: payload.releases.map((release) => ({
+          id: null,
+          version: release.version,
+          released_date: release.released_date,
+          verified_date: release.verified_date ?? '',
+          status: release.status,
+          tests_pass: release.tests_pass,
+          tests_fail: release.tests_fail,
+          tests_not_tested: release.tests_not_tested,
+          issue_count_a: release.issue_count_a,
+          issue_count_b: release.issue_count_b,
+          issue_count_c: release.issue_count_c,
+          release_notes: release.release_notes ?? ''
+        })),
+        notes: payload.notes.map((note) => ({
+          id: null,
+          priority: note.priority,
+          note_text: note.note_text,
+          author: note.author ?? ''
+        }))
+      };
+
+      if (!hasProjectData(copiedState)) {
+        setCopyMessage('No data found in the previous week.');
+        return;
+      }
+
+      applyState(copiedState);
+      setCopyMessage('Previous week data copied. Review and save to apply it to this week.');
+    } catch (err) {
+      setCopyMessage(err instanceof Error ? err.message : 'Failed to copy previous week data.');
+    } finally {
+      setCopying(false);
+    }
+  }, [applyState, projectId]);
+
+  const discardChanges = useCallback(() => {
+    applyState(baselineRef.current);
+    setCopyMessage(null);
+    setSaveError(null);
+  }, [applyState]);
 
   const save = useCallback(async () => {
     if (!selectedWeekStart || !selectedWeekEnd || selectedWeekNumber == null || selectedWeekYear == null || !projectId) {
@@ -332,6 +449,9 @@ export function useProjectDataEditor(
     error,
     saving,
     saveError,
+    copying,
+    copyMessage,
+    isDirty,
     reported,
     fixed,
     automated,
@@ -350,6 +470,8 @@ export function useProjectDataEditor(
     addNote,
     updateNote,
     removeNote,
+    copyFromPreviousWeek,
+    discardChanges,
     save
   };
 }

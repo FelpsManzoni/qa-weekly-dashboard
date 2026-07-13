@@ -21,6 +21,10 @@ export const copy = {
     en: 'Project Data',
     pt: 'Dados do Projeto'
   },
+  projectDataCapture: {
+    en: 'Capture weekly QA metrics, releases and priority notes.',
+    pt: 'Registre metricas semanais de QA, releases e notas prioritarias.'
+  },
   leadQa: {
     en: 'Lead QA',
     pt: 'QA Lider'
@@ -233,6 +237,46 @@ export const copy = {
     en: '+ New',
     pt: '+ Novo'
   },
+  addRelease: {
+    en: 'Add release',
+    pt: 'Adicionar release'
+  },
+  addNote: {
+    en: 'Add note',
+    pt: 'Adicionar nota'
+  },
+  copyPreviousWeek: {
+    en: 'Copy previous week',
+    pt: 'Copiar semana anterior'
+  },
+  discardChanges: {
+    en: 'Discard changes',
+    pt: 'Descartar alteracoes'
+  },
+  saveProjectData: {
+    en: 'Save project data',
+    pt: 'Salvar dados do projeto'
+  },
+  unsavedChanges: {
+    en: 'Unsaved changes',
+    pt: 'Alteracoes nao salvas'
+  },
+  noPreviousWeekData: {
+    en: 'No data found in the previous week.',
+    pt: 'Nenhum dado encontrado na semana anterior.'
+  },
+  copiedPreviousWeek: {
+    en: 'Previous week data copied. Review and save to apply it to this week.',
+    pt: 'Dados da semana anterior copiados. Revise e salve para aplicar nesta semana.'
+  },
+  netChange: {
+    en: 'Net change',
+    pt: 'Saldo'
+  },
+  automationCoverage: {
+    en: 'Automation coverage',
+    pt: 'Cobertura de automacao'
+  },
   weekNumber: {
     en: 'Week number',
     pt: 'Numero da semana'
@@ -336,6 +380,14 @@ export const copy = {
   delete: {
     en: 'Delete',
     pt: 'Excluir'
+  },
+  deleteRelease: {
+    en: 'Delete release',
+    pt: 'Excluir release'
+  },
+  deleteNote: {
+    en: 'Delete note',
+    pt: 'Excluir nota'
   },
   note: {
     en: 'Note',
