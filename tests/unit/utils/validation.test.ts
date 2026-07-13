@@ -22,4 +22,5 @@ it('validateNote enforces priority and text', () => {
   expect(validateNote({ priority: 5 as 0, note_text: 'x' })).toMatch(/Priority must be/);
   expect(validateNote({ priority: 1, note_text: '   ' })).toMatch(/text is required/);
   expect(validateNote({ priority: 1, note_text: 'ok' })).toBeNull();
+  expect(validateNote({ priority: 3, note_text: 'low priority' })).toBeNull();
 });

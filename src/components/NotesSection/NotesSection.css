@@ -36,6 +36,11 @@
   background: var(--status-running-bg);
 }
 
+.notes-section__block--p3 {
+  border-left-color: var(--text-tertiary);
+  background: var(--surface-sunken);
+}
+
 .notes-section__block-title {
   font-size: var(--text-sm);
   font-weight: 700;

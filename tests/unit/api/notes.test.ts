@@ -14,7 +14,7 @@ it('fetches notes', async () => {
 });
 
 it('creates a note (POST)', async () => {
-  const response = await saveNote({ priority: 1, note_text: 'hello', week_id: 'w1', project_id: 'p1' } as never);
+  const response = await saveNote({ priority: 3, note_text: 'hello', week_id: 'w1', project_id: 'p1' } as never);
   expect(response.error).toBeNull();
 });
 

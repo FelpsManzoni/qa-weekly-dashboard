@@ -85,7 +85,7 @@ export type PriorityNote = {
   id: string;
   week_id: string;
   project_id: string;
-  priority: 0 | 1 | 2;
+  priority: 0 | 1 | 2 | 3;
   note_text: string;
   author: string | null;
   created_at?: string;

@@ -95,7 +95,7 @@ export const releaseSchema = z.object({
 export const noteSchema = z.object({
   week_id: z.string().uuid(),
   project_id: z.string().uuid(),
-  priority: z.union([z.literal(0), z.literal(1), z.literal(2)]),
+  priority: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]),
   note_text: z.string().trim().min(1),
   author: z.string().nullable().optional()
 });
