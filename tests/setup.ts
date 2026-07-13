@@ -9,10 +9,18 @@ class ResizeObserverMock {
 
 vi.mock('recharts', async () => {
   const React = await import('react');
+  const serializeProps = (props: Record<string, unknown>) =>
+    JSON.stringify(
+      props,
+      (_key, value) => {
+        if (typeof value === 'function') return '[function]';
+        return value;
+      }
+    );
   const passthrough =
     (name: string) =>
-    ({ children }: any) =>
-      React.createElement('div', { 'data-chart': name }, children);
+    ({ children, ...props }: any) =>
+      React.createElement('div', { 'data-chart': name, 'data-props': serializeProps(props) }, children);
 
   return {
     ResponsiveContainer: passthrough('responsive'),
