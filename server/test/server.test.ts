@@ -100,6 +100,50 @@ it('upserts an issue metric', async () => {
   expect(res.body.id).toBe('i1');
 });
 
+it('lists cumulative issue history scoped to the selected week window', async () => {
+  const token = await registerAndToken();
+  query.mockResolvedValueOnce([
+    { id: 'i1', week_id: 'w1', project_id: '00000000-0000-0000-0000-000000000002', reported_count: 100, fixed_count: 80 },
+    { id: 'w2:00000000-0000-0000-0000-000000000002', week_id: 'w2', project_id: '00000000-0000-0000-0000-000000000002', reported_count: 100, fixed_count: 80 },
+    { id: 'i3', week_id: 'w3', project_id: '00000000-0000-0000-0000-000000000002', reported_count: 110, fixed_count: 95 }
+  ]);
+  const res = await request(app)
+    .get('/api/issue-metrics?project_id=00000000-0000-0000-0000-000000000002&end_week_id=00000000-0000-0000-0000-000000000001&range_weeks=5')
+    .set('Authorization', `Bearer ${token}`);
+  expect(res.status).toBe(200);
+  expect(res.body).toEqual([
+    expect.objectContaining({ week_id: 'w1', reported_count: 100, fixed_count: 80 }),
+    expect.objectContaining({ week_id: 'w2', reported_count: 100, fixed_count: 80 }),
+    expect.objectContaining({ week_id: 'w3', reported_count: 110, fixed_count: 95 })
+  ]);
+  expect(query).toHaveBeenCalledWith(expect.stringContaining('left join issue_metrics im on im.week_id = pw.id and im.project_id = $1'), [
+    '00000000-0000-0000-0000-000000000002',
+    '00000000-0000-0000-0000-000000000001',
+    5
+  ]);
+  expect(query).toHaveBeenCalledWith(expect.stringContaining('sum(coalesce(im.reported_count, 0)) over'), [
+    '00000000-0000-0000-0000-000000000002',
+    '00000000-0000-0000-0000-000000000001',
+    5
+  ]);
+});
+
+it('lists cumulative issue history across all project weeks when no end week is provided', async () => {
+  const token = await registerAndToken();
+  query.mockResolvedValueOnce([
+    { id: 'i1', week_id: 'w1', project_id: '00000000-0000-0000-0000-000000000002', reported_count: 10, fixed_count: 8 },
+    { id: 'w2:00000000-0000-0000-0000-000000000002', week_id: 'w2', project_id: '00000000-0000-0000-0000-000000000002', reported_count: 10, fixed_count: 8 },
+    { id: 'i3', week_id: 'w3', project_id: '00000000-0000-0000-0000-000000000002', reported_count: 13, fixed_count: 9 }
+  ]);
+  const res = await request(app)
+    .get('/api/issue-metrics?project_id=00000000-0000-0000-0000-000000000002')
+    .set('Authorization', `Bearer ${token}`);
+  expect(res.status).toBe(200);
+  expect(res.body[1]).toEqual(expect.objectContaining({ week_id: 'w2', reported_count: 10, fixed_count: 8 }));
+  expect(res.body[2]).toEqual(expect.objectContaining({ week_id: 'w3', reported_count: 13, fixed_count: 9 }));
+  expect(query).toHaveBeenCalledWith(expect.stringContaining('from cumulative_history'), ['00000000-0000-0000-0000-000000000002']);
+});
+
 it('rejects a week that does not start on Monday', async () => {
   const token = await registerAndToken();
   const res = await request(app)

@@ -40,10 +40,40 @@ issuesRouter.get(
       return;
     }
 
+    const projectWeeksCte = `
+      with project_weeks as (
+        select w.id, w.start_date
+        from weeks w
+        where exists (
+          select 1 from issue_metrics im where im.week_id = w.id and im.project_id = $1
+          union all
+          select 1 from test_case_distributions tcd where tcd.week_id = w.id and tcd.project_id = $1
+          union all
+          select 1 from release_versions rv where rv.week_id = w.id and rv.project_id = $1
+          union all
+          select 1 from notes n where n.week_id = w.id and n.project_id = $1
+        )
+      ),
+      cumulative_history as (
+        select
+          coalesce(im.id::text, concat(pw.id::text, ':', $1::text)) as id,
+          pw.id as week_id,
+          $1::uuid as project_id,
+          sum(coalesce(im.reported_count, 0)) over (order by pw.start_date asc rows between unbounded preceding and current row) as reported_count,
+          sum(coalesce(im.fixed_count, 0)) over (order by pw.start_date asc rows between unbounded preceding and current row) as fixed_count,
+          im.created_at,
+          im.updated_at,
+          pw.start_date
+        from project_weeks pw
+        left join issue_metrics im on im.week_id = pw.id and im.project_id = $1
+      )
+    `;
+
     // History ordered by week date, ending at the selected week and limited to N points.
     if (endWeekId) {
       const rows = await query(
-        `select scoped.id,
+        `${projectWeeksCte}
+         select scoped.id,
                 scoped.week_id,
                 scoped.project_id,
                 scoped.reported_count,
@@ -51,12 +81,10 @@ issuesRouter.get(
                 scoped.created_at,
                 scoped.updated_at
            from (
-             select im.*, w.start_date
-             from issue_metrics im
-             join weeks w on w.id = im.week_id
-             where im.project_id = $1
-               and w.start_date <= (select start_date from weeks where id = $2)
-             order by w.start_date desc
+             select *
+             from cumulative_history
+             where start_date <= (select start_date from weeks where id = $2)
+             order by start_date desc
              limit $3
            ) scoped
          order by scoped.start_date asc`,
@@ -67,10 +95,16 @@ issuesRouter.get(
     }
 
     const rows = await query(
-      `select im.* from issue_metrics im
-       join weeks w on w.id = im.week_id
-       where im.project_id = $1
-       order by w.start_date asc`,
+      `${projectWeeksCte}
+       select id,
+              week_id,
+              project_id,
+              reported_count,
+              fixed_count,
+              created_at,
+              updated_at
+       from cumulative_history
+       order by start_date asc`,
       [projectId]
     );
     res.json(rows);

@@ -42,6 +42,14 @@ export function IssueHistoryChart({
     };
   });
   const selectedLabel = data.find((point) => point.isSelected)?.name ?? null;
+  const minFixed = data.length ? Math.min(...data.map((point) => point.fixed)) : 0;
+  const maxReported = data.length ? Math.max(...data.map((point) => point.reported)) : 0;
+  const axisSpan = Math.max(maxReported - minFixed, 1);
+  const axisPadding = Math.max(1, Math.ceil(axisSpan * 0.1));
+  const yAxisDomain: [number, number] = [
+    Math.max(0, minFixed - axisPadding),
+    Math.max(maxReported + axisPadding, minFixed + 1)
+  ];
 
   return (
     <section className="chart-card issue-history-chart">
@@ -72,7 +80,7 @@ export function IssueHistoryChart({
             <LineChart data={data}>
               <CartesianGrid stroke="var(--border-subtle)" />
               <XAxis dataKey="name" />
-              <YAxis allowDecimals={false} />
+              <YAxis allowDecimals={false} domain={yAxisDomain} />
               <Tooltip />
               <Legend />
               {selectedLabel ? <ReferenceLine x={selectedLabel} stroke="var(--brand-primary)" strokeDasharray="4 4" /> : null}

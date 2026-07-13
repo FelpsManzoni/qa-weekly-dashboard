@@ -6,7 +6,7 @@ it('renders chart sections', () => {
   render(
     <>
       <IssueHistoryChart
-        metrics={[{ id: 'i1', week_id: 'w1', project_id: 'p1', reported_count: 3, fixed_count: 1 }]}
+        metrics={[{ id: 'i1', week_id: 'w1', project_id: 'p1', reported_count: 100, fixed_count: 80 }]}
         weeks={[{ id: 'w1', week_number: 27, calendar_year: 2026, start_date: '2026-06-29', end_date: '2026-07-05', is_active: true }]}
         rangeWeeks={5}
         onRangeChange={vi.fn()}
