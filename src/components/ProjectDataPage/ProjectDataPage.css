@@ -266,6 +266,13 @@
   font-weight: var(--weight-bold);
 }
 
+.project-data-page__metric small {
+  color: var(--text-tertiary);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-normal);
+}
+
 .project-data-page__metric--derived {
   background: #f8f6fb;
   color: var(--project-data-accent);
@@ -318,6 +325,16 @@
 .project-data-page__coverage {
   display: grid;
   gap: var(--space-2);
+}
+
+.project-data-page__validation {
+  background: var(--status-fail-bg);
+  border: 1px solid var(--status-fail);
+  border-radius: var(--radius-sm);
+  color: var(--status-fail);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  padding: var(--space-2) var(--space-3);
 }
 
 .project-data-page__coverage > div:first-child {

@@ -47,6 +47,8 @@ vi.mock('../../../src/hooks/useProjectDataEditor', () => ({
     copying: false,
     copyMessage: null,
     isDirty: editorIsDirty,
+    testCaseAggregate: { automated: 0, pending: 0, notAuto: 0 },
+    hasInvalidPendingAggregate: false,
     reported: 0,
     fixed: 0,
     issueEnabled: false,
@@ -79,7 +81,7 @@ it('shows recent ISO weeks in Project Data even when the current week does not e
   render(<ProjectDataPage />);
 
   expect(useWeeks).toHaveBeenCalledWith();
-  expect(screen.getByRole('heading', { name: 'Quality Report Hub' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Project Data Page' })).toBeInTheDocument();
   expect(screen.queryByText('Unsaved changes')).not.toBeInTheDocument();
   expect(screen.getByRole('option', { name: /2026-W28/i })).toBeInTheDocument();
   expect(screen.getByRole('option', { name: /2026-W27/i })).toBeInTheDocument();
@@ -90,7 +92,7 @@ it('shows an unsaved changes pill in the Project Data header when the editor is 
 
   render(<ProjectDataPage />);
 
-  expect(screen.getByRole('heading', { name: 'Quality Report Hub' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Project Data Page' })).toBeInTheDocument();
   expect(screen.getByText('Unsaved changes', { selector: '.project-data-page__change-pill' })).toBeInTheDocument();
 });
 

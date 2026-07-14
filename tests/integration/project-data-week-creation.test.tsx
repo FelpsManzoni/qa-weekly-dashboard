@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach } from 'vitest';
 import { ProjectDataPage } from '../../src/components/ProjectDataPage/ProjectDataPage';
 
 const week27 = { id: 'w1', week_number: 27, calendar_year: 2026, start_date: '2026-06-29', end_date: '2026-07-05', is_active: true };
@@ -40,6 +41,19 @@ const ensureWeek = vi.fn().mockResolvedValue({
   error: null
 });
 const saveIssueMetric = vi.fn().mockResolvedValue({ data: { id: 'i1' }, error: null });
+const fetchTestCaseDistributionAggregate = vi.fn().mockImplementation((request: { weekId?: string | null; weekStartDate?: string | null; projectId: string }) => {
+  if (request.weekId === 'w1') {
+    return Promise.resolve({
+      data: [{ id: 'tc1', week_id: 'w1', project_id: 'p1', automated_count: 58, pending_auto_count: 7, not_auto_count: 20 }],
+      error: null
+    });
+  }
+
+  return Promise.resolve({
+    data: [{ id: 'baseline', week_id: null, project_id: 'p1', automated_count: 50, pending_auto_count: 10, not_auto_count: 10 }],
+    error: null
+  });
+});
 const saveTestCaseDistribution = vi.fn().mockResolvedValue({ data: { id: 't1' }, error: null });
 const saveRelease = vi.fn().mockResolvedValue({ data: { id: 'r1' }, error: null });
 const saveNote = vi.fn().mockResolvedValue({ data: { id: 'n1' }, error: null });
@@ -77,6 +91,7 @@ vi.mock('../../src/api/issues', () => ({
 }));
 
 vi.mock('../../src/api/testCases', () => ({
+  fetchTestCaseDistributionAggregate: (request: unknown) => fetchTestCaseDistributionAggregate(request),
   saveTestCaseDistribution: (payload: unknown) => saveTestCaseDistribution(payload)
 }));
 
@@ -120,9 +135,13 @@ it('saves first project data for a newly selected week', async () => {
 
   fireEvent.change(screen.getByLabelText(/Reported/i), { target: { value: '7' } });
   fireEvent.change(screen.getByLabelText(/Fixed/i), { target: { value: '5' } });
-  fireEvent.change(screen.getByLabelText(/^Automated$/i), { target: { value: '10' } });
-  fireEvent.change(screen.getByLabelText(/^Pending$/i), { target: { value: '3' } });
-  fireEvent.change(screen.getByLabelText(/^Not automated$/i), { target: { value: '1' } });
+  fireEvent.change(screen.getByLabelText(/Automated this week/i), { target: { value: '10' } });
+  fireEvent.change(screen.getByLabelText(/New pending automation/i), { target: { value: '3' } });
+  fireEvent.change(screen.getByLabelText(/New not automated/i), { target: { value: '1' } });
+
+  expect(screen.getByText('Aggregated total: 60')).toBeInTheDocument();
+  expect(screen.getByText('Aggregated total: 3')).toBeInTheDocument();
+  expect(screen.getByText('Aggregated total: 11')).toBeInTheDocument();
 
   fireEvent.click(screen.getByRole('button', { name: /^Save project data$/i }));
 
@@ -165,6 +184,19 @@ it('saves first project data for a newly selected week', async () => {
   );
 });
 
+it('blocks save when weekly automation would make the aggregate pending total negative', async () => {
+  render(<ProjectDataPage />);
+
+  await waitFor(() => expect(screen.queryByText('Loading...')).not.toBeInTheDocument());
+
+  fireEvent.change(screen.getByLabelText(/Automated this week/i), { target: { value: '20' } });
+
+  expect(screen.getByText('Aggregated total: -10')).toBeInTheDocument();
+  expect(screen.getByText(/cannot exceed the available pending automation total/i)).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /^Save project data$/i })).toBeDisabled();
+  expect(saveTestCaseDistribution).not.toHaveBeenCalled();
+});
+
 it('loads and allows editing an existing project/week tuple', async () => {
   const { rerender } = render(<ProjectDataPage />);
 
@@ -181,6 +213,9 @@ it('loads and allows editing an existing project/week tuple', async () => {
   expect(await screen.findByDisplayValue('4')).toBeInTheDocument();
   expect(screen.getByDisplayValue('3')).toBeInTheDocument();
   expect(screen.getByDisplayValue('8')).toBeInTheDocument();
+  expect(screen.getByText('Aggregated total: 58')).toBeInTheDocument();
+  expect(screen.getByText('Aggregated total: 7')).toBeInTheDocument();
+  expect(screen.getByText('Aggregated total: 20')).toBeInTheDocument();
   expect(screen.getByDisplayValue('Existing release')).toBeInTheDocument();
   expect(screen.getByDisplayValue('Existing note')).toBeInTheDocument();
 

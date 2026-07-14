@@ -144,6 +144,80 @@ it('lists cumulative issue history across all project weeks when no end week is 
   expect(query).toHaveBeenCalledWith(expect.stringContaining('from cumulative_history'), ['00000000-0000-0000-0000-000000000002']);
 });
 
+it('returns cumulative test case distribution up to the selected week', async () => {
+  const token = await registerAndToken();
+  query.mockResolvedValueOnce([
+    {
+      id: 'tc2',
+      week_id: '00000000-0000-0000-0000-000000000001',
+      project_id: '00000000-0000-0000-0000-000000000002',
+      record_count: 2,
+      automated_count: 58,
+      pending_auto_count: 7,
+      not_auto_count: 20
+    }
+  ]);
+  const res = await request(app)
+    .get('/api/test-case-distributions?project_id=00000000-0000-0000-0000-000000000002&week_id=00000000-0000-0000-0000-000000000001')
+    .set('Authorization', `Bearer ${token}`);
+  expect(res.status).toBe(200);
+  expect(res.body).toEqual([
+    {
+      id: 'tc2',
+      week_id: '00000000-0000-0000-0000-000000000001',
+      project_id: '00000000-0000-0000-0000-000000000002',
+      automated_count: 58,
+      pending_auto_count: 7,
+      not_auto_count: 20
+    }
+  ]);
+  expect(query).toHaveBeenCalledWith(expect.stringContaining('coalesce(sum(tcd.pending_auto_count), 0) - coalesce(sum(tcd.automated_count), 0)'), [
+    '00000000-0000-0000-0000-000000000002',
+    '00000000-0000-0000-0000-000000000001'
+  ]);
+  expect(query).toHaveBeenCalledWith(expect.stringContaining('max(tcd.id::text)'), [
+    '00000000-0000-0000-0000-000000000002',
+    '00000000-0000-0000-0000-000000000001'
+  ]);
+  expect(query).toHaveBeenCalledWith(expect.stringContaining('tcd.project_id = $1::uuid'), [
+    '00000000-0000-0000-0000-000000000002',
+    '00000000-0000-0000-0000-000000000001'
+  ]);
+  expect(query).toHaveBeenCalledWith(expect.stringContaining('weeks where id = $2::uuid'), [
+    '00000000-0000-0000-0000-000000000002',
+    '00000000-0000-0000-0000-000000000001'
+  ]);
+});
+
+it('returns no test case distribution when the project has no test case history', async () => {
+  const token = await registerAndToken();
+  query.mockResolvedValueOnce([{ record_count: 0 }]);
+  const res = await request(app)
+    .get('/api/test-case-distributions?project_id=00000000-0000-0000-0000-000000000002&week_id=00000000-0000-0000-0000-000000000001')
+    .set('Authorization', `Bearer ${token}`);
+  expect(res.status).toBe(200);
+  expect(res.body).toEqual([]);
+});
+
+it('rejects test case deltas that would make pending automation negative', async () => {
+  const token = await registerAndToken();
+  queryOne.mockClear();
+  queryOne.mockResolvedValueOnce({ pending_auto_count: -1 });
+  const res = await request(app)
+    .post('/api/test-case-distributions')
+    .set('Authorization', `Bearer ${token}`)
+    .send({
+      week_id: '00000000-0000-0000-0000-000000000001',
+      project_id: '00000000-0000-0000-0000-000000000002',
+      automated_count: 8,
+      pending_auto_count: 2,
+      not_auto_count: 1
+    });
+  expect(res.status).toBe(400);
+  expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  expect(queryOne).toHaveBeenCalledTimes(1);
+});
+
 it('rejects a week that does not start on Monday', async () => {
   const token = await registerAndToken();
   const res = await request(app)

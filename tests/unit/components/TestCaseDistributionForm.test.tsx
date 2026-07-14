@@ -9,9 +9,9 @@ it('submits test case distribution', async () => {
   const onSaved = vi.fn();
   render(<TestCaseDistributionForm weekId="w1" projectId="p1" selected={null} onSaved={onSaved} />);
 
-  fireEvent.change(screen.getByLabelText(/^Automated$/i), { target: { value: '20' } });
-  fireEvent.change(screen.getByLabelText(/^Pending$/i), { target: { value: '5' } });
-  fireEvent.change(screen.getByLabelText(/^Not automated$/i), { target: { value: '3' } });
+  fireEvent.change(screen.getByLabelText(/Automated this week/i), { target: { value: '20' } });
+  fireEvent.change(screen.getByLabelText(/New pending automation/i), { target: { value: '5' } });
+  fireEvent.change(screen.getByLabelText(/New not automated/i), { target: { value: '3' } });
   fireEvent.click(screen.getByRole('button', { name: /Save/i }));
 
   await waitFor(() => expect(onSaved).toHaveBeenCalled());

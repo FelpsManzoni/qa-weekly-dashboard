@@ -1,4 +1,8 @@
-import { fetchTestCaseDistribution, saveTestCaseDistribution } from '../../../src/api/testCases';
+import {
+  fetchTestCaseDistribution,
+  fetchTestCaseDistributionAggregate,
+  saveTestCaseDistribution
+} from '../../../src/api/testCases';
 
 vi.mock('../../../src/api/client', () => ({
   apiGet: vi.fn().mockResolvedValue({ data: [{ id: 't1' }], error: null }),
@@ -8,6 +12,11 @@ vi.mock('../../../src/api/client', () => ({
 
 it('fetches distribution', async () => {
   const response = await fetchTestCaseDistribution('w1', 'p1');
+  expect(response.data).toHaveLength(1);
+});
+
+it('fetches aggregate distribution by week start', async () => {
+  const response = await fetchTestCaseDistributionAggregate({ weekStartDate: '2026-07-06', projectId: 'p1' });
   expect(response.data).toHaveLength(1);
 });
 

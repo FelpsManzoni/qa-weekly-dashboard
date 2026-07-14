@@ -53,9 +53,15 @@ The database enforces uniqueness on `(week_id, project_id)`, and the server uses
 
 ### Test-case distribution
 
-This entity captures automated, pending automation, and not-automated counts for a given week/project pair. It also uses a unique `(week_id, project_id)` constraint and upsert behavior.
+This entity captures weekly deltas for a given week/project pair:
 
-`TestCaseDistributionChart` is the main read-side consumer; `TestCaseDistributionForm` is the write-side maintenance form.
+- `automated_count`: test cases automated from the pending pool during the week
+- `pending_auto_count`: new test cases created during the week that are pending automation
+- `not_auto_count`: new test cases created during the week that will not be automated
+
+The dashboard reads these deltas as a cumulative aggregate up to the selected week. Automated totals grow by the automated delta, pending totals grow by new pending deltas and shrink by automated deltas, and not-automated totals only grow. The table still uses a unique `(week_id, project_id)` constraint and upsert behavior.
+
+`TestCaseDistributionChart` is the main aggregate read-side consumer; the project data editor loads and saves the raw weekly delta row.
 
 ### Releases
 

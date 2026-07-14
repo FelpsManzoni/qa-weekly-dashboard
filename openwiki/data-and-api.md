@@ -90,7 +90,9 @@ The server returns history ordered by week number, which matches the chart expec
 
 ### Test-case distributions
 
-The read route requires both week and project IDs. The write route upserts by `(week_id, project_id)`.
+The dashboard read route requires a project ID and either `week_id` or `week_start_date`. It returns the cumulative distribution up to that week, not just the raw selected-week row. The project data editor uses this aggregate for the live preview while loading the raw weekly row through `/api/project-data`.
+
+The write route upserts weekly deltas by `(week_id, project_id)` and rejects saves where the resulting cumulative pending automation total would become negative.
 
 ### Releases and notes
 
