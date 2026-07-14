@@ -1,9 +1,16 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ProjectDataPage } from '../../src/components/ProjectDataPage/ProjectDataPage';
 
+const week27 = { id: 'w1', week_number: 27, calendar_year: 2026, start_date: '2026-06-29', end_date: '2026-07-05', is_active: true };
+let weeksData = [week27];
+let weeksIsLoading = false;
+const refreshWeeks = vi.fn();
+
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.useFakeTimers();
+  weeksData = [week27];
+  weeksIsLoading = false;
+  vi.useFakeTimers({ shouldAdvanceTime: true });
   vi.setSystemTime(new Date('2026-07-09T12:00:00Z'));
 });
 
@@ -49,12 +56,10 @@ vi.mock('../../src/hooks/useProjects', () => ({
 
 vi.mock('../../src/hooks/useWeeks', () => ({
   useWeeks: () => ({
-    data: [
-      { id: 'w1', week_number: 27, calendar_year: 2026, start_date: '2026-06-29', end_date: '2026-07-05', is_active: true }
-    ],
+    data: weeksData,
     activeWeeks: [],
-    refresh: vi.fn(),
-    isLoading: false,
+    refresh: refreshWeeks,
+    isLoading: weeksIsLoading,
     error: null
   })
 }));
@@ -111,6 +116,7 @@ it('saves first project data for a newly selected week', async () => {
       week_start_date: '2026-07-06'
     })
   );
+  await waitFor(() => expect(screen.queryByText('Loading...')).not.toBeInTheDocument());
 
   fireEvent.change(screen.getByLabelText(/Reported/i), { target: { value: '7' } });
   fireEvent.change(screen.getByLabelText(/Fixed/i), { target: { value: '5' } });
@@ -118,23 +124,7 @@ it('saves first project data for a newly selected week', async () => {
   fireEvent.change(screen.getByLabelText(/^Pending$/i), { target: { value: '3' } });
   fireEvent.change(screen.getByLabelText(/^Not automated$/i), { target: { value: '1' } });
 
-  fireEvent.click(screen.getAllByRole('button', { name: /\+ New/i })[0]);
-  fireEvent.click(screen.getAllByRole('button', { name: /\+ New/i })[1]);
-
-  fireEvent.change(screen.getByLabelText(/Version/i), { target: { value: 'v2.8.0' } });
-  fireEvent.change(screen.getByLabelText(/Released date/i), { target: { value: '2026-07-10' } });
-  fireEvent.change(screen.getByLabelText(/Verified date/i), { target: { value: '2026-07-11' } });
-  fireEvent.change(screen.getByLabelText(/Tests pass/i), { target: { value: '12' } });
-  fireEvent.change(screen.getByLabelText(/Tests fail/i), { target: { value: '2' } });
-  fireEvent.change(screen.getByLabelText(/Tests not tested/i), { target: { value: '1' } });
-  fireEvent.change(screen.getByLabelText(/Category A/i), { target: { value: '2' } });
-  fireEvent.change(screen.getByLabelText(/Category B/i), { target: { value: '1' } });
-  fireEvent.change(screen.getByLabelText(/Category C/i), { target: { value: '0' } });
-  fireEvent.change(screen.getByLabelText(/Release notes/i), { target: { value: 'Initial week setup' } });
-
-  fireEvent.change(screen.getByLabelText(/^Note$/i), { target: { value: 'Start smoke coverage' } });
-
-  fireEvent.click(screen.getByRole('button', { name: /^Save$/i }));
+  fireEvent.click(screen.getByRole('button', { name: /^Save project data$/i }));
 
   await waitFor(() =>
     expect(ensureWeek).toHaveBeenCalledWith({
@@ -164,34 +154,8 @@ it('saves first project data for a newly selected week', async () => {
       not_auto_count: 1
     })
   );
-  await waitFor(() =>
-    expect(saveRelease).toHaveBeenCalledWith({
-      id: undefined,
-      week_id: 'w28',
-      project_id: 'p1',
-      version: 'v2.8.0',
-      released_date: '2026-07-10',
-      verified_date: '2026-07-11',
-      status: 'Approved',
-      tests_pass: 12,
-      tests_fail: 2,
-      tests_not_tested: 1,
-      issue_count_a: 2,
-      issue_count_b: 1,
-      issue_count_c: 0,
-      release_notes: 'Initial week setup'
-    })
-  );
-  await waitFor(() =>
-    expect(saveNote).toHaveBeenCalledWith({
-      id: undefined,
-      week_id: 'w28',
-      project_id: 'p1',
-      priority: 0,
-      note_text: 'Start smoke coverage',
-      author: 'QA User'
-    })
-  );
+  expect(saveRelease).not.toHaveBeenCalled();
+  expect(saveNote).not.toHaveBeenCalled();
   await waitFor(() =>
     expect(fetchProjectData).toHaveBeenCalledWith({
       project_id: 'p1',
@@ -202,7 +166,7 @@ it('saves first project data for a newly selected week', async () => {
 });
 
 it('loads and allows editing an existing project/week tuple', async () => {
-  render(<ProjectDataPage />);
+  const { rerender } = render(<ProjectDataPage />);
 
   fireEvent.change(screen.getByLabelText(/Select week/i), { target: { value: '2026-06-29' } });
 
@@ -221,7 +185,7 @@ it('loads and allows editing an existing project/week tuple', async () => {
   expect(screen.getByDisplayValue('Existing note')).toBeInTheDocument();
 
   fireEvent.change(screen.getByLabelText(/Reported/i), { target: { value: '6' } });
-  fireEvent.click(screen.getByRole('button', { name: /^Save$/i }));
+  fireEvent.click(screen.getByRole('button', { name: /^Save project data$/i }));
 
   await waitFor(() =>
     expect(saveIssueMetric).toHaveBeenCalledWith({
@@ -235,4 +199,16 @@ it('loads and allows editing an existing project/week tuple', async () => {
   expect(ensureWeek).not.toHaveBeenCalledWith(
     expect.objectContaining({ start_date: '2026-06-29' })
   );
+
+  weeksIsLoading = true;
+  weeksData = [];
+  vi.setSystemTime(new Date('2026-11-05T12:00:00Z'));
+  rerender(<ProjectDataPage />);
+
+  weeksIsLoading = false;
+  weeksData = [week27];
+  vi.setSystemTime(new Date('2026-07-09T12:00:00Z'));
+  rerender(<ProjectDataPage />);
+
+  await waitFor(() => expect(screen.getByLabelText(/Select week/i)).toHaveValue('2026-06-29'));
 });

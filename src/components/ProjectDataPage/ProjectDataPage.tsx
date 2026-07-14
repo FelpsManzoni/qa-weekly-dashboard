@@ -62,13 +62,20 @@ export function ProjectDataPage() {
   const weekOptions = useMemo(() => recentProjectDataWeeks(weeks.data), [weeks.data]);
 
   useEffect(() => {
-    if (weekOptions.length && !weekOptions.some((week) => week.start_date === selectedWeekStart)) {
-      setSelectedWeekStart(weekOptions[0].start_date);
+    if (weeks.isLoading) {
+      return;
     }
-    if (!weekOptions.length) {
-      setSelectedWeekStart(null);
-    }
-  }, [selectedWeekStart, weekOptions]);
+
+    setSelectedWeekStart((current) => {
+      if (!weekOptions.length) {
+        return null;
+      }
+      if (current && weekOptions.some((week) => week.start_date === current)) {
+        return current;
+      }
+      return weekOptions[0].start_date;
+    });
+  }, [weekOptions, weeks.isLoading]);
 
   const selectedWeek = useMemo(
     () => weekOptions.find((week) => week.start_date === selectedWeekStart) ?? null,
