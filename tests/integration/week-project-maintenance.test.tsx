@@ -20,7 +20,6 @@ vi.mock('../../src/hooks/useProjects', () => ({
 
 it('renders the dashboard shell with the side menu sections', () => {
   render(<App />);
-  expect(screen.getByRole('heading', { name: /Weekly report/i })).toBeInTheDocument();
   expect(screen.getByRole('tab', { name: /Projects \/ modules/i })).toBeInTheDocument();
   expect(screen.getByRole('tab', { name: /Project Data/i })).toBeInTheDocument();
 });

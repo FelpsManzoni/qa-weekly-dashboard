@@ -1,6 +1,18 @@
 import type { BilingualText, MaintenanceMode } from '../types';
 
 export const copy = {
+  brandName: {
+    en: 'Quality Report Hub',
+    pt: 'Quality Report Hub'
+  },
+  themeLight: {
+    en: 'Light mode',
+    pt: 'Modo claro'
+  },
+  themeDark: {
+    en: 'Dark mode',
+    pt: 'Modo escuro'
+  },
   title: {
     en: 'Weekly report',
     pt: 'Relatorio semanal'
