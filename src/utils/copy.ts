@@ -26,16 +26,24 @@ export const copy = {
     pt: 'Semanas'
   },
   projects: {
-    en: 'Projects / modules',
-    pt: 'Projetos / modulos'
+    en: 'Projects',
+    pt: 'Projetos'
+  },
+  projectsPageTitle: {
+    en: 'Projects management page',
+    pt: 'Página de gerenciamento de projetos'
+  },
+  projectsPageSubtitle: {
+    en: 'Manage the company projects, add new or delete old ones',
+    pt: 'Gerencie os projetos da companhia, adicione novos ou delete projetos antigos'
   },
   projectData: {
     en: 'Project Data',
     pt: 'Dados do Projeto'
   },
   projectDataPageTitle: {
-    en: 'Quality Report Hub',
-    pt: 'Quality Report Hub'
+    en: 'Project Data Page',
+    pt: 'Dados do Projeto'
   },
   projectDataCapture: {
     en: 'Capture weekly delivery, test coverage and release information.',

@@ -1,3 +1,22 @@
+.dashboard-page__header {
+  display: grid;
+  gap: var(--space-1);
+  margin-bottom: var(--space-1);
+}
+
+.dashboard-page__title {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  line-height: var(--leading-tight);
+  margin: 0;
+}
+
+.dashboard-page__subtitle {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  margin: 0;
+}
+
 .dashboard-filters {
   display: grid;
   gap: var(--space-4);

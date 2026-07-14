@@ -27,6 +27,19 @@
   background: var(--brand-secondary-hover);
 }
 
+.project-page__title {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  line-height: var(--leading-tight);
+  margin: 0;
+}
+
+.project-page__subtitle {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  margin: var(--space-1) 0 0;
+}
+
 .projects-page__list {
   display: grid;
   gap: var(--space-3);

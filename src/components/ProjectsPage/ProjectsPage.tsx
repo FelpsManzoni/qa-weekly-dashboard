@@ -30,7 +30,10 @@ export function ProjectsPage() {
   return (
     <section className="projects-page">
       <div className="projects-page__header">
-        <h2 className="section-heading">{t(copy.projects)}</h2>
+        <div>
+          <h2 className="project-page__title">{t(copy.projectsPageTitle)}</h2>
+          <p className="project-page__subtitle">{t(copy.projectsPageSubtitle)}</p>
+        </div>
         <button type="button" className="projects-page__add-button" onClick={openAdd}>
           {t(copy.addProject)}
         </button>

@@ -62,6 +62,10 @@ export function DashboardSection() {
 
   return (
     <>
+      <div className="dashboard-page__header">
+        <h2 className="dashboard-page__title">{t(copy.title)}</h2>
+        <p className="dashboard-page__subtitle">{t(copy.subtitle)}</p>
+      </div>
       <div className="dashboard-filters">
         <WeekSelector weeks={weeks.activeWeeks} selectedWeekId={selectedWeekId} onSelect={setSelectedWeekId} />
         <ProjectNav
