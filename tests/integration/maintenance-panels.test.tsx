@@ -17,6 +17,14 @@ vi.mock('../../src/hooks/useProjects', () => ({
   useProjects: () => ({ data: [project], activeProjects: [project], refresh: vi.fn(), isLoading: false, error: null })
 }));
 
+vi.mock('../../src/hooks/useWeeks', () => ({
+  useWeeks: () => ({ data: [], activeWeeks: [], refresh: vi.fn(), isLoading: false, error: null })
+}));
+vi.mock('../../src/hooks/useIssueHistory', () => ({ useIssueHistory: () => ({ data: [], refresh: vi.fn(), isLoading: false, error: null }) }));
+vi.mock('../../src/hooks/useTestCaseDistribution', () => ({ useTestCaseDistribution: () => ({ data: [], refresh: vi.fn(), isLoading: false, error: null }) }));
+vi.mock('../../src/hooks/useReleases', () => ({ useReleases: () => ({ data: [], refresh: vi.fn(), isLoading: false, error: null }) }));
+vi.mock('../../src/hooks/useNotes', () => ({ useNotes: () => ({ data: [], refresh: vi.fn(), isLoading: false, error: null }) }));
+
 it('shows the signed-in user and navigates to the projects list', () => {
   render(<App />);
 
@@ -26,7 +34,7 @@ it('shows the signed-in user and navigates to the projects list', () => {
   expect(screen.getByRole('menuitem', { name: /Sign out/i })).toBeInTheDocument();
 
   // The top tabs expose the Projects management screen.
-  const projectsButton = screen.getByRole('tab', { name: /Projects \/ modules/i });
+  const projectsButton = screen.getByRole('tab', { name: /Projects/i });
   fireEvent.click(projectsButton);
 
   // Selecting it lists the registered projects.

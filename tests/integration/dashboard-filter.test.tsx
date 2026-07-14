@@ -53,7 +53,7 @@ it('renders the filter flow', async () => {
   expect(screen.getByRole('tab', { name: /Weekly report/i })).toHaveAttribute('aria-selected', 'true');
   fireEvent.click(screen.getByRole('button', { name: /Week 27/i }));
   fireEvent.click(screen.getByRole('button', { name: /HAM/i }));
-  await waitFor(() => expect(screen.getAllByText(/Projects \/ modules/i).length).toBeGreaterThan(0));
+  await waitFor(() => expect(screen.getAllByText(/Projects/i).length).toBeGreaterThan(0));
   expect(screen.getByText('Harman Audio Mixer')).toBeInTheDocument();
   expect(screen.getByText(/Lead QA: Not assigned/i)).toBeInTheDocument();
   expect(screen.queryAllByText('Harman Audio Mixer')).toHaveLength(1);

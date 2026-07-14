@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { fetchProjectData } from '../api/projectData';
 import { saveIssueMetric } from '../api/issues';
-import { saveTestCaseDistribution } from '../api/testCases';
+import { fetchTestCaseDistributionAggregate, saveTestCaseDistribution } from '../api/testCases';
 import { saveRelease } from '../api/releases';
 import { saveNote } from '../api/notes';
 import { ensureWeek } from '../api/weeks';
@@ -38,7 +38,14 @@ type Loaded = {
   noteIds: string[];
 };
 
+type TestCaseAggregate = {
+  automated: number;
+  pending: number;
+  notAuto: number;
+};
+
 const emptyLoaded: Loaded = { issueId: null, testId: null, releaseIds: [], noteIds: [] };
+const emptyTestCaseAggregate: TestCaseAggregate = { automated: 0, pending: 0, notAuto: 0 };
 type EditorState = ReturnType<typeof resetLoadedState>;
 
 function resetLoadedState() {
@@ -109,6 +116,8 @@ export function useProjectDataEditor(
 
   const [releases, setReleases] = useState<ReleaseDraft[]>([]);
   const [notes, setNotes] = useState<NoteDraft[]>([]);
+  const [testCaseAggregateBaseline, setTestCaseAggregateBaseline] =
+    useState<TestCaseAggregate>(emptyTestCaseAggregate);
 
   const loadedRef = useRef<Loaded>(emptyLoaded);
   const baselineRef = useRef<EditorState>(resetLoadedState());
@@ -128,6 +137,7 @@ export function useProjectDataEditor(
     applyState(state);
     baselineRef.current = cloneEditorState(state);
     loadedRef.current = emptyLoaded;
+    setTestCaseAggregateBaseline(emptyTestCaseAggregate);
     setCopyMessage(null);
     setSaveError(null);
   }, [applyState]);
@@ -144,6 +154,14 @@ export function useProjectDataEditor(
 
   const isDirty = editorStateKey(currentState) !== editorStateKey(baselineRef.current);
 
+  const testCaseAggregate = useMemo<TestCaseAggregate>(() => ({
+    automated: testCaseAggregateBaseline.automated + automated,
+    pending: testCaseAggregateBaseline.pending + pending - automated,
+    notAuto: testCaseAggregateBaseline.notAuto + notAuto
+  }), [automated, notAuto, pending, testCaseAggregateBaseline]);
+
+  const hasInvalidPendingAggregate = testCaseAggregate.pending < 0;
+
   const loadByRequest = useCallback(async (request: ProjectDataRequest) => {
     if (!projectId) {
       reset();
@@ -159,6 +177,15 @@ export function useProjectDataEditor(
         throw new Error(loadError.message);
       }
       const payload = data ?? { issueMetric: null, testCase: null, releases: [], notes: [] };
+      const aggregateResponse = await fetchTestCaseDistributionAggregate({
+        projectId,
+        weekId: request.week_id,
+        weekStartDate: request.week_start_date
+      });
+      if (aggregateResponse.error) {
+        throw new Error(aggregateResponse.error.message);
+      }
+      const aggregate = aggregateResponse.data[0] ?? null;
       const loadedState: EditorState = {
         reported: payload.issueMetric?.reported_count ?? 0,
         fixed: payload.issueMetric?.fixed_count ?? 0,
@@ -188,6 +215,11 @@ export function useProjectDataEditor(
       };
       applyState(loadedState);
       baselineRef.current = cloneEditorState(loadedState);
+      setTestCaseAggregateBaseline({
+        automated: (aggregate?.automated_count ?? 0) - loadedState.automated,
+        pending: (aggregate?.pending_auto_count ?? 0) - loadedState.pending + loadedState.automated,
+        notAuto: (aggregate?.not_auto_count ?? 0) - loadedState.notAuto
+      });
       loadedRef.current = {
         issueId: payload.issueMetric?.id ?? null,
         testId: payload.testCase?.id ?? null,
@@ -330,6 +362,10 @@ export function useProjectDataEditor(
     if (!selectedWeekStart || !selectedWeekEnd || selectedWeekNumber == null || selectedWeekYear == null || !projectId) {
       return;
     }
+    if (hasInvalidPendingAggregate) {
+      setSaveError('Automated this week cannot exceed the available pending automation total.');
+      return;
+    }
     setSaving(true);
     setSaveError(null);
     const loaded = loadedRef.current;
@@ -438,6 +474,7 @@ export function useProjectDataEditor(
     notAuto,
     releases,
     notes,
+    hasInvalidPendingAggregate,
     loadByRequest,
     onWeekResolved,
     user?.display_name,
@@ -452,6 +489,8 @@ export function useProjectDataEditor(
     copying,
     copyMessage,
     isDirty,
+    testCaseAggregate,
+    hasInvalidPendingAggregate,
     reported,
     fixed,
     automated,

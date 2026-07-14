@@ -16,7 +16,7 @@ it('renders a side legend with values when data exists', () => {
   );
 
   expect(screen.getByLabelText(/Test case distribution legend/i)).toBeInTheDocument();
-  expect(screen.getByText(/Automated/i)).toBeInTheDocument();
+  expect(screen.getByText('Automated')).toBeInTheDocument();
   expect(screen.getByText('20')).toBeInTheDocument();
   expect(screen.getByText('5')).toBeInTheDocument();
   expect(screen.getByText('10')).toBeInTheDocument();

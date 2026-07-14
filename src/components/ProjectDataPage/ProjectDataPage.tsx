@@ -30,6 +30,9 @@ function localizedCopyMessage(message: string | null, t: (text: typeof copy.proj
   if (message === copy.copiedPreviousWeek.en) {
     return t(copy.copiedPreviousWeek);
   }
+  if (message === copy.pendingAggregateInvalid.en) {
+    return t(copy.pendingAggregateInvalid);
+  }
   return message;
 }
 
@@ -87,10 +90,11 @@ export function ProjectDataPage() {
   };
   const editor = useProjectDataEditor(selectedWeek, projectId, handleWeekResolved);
   const issueNetChange = editor.reported - editor.fixed;
-  const testTotal = editor.automated + editor.pending + editor.notAuto;
-  const automationCoverage = testTotal > 0 ? Math.round((editor.automated / testTotal) * 100) : 0;
+  const testTotal = editor.testCaseAggregate.automated + editor.testCaseAggregate.pending + editor.testCaseAggregate.notAuto;
+  const automationCoverage = testTotal > 0 ? Math.round((editor.testCaseAggregate.automated / testTotal) * 100) : 0;
   const showStickyFooter = Boolean(editor.isDirty || editor.saving || editor.copyMessage || editor.saveError);
   const copyMessage = localizedCopyMessage(editor.copyMessage, t);
+  const saveError = localizedCopyMessage(editor.saveError, t);
 
   if (!projectId || !selectedWeek) {
     return (
@@ -186,20 +190,26 @@ export function ProjectDataPage() {
               <label className="project-data-page__metric">
                 <span>{t(copy.formAutomated)}</span>
                 <input min="0" type="number" value={editor.automated} onChange={(e) => editor.setAutomated(Number(e.target.value))} />
+                <small>{t(copy.aggregatedTotal)}: {editor.testCaseAggregate.automated}</small>
               </label>
               <label className="project-data-page__metric">
                 <span>{t(copy.formPending)}</span>
                 <input min="0" type="number" value={editor.pending} onChange={(e) => editor.setPending(Number(e.target.value))} />
+                <small>{t(copy.aggregatedTotal)}: {editor.testCaseAggregate.pending}</small>
               </label>
               <label className="project-data-page__metric">
                 <span>{t(copy.formNotAutomated)}</span>
                 <input min="0" type="number" value={editor.notAuto} onChange={(e) => editor.setNotAuto(Number(e.target.value))} />
+                <small>{t(copy.aggregatedTotal)}: {editor.testCaseAggregate.notAuto}</small>
               </label>
             </div>
+            {editor.hasInvalidPendingAggregate ? (
+              <div className="project-data-page__validation">{t(copy.pendingAggregateInvalid)}</div>
+            ) : null}
             <div className="project-data-page__coverage">
               <div>
                 <span>{t(copy.automationCoverage)}</span>
-                <strong>{editor.automated} / {testTotal}</strong>
+                <strong>{editor.testCaseAggregate.automated} / {testTotal}</strong>
               </div>
               <div className="project-data-page__coverage-bar" aria-hidden="true">
                 <span style={{ width: `${automationCoverage}%` }} />
@@ -261,8 +271,8 @@ export function ProjectDataPage() {
             <span className="project-data-page__dirty-dot" aria-hidden="true" />
             <div>
               <strong>{editor.isDirty ? t(copy.unsavedChanges) : editor.saving ? t(copy.loading) : t(copy.projectData)}</strong>
-              {editor.saveError ? <span>{editor.saveError}</span> : null}
-              {!editor.saveError && copyMessage ? <span>{copyMessage}</span> : null}
+              {saveError ? <span>{saveError}</span> : null}
+              {!saveError && copyMessage ? <span>{copyMessage}</span> : null}
             </div>
           </div>
           <div className="project-data-page__sticky-actions">
@@ -277,7 +287,7 @@ export function ProjectDataPage() {
             <button
               type="button"
               className="project-data-page__button project-data-page__button--primary"
-              disabled={editor.saving || !editor.isDirty}
+              disabled={editor.saving || !editor.isDirty || editor.hasInvalidPendingAggregate}
               onClick={() => void editor.save()}
             >
               {editor.saving ? t(copy.loading) : t(copy.saveProjectData)}

@@ -370,16 +370,24 @@ export const copy = {
     pt: 'Corrigidas'
   },
   formAutomated: {
-    en: 'Automated',
-    pt: 'Automatizados'
+    en: 'Automated this week',
+    pt: 'Automatizados nesta semana'
   },
   formPending: {
-    en: 'Pending',
-    pt: 'Pendentes'
+    en: 'New pending automation',
+    pt: 'Novos pendentes de automacao'
   },
   formNotAutomated: {
-    en: 'Not automated',
-    pt: 'Nao automatizados'
+    en: 'New not automated',
+    pt: 'Novos nao automatizados'
+  },
+  aggregatedTotal: {
+    en: 'Aggregated total',
+    pt: 'Total acumulado'
+  },
+  pendingAggregateInvalid: {
+    en: 'Automated this week cannot exceed the available pending automation total.',
+    pt: 'Automatizados nesta semana nao pode exceder o total pendente de automacao disponivel.'
   },
   version: {
     en: 'Version',

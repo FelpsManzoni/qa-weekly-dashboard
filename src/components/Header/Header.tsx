@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ElementRef } from 'react';
 import { PreferencesControls } from '../PreferencesControls/PreferencesControls';
 import { copy } from '../../utils/copy';
 import { usePreferences } from '../../hooks/usePreferences';
@@ -22,7 +22,7 @@ const NAV_ITEMS: { key: AppSection; label: keyof typeof copy }[] = [
 export function Header({ onRefresh, user, onLogout, section, onSelect }: HeaderProps) {
   const { t } = usePreferences();
   const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement | null>(null);
+  const menuRef = useRef<ElementRef<'div'> | null>(null);
 
   useEffect(() => {
     if (!menuOpen) {
