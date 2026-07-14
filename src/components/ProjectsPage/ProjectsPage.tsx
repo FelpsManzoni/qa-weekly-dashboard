@@ -31,7 +31,7 @@ export function ProjectsPage() {
     <section className="projects-page">
       <div className="projects-page__header">
         <h2 className="section-heading">{t(copy.projects)}</h2>
-        <button type="button" className="dashboard-header__refresh" onClick={openAdd}>
+        <button type="button" className="projects-page__add-button" onClick={openAdd}>
           {t(copy.addProject)}
         </button>
       </div>

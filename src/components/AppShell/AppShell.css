@@ -1,4 +1,4 @@
-.app-shell {
+.app-shell__body {
   display: grid;
   gap: var(--space-5);
   margin: 0 auto;

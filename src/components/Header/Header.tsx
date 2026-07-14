@@ -2,16 +2,24 @@ import { useEffect, useRef, useState } from 'react';
 import { PreferencesControls } from '../PreferencesControls/PreferencesControls';
 import { copy } from '../../utils/copy';
 import { usePreferences } from '../../hooks/usePreferences';
-import type { AuthUser } from '../../types';
+import type { AppSection, AuthUser } from '../../types';
 import './Header.css';
 
 type HeaderProps = {
   onRefresh: () => void;
   user?: AuthUser | null;
   onLogout?: () => void;
+  section: AppSection;
+  onSelect: (section: AppSection) => void;
 };
 
-export function Header({ onRefresh, user, onLogout }: HeaderProps) {
+const NAV_ITEMS: { key: AppSection; label: keyof typeof copy }[] = [
+  { key: 'dashboard', label: 'title' },
+  { key: 'projects', label: 'projects' },
+  { key: 'project-data', label: 'projectData' }
+];
+
+export function Header({ onRefresh, user, onLogout, section, onSelect }: HeaderProps) {
   const { t } = usePreferences();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -44,30 +52,51 @@ export function Header({ onRefresh, user, onLogout }: HeaderProps) {
   const userLabel = user?.display_name || user?.username;
 
   return (
-    <header className="dashboard-header">
-      <div className="dashboard-header__content">
-        <p className="dashboard-header__eyebrow">WEEKLY REPORT</p>
-        <h1>{t(copy.title)}</h1>
-        <p>{t(copy.subtitle)}</p>
+    <header className="topbar">
+      <div className="topbar__brand">
+        <span className="topbar__brand-mark" aria-hidden="true">QA</span>
+        <span className="topbar__brand-label">{t(copy.brandName)}</span>
       </div>
-      <div className="dashboard-header__actions">
-        <PreferencesControls className="dashboard-header__preferences" />
+
+      <nav className="topbar__nav" aria-label="Main navigation">
+        <div className="topbar__nav-list" role="tablist" aria-orientation="horizontal">
+          {NAV_ITEMS.map((item) => {
+            const isActive = section === item.key;
+
+            return (
+              <button
+                key={item.key}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                className={`topbar__nav-link ${isActive ? 'topbar__nav-link--active' : ''}`}
+                onClick={() => onSelect(item.key)}
+              >
+                {t(copy[item.label])}
+              </button>
+            );
+          })}
+        </div>
+      </nav>
+
+      <div className="topbar__actions">
+        <PreferencesControls className="topbar__preferences" />
         {userLabel ? (
-          <div className="dashboard-header__menu" ref={menuRef}>
+          <div className="topbar__menu" ref={menuRef}>
             <button
-              className="dashboard-header__menu-trigger"
+              className="topbar__menu-trigger"
               onClick={() => setMenuOpen((open) => !open)}
               type="button"
               aria-expanded={menuOpen}
               aria-haspopup="menu"
             >
-              <span className="dashboard-header__user">{userLabel}</span>
-              <span aria-hidden="true" className="dashboard-header__caret">{menuOpen ? '▴' : '▾'}</span>
+              <span className="topbar__user">{userLabel}</span>
+              <span aria-hidden="true" className="topbar__caret">{menuOpen ? '▴' : '▾'}</span>
             </button>
             {menuOpen ? (
-              <div className="dashboard-header__dropdown" role="menu" aria-label="User actions">
+              <div className="topbar__dropdown" role="menu" aria-label="User actions">
                 <button
-                  className="dashboard-header__dropdown-item"
+                  className="topbar__dropdown-item"
                   onClick={() => {
                     setMenuOpen(false);
                     onRefresh();
@@ -79,7 +108,7 @@ export function Header({ onRefresh, user, onLogout }: HeaderProps) {
                 </button>
                 {onLogout ? (
                   <button
-                    className="dashboard-header__dropdown-item"
+                    className="topbar__dropdown-item"
                     onClick={() => {
                       setMenuOpen(false);
                       onLogout();
@@ -94,7 +123,7 @@ export function Header({ onRefresh, user, onLogout }: HeaderProps) {
             ) : null}
           </div>
         ) : (
-          <button className="dashboard-header__menu-trigger" onClick={onRefresh} type="button">
+          <button className="topbar__menu-trigger" onClick={onRefresh} type="button">
             {t(copy.refresh)}
           </button>
         )}

@@ -13,6 +13,20 @@
   color: var(--text-secondary);
 }
 
+.projects-page__add-button {
+  background: var(--brand-secondary);
+  border: 1px solid var(--brand-secondary);
+  border-radius: var(--radius-md);
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  padding: var(--space-3) var(--space-4);
+}
+
+.projects-page__add-button:hover {
+  background: var(--brand-secondary-hover);
+}
+
 .projects-page__list {
   display: grid;
   gap: var(--space-3);
