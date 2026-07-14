@@ -16,8 +16,8 @@ export function PreferencesControls({ className }: PreferencesControlsProps) {
         type="button"
         className="preferences-controls__button"
         onClick={toggleTheme}
-        aria-label={theme === 'dark' ? 'Dark mode' : 'Light mode'}
-        title={theme === 'dark' ? 'Dark mode' : 'Light mode'}
+        aria-label={theme === 'dark' ? t(copy.themeDark) : t(copy.themeLight)}
+        title={theme === 'dark' ? t(copy.themeDark) : t(copy.themeLight)}
       >
         {theme === 'dark' ? '🌙' : '☀'}
       </button>

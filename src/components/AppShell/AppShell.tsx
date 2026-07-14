@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Header } from '../Header/Header';
-import { SectionTabs } from '../SectionTabs/SectionTabs';
 import { DashboardSection } from '../DashboardSection/DashboardSection';
 import { ProjectsPage } from '../ProjectsPage/ProjectsPage';
 import { ProjectDataPage } from '../ProjectDataPage/ProjectDataPage';
@@ -18,13 +17,14 @@ export function AppShell() {
 
   return (
     <div className="app-shell">
-      <Header user={user} onRefresh={refresh} onLogout={logout} />
-      <SectionTabs section={section} onSelect={setSection} />
-      <main className="app-shell__content" key={refreshKey}>
-        {section === 'dashboard' ? <DashboardSection /> : null}
-        {section === 'projects' ? <ProjectsPage /> : null}
-        {section === 'project-data' ? <ProjectDataPage /> : null}
-      </main>
+      <Header user={user} onRefresh={refresh} onLogout={logout} section={section} onSelect={setSection} />
+      <div className="app-shell__body">
+        <main className="app-shell__content" key={refreshKey}>
+          {section === 'dashboard' ? <DashboardSection /> : null}
+          {section === 'projects' ? <ProjectsPage /> : null}
+          {section === 'project-data' ? <ProjectDataPage /> : null}
+        </main>
+      </div>
     </div>
   );
 }

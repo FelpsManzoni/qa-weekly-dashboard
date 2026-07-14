@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Project Data – Redesigned Mockup</title>
+<style>
+  :root{
+    --bg:#f5f7fb;
+    --surface:#ffffff;
+    --surface-2:#fafbfe;
+    --text:#172033;
+    --muted:#687083;
+    --line:#dfe3ea;
+    --line-strong:#cbd1dc;
+    --primary:#4c1768;
+    --primary-2:#6f2b90;
+    --primary-soft:#f2eafa;
+    --success:#137a43;
+    --success-soft:#e8f5ed;
+    --warning:#a36200;
+    --warning-soft:#fff3dc;
+    --danger:#b42318;
+    --shadow:0 8px 24px rgba(23,32,51,.07);
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;font-size:15px}
+  body{min-width:1180px}
+  .app{min-height:100vh}
+  .topbar{background:#fff;border-bottom:1px solid var(--line);height:64px;display:flex;align-items:center;padding:0 34px;gap:34px;box-shadow:0 1px 0 rgba(23,32,51,.02)}
+  .brand{font-weight:800;letter-spacing:-.02em;color:var(--primary);display:flex;align-items:center;gap:10px;margin-right:12px}
+  .brand-mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(145deg,var(--primary),var(--primary-2));display:grid;place-items:center;color:#fff;font-size:13px}
+  .nav{display:flex;align-self:stretch;gap:28px}
+  .nav a{display:flex;align-items:center;color:#5d6473;text-decoration:none;font-weight:650;position:relative}
+  .nav a.active{color:var(--text)}
+  .nav a.active:after{content:"";height:3px;background:var(--primary);border-radius:3px 3px 0 0;position:absolute;left:0;right:0;bottom:0}
+  .shell{max-width:1320px;margin:0 auto;padding:28px 34px 92px}
+  .page-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px}
+  h1{font-size:28px;line-height:1.2;margin:0 0 6px;letter-spacing:-.025em}
+  .subtitle{color:var(--muted);margin:0;font-size:14px}
+  .change-pill{display:flex;align-items:center;gap:8px;padding:8px 11px;border-radius:999px;background:var(--warning-soft);color:var(--warning);font-size:13px;font-weight:700}
+  .dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+  .context-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;display:grid;grid-template-columns:1.05fr 1.5fr auto;gap:16px;align-items:end;box-shadow:var(--shadow);margin-bottom:18px}
+  .field label,.mini label{display:block;font-size:12px;font-weight:750;color:#525b6c;margin:0 0 7px}
+  .req{color:var(--danger)}
+  input,select,textarea{width:100%;height:42px;border:1px solid var(--line-strong);background:#fff;border-radius:9px;padding:0 12px;color:var(--text);font:inherit;outline:none}
+  textarea{height:70px;padding:10px 12px;resize:none;line-height:1.4}
+  input:focus,select:focus,textarea:focus{border-color:var(--primary-2);box-shadow:0 0 0 3px rgba(111,43,144,.12)}
+  .button{height:42px;border-radius:9px;border:1px solid transparent;padding:0 16px;font-weight:750;font-size:14px;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:default;white-space:nowrap}
+  .button.primary{background:var(--primary);color:white}
+  .button.secondary{background:white;border-color:var(--line-strong);color:var(--text)}
+  .button.ghost{background:transparent;border-color:transparent;color:var(--primary)}
+  .button.icon{width:38px;padding:0;background:#fff;border-color:var(--line);color:#667085}
+  .grid-2{display:grid;grid-template-columns:1fr 1.18fr;gap:18px;margin-bottom:18px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .card-head{padding:17px 18px 12px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+  .card-title{margin:0;font-size:16px;letter-spacing:-.01em}
+  .card-copy{margin:4px 0 0;color:var(--muted);font-size:12px}
+  .card-body{padding:0 18px 18px}
+  .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .metric{border:1px solid var(--line);border-radius:11px;padding:12px;background:var(--surface-2)}
+  .metric .metric-label{font-size:12px;color:#5f6777;font-weight:700;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between}
+  .metric input{height:38px;font-weight:800;font-size:17px;background:#fff}
+  .metric.derived{background:#f8f6fb}
+  .derived-value{height:38px;display:flex;align-items:center;font-weight:800;font-size:17px;color:var(--primary)}
+  .hint{font-size:11px;color:#8a91a0;margin-top:7px}
+  .bar-wrap{margin-top:14px}
+  .bar-label{display:flex;justify-content:space-between;font-size:12px;color:#5f6777;margin-bottom:7px}
+  .bar{height:8px;background:#eceef3;border-radius:999px;overflow:hidden}
+  .bar > span{display:block;width:73%;height:100%;background:linear-gradient(90deg,var(--primary),var(--primary-2));border-radius:999px}
+  .section{margin-bottom:18px}
+  .section-head{display:flex;justify-content:space-between;align-items:center;padding:17px 18px 12px}
+  .section-head h2{font-size:17px;margin:0;letter-spacing:-.01em}
+  .section-head p{font-size:12px;margin:4px 0 0;color:var(--muted)}
+  .release{margin:0 18px 18px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+  .release-top{display:flex;justify-content:space-between;align-items:center;padding:13px 14px;background:var(--surface-2);border-bottom:1px solid var(--line)}
+  .release-id{display:flex;align-items:center;gap:10px}
+  .release-id strong{font-size:14px}
+  .badge{padding:5px 9px;border-radius:999px;font-size:11px;font-weight:800;display:inline-flex;align-items:center;gap:6px}
+  .badge.approved{background:var(--success-soft);color:var(--success)}
+  .release-body{padding:14px}
+  .release-main{display:grid;grid-template-columns:.72fr 1fr 1fr .86fr;gap:12px;margin-bottom:14px}
+  .release-stats{display:grid;grid-template-columns:1.05fr 1.05fr 1.05fr .85fr .85fr .85fr;gap:10px;margin-bottom:14px}
+  .mini input,.mini select{height:38px}
+  .notes-row{display:grid;grid-template-columns:1fr;gap:10px}
+  .note-helper{display:flex;justify-content:space-between;font-size:11px;color:#8a91a0;margin-top:6px}
+  .priority-list{padding:0 18px 16px}
+  .priority-row{display:grid;grid-template-columns:150px 1fr 38px;gap:12px;align-items:end;padding:12px 0;border-top:1px solid var(--line)}
+  .priority-row:first-child{border-top:0}
+  .priority-row input{height:40px}
+  .priority-tag{display:flex;align-items:center;gap:7px}
+  .priority-tag:before{content:"";width:8px;height:8px;border-radius:50%;background:#d92d20}
+  .priority-tag.medium:before{background:#f79009}
+  .add-row{margin:0 18px 18px;border:1px dashed #b9a4c3;background:#fbf8fd;color:var(--primary);width:calc(100% - 36px)}
+  .sticky{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-top:1px solid var(--line);box-shadow:0 -8px 28px rgba(23,32,51,.08)}
+  .sticky-inner{max-width:1320px;margin:0 auto;padding:12px 34px;display:flex;align-items:center;justify-content:space-between}
+  .save-state{display:flex;align-items:center;gap:10px;color:#5f6777;font-size:13px}
+  .save-state strong{color:var(--text)}
+  .sticky-actions{display:flex;gap:10px}
+  .muted-icon{color:#8a91a0;font-size:13px}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">QA</span>Quality Hub</div>
+    <nav class="nav" aria-label="Primary">
+      <a href="#">Weekly report</a>
+      <a href="#">Projects / modules</a>
+      <a class="active" href="#">Project data</a>
+    </nav>
+  </header>
+
+  <main class="shell">
+    <div class="page-head">
+      <div>
+        <h1>Project data</h1>
+        <p class="subtitle">Capture weekly delivery, test coverage and release information.</p>
+      </div>
+      <div class="change-pill"><span class="dot"></span>Unsaved changes</div>
+    </div>
+
+    <section class="context-card" aria-label="Reporting context">
+      <div class="field">
+        <label>Project <span class="req">*</span></label>
+        <select><option>COMPAL VLA</option></select>
+      </div>
+      <div class="field">
+        <label>Reporting week <span class="req">*</span></label>
+        <select><option>2026-W29 · 13 Jul – 19 Jul 2026</option></select>
+      </div>
+      <button class="button secondary">Copy previous week</button>
+    </section>
+
+    <div class="grid-2">
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2 class="card-title">Issue history</h2>
+            <p class="card-copy">Issues reported and resolved during this week.</p>
+          </div>
+          <span class="muted-icon">Updated live</span>
+        </div>
+        <div class="card-body">
+          <div class="metrics">
+            <div class="metric">
+              <div class="metric-label">Reported</div>
+              <input type="number" value="12" min="0" />
+            </div>
+            <div class="metric">
+              <div class="metric-label">Fixed</div>
+              <input type="number" value="9" min="0" />
+            </div>
+            <div class="metric derived">
+              <div class="metric-label">Net change <span title="Calculated automatically">ⓘ</span></div>
+              <div class="derived-value">+3</div>
+            </div>
+          </div>
+          <div class="hint">Calculated values are read-only to prevent inconsistencies.</div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2 class="card-title">Test case distribution</h2>
+            <p class="card-copy">Current test inventory by automation status.</p>
+          </div>
+          <span class="badge approved">73% automated</span>
+        </div>
+        <div class="card-body">
+          <div class="metrics">
+            <div class="metric">
+              <div class="metric-label">Automated</div>
+              <input type="number" value="184" min="0" />
+            </div>
+            <div class="metric">
+              <div class="metric-label">Pending</div>
+              <input type="number" value="22" min="0" />
+            </div>
+            <div class="metric">
+              <div class="metric-label">Not automated</div>
+              <input type="number" value="46" min="0" />
+            </div>
+          </div>
+          <div class="bar-wrap">
+            <div class="bar-label"><span>Automation coverage</span><strong>184 of 252</strong></div>
+            <div class="bar"><span></span></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="card section">
+      <div class="section-head">
+        <div>
+          <h2>Release summary</h2>
+          <p>Use one compact card per release. Required fields are marked with an asterisk.</p>
+        </div>
+        <button class="button primary">＋ Add release</button>
+      </div>
+
+      <article class="release">
+        <div class="release-top">
+          <div class="release-id"><strong>Release 1</strong><span class="badge approved"><span class="dot"></span>Approved</span></div>
+          <button class="button icon" aria-label="Delete release">🗑</button>
+        </div>
+        <div class="release-body">
+          <div class="release-main">
+            <div class="mini"><label>Version <span class="req">*</span></label><input value="4.8.0" /></div>
+            <div class="mini"><label>Release date <span class="req">*</span></label><input type="date" value="2026-07-16" /></div>
+            <div class="mini"><label>Verified date</label><input type="date" value="2026-07-17" /></div>
+            <div class="mini"><label>Status <span class="req">*</span></label><select><option>Approved</option></select></div>
+          </div>
+
+          <div class="release-stats">
+            <div class="mini"><label>Tests passed</label><input type="number" value="128" min="0" /></div>
+            <div class="mini"><label>Tests failed</label><input type="number" value="3" min="0" /></div>
+            <div class="mini"><label>Not tested</label><input type="number" value="6" min="0" /></div>
+            <div class="mini"><label>Category A</label><input type="number" value="4" min="0" /></div>
+            <div class="mini"><label>Category B</label><input type="number" value="1" min="0" /></div>
+            <div class="mini"><label>Category C</label><input type="number" value="0" min="0" /></div>
+          </div>
+
+          <div class="notes-row">
+            <div class="mini">
+              <label>Release notes</label>
+              <textarea>Regression completed. Three non-blocking defects remain open and are scheduled for the next patch.</textarea>
+              <div class="note-helper"><span>Keep notes focused on risks, scope changes and follow-up actions.</span><span>102 / 500</span></div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="card section">
+      <div class="section-head">
+        <div>
+          <h2>Priority notes</h2>
+          <p>Capture only items that need attention in the weekly report.</p>
+        </div>
+        <button class="button secondary">＋ Add note</button>
+      </div>
+      <div class="priority-list">
+        <div class="priority-row">
+          <div class="mini"><label>Priority</label><select class="priority-tag"><option>P1 · Critical</option></select></div>
+          <div class="mini"><label>Note</label><input value="Resolve intermittent login failure before Monday's customer rollout." /></div>
+          <button class="button icon" aria-label="Delete note">🗑</button>
+        </div>
+        <div class="priority-row">
+          <div class="mini"><label>Priority</label><select class="priority-tag medium"><option>P2 · High</option></select></div>
+          <div class="mini"><label>Note</label><input value="Complete automation coverage for the payment retry scenarios." /></div>
+          <button class="button icon" aria-label="Delete note">🗑</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="sticky">
+    <div class="sticky-inner">
+      <div class="save-state"><span class="dot" style="color:var(--warning)"></span><span><strong>Unsaved changes</strong> · Last saved today at 10:42</span></div>
+      <div class="sticky-actions">
+        <button class="button ghost">Discard changes</button>
+        <button class="button primary">Save project data</button>
+      </div>
+    </div>
+  </footer>
+</div>
+</body>
+</html>

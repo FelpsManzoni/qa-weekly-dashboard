@@ -1,6 +1,18 @@
 import type { BilingualText, MaintenanceMode } from '../types';
 
 export const copy = {
+  brandName: {
+    en: 'Quality Report Hub',
+    pt: 'Quality Report Hub'
+  },
+  themeLight: {
+    en: 'Light mode',
+    pt: 'Modo claro'
+  },
+  themeDark: {
+    en: 'Dark mode',
+    pt: 'Modo escuro'
+  },
   title: {
     en: 'Weekly report',
     pt: 'Relatorio semanal'
@@ -22,8 +34,8 @@ export const copy = {
     pt: 'Dados do Projeto'
   },
   projectDataPageTitle: {
-    en: 'Project data',
-    pt: 'Dados do projeto'
+    en: 'Quality Report Hub',
+    pt: 'Quality Report Hub'
   },
   projectDataCapture: {
     en: 'Capture weekly delivery, test coverage and release information.',
