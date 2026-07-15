@@ -72,6 +72,10 @@
   color: var(--status-blocked);
 }
 
+:root[data-theme='dark'] .release-table__status--approved {
+  color: var(--text-primary);
+}
+
 .release-table__metrics,
 .release-table__issues {
   display: flex;

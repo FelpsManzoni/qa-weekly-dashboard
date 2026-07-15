@@ -53,6 +53,7 @@
   background: var(--surface-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
+  color: var(--text-primary);
   cursor: pointer;
   display: flex;
   gap: var(--space-3);
@@ -70,6 +71,7 @@
   border-radius: var(--radius-sm);
   color: var(--text-secondary);
   font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
   padding: var(--space-1) var(--space-2);
 }
 
@@ -77,6 +79,14 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
+}
+
+.projects-page__body strong {
+  color: var(--text-primary);
+}
+
+:root[data-theme='dark'] .projects-page__code {
+  color: var(--text-primary);
 }
 
 .projects-page__body small {

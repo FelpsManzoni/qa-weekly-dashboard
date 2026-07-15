@@ -30,6 +30,11 @@
 }
 
 .week-selector__item--selected {
+  border-width: 2px;
   border-color: var(--brand-secondary);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand-secondary) 15%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-secondary) 22%, transparent);
+}
+
+.week-selector__item--selected strong {
+  color: var(--brand-secondary);
 }

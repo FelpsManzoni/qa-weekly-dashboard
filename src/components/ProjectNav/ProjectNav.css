@@ -23,8 +23,8 @@
 }
 
 .project-nav__item--selected {
-  border-color: var(--brand-primary);
-  box-shadow: 0 0 0 1px var(--brand-primary);
+  border-color: var(--brand-secondary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand-secondary) 22%, transparent);
 }
 
 .project-nav__code {

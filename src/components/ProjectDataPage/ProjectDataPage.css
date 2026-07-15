@@ -274,7 +274,7 @@
 }
 
 .project-data-page__metric--derived {
-  background: #f8f6fb;
+  background: var(--surface-sunken);
   color: var(--project-data-accent);
 }
 
@@ -284,6 +284,15 @@
   display: flex;
   font-size: var(--text-lg);
   min-height: 38px;
+}
+
+:root[data-theme='dark'] .project-data-page__metric--derived {
+  border-color: color-mix(in srgb, var(--brand-accent) 38%, var(--border-subtle));
+  color: var(--brand-accent);
+}
+
+:root[data-theme='dark'] .project-data-page__metric--derived strong {
+  color: var(--brand-accent);
 }
 
 .project-data-page__info {
@@ -490,11 +499,16 @@
 }
 
 .project-data-page__dirty-dot {
-  background: var(--project-data-accent);
+  background: var(--status-warning);
   border-radius: 50%;
   flex: 0 0 10px;
   height: 10px;
   width: 10px;
+}
+
+:root[data-theme='dark'] .project-data-page__badge,
+:root[data-theme='dark'] .project-data-page__status--approved {
+  color: var(--text-primary);
 }
 
 .project-data-page__sticky-actions {
