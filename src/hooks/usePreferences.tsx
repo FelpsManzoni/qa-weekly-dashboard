@@ -16,7 +16,7 @@ const LANG_KEY = 'qa.lang';
 const THEME_KEY = 'qa.theme';
 
 function initialLanguage(): Language {
-  const stored = localStorage.getItem(LANG_KEY);
+  const stored = typeof localStorage !== 'undefined' ? localStorage.getItem(LANG_KEY) : null;
   if (stored === 'pt' || stored === 'en') {
     return stored;
   }
@@ -24,7 +24,7 @@ function initialLanguage(): Language {
 }
 
 function initialTheme(): Theme {
-  const stored = localStorage.getItem(THEME_KEY);
+  const stored = typeof localStorage !== 'undefined' ? localStorage.getItem(THEME_KEY) : null;
   if (stored === 'light' || stored === 'dark') {
     return stored;
   }
@@ -54,14 +54,18 @@ export function PreferencesProvider({ children }: { children: ReactNode }): Reac
   }, [theme]);
 
   const setLanguage = (next: Language) => {
-    localStorage.setItem(LANG_KEY, next);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(LANG_KEY, next);
+    }
     setLanguageState(next);
   };
 
   const toggleTheme = () => {
     setThemeState((current) => {
       const next: Theme = current === 'dark' ? 'light' : 'dark';
-      localStorage.setItem(THEME_KEY, next);
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(THEME_KEY, next);
+      }
       return next;
     });
   };

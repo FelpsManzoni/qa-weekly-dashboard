@@ -1,8 +1,15 @@
 import { apiGet, apiPost, apiPut, queryString } from './client';
 import type { ApiItemResponse, ApiListResponse, ReleaseVersion } from '../types';
 
-export async function fetchReleases(weekId: string, projectId: string): Promise<ApiListResponse<ReleaseVersion>> {
-  const qs = queryString({ week_id: weekId, project_id: projectId });
+export type FetchReleasesRequest = {
+  week_id?: string | null;
+  project_id: string;
+  released_before?: string | null;
+  limit?: number | null;
+};
+
+export async function fetchReleases(request: FetchReleasesRequest): Promise<ApiListResponse<ReleaseVersion>> {
+  const qs = queryString(request);
   const { data, error } = await apiGet<ReleaseVersion[]>(`/releases${qs}`);
   return { data: data ?? [], error };
 }

@@ -13,7 +13,7 @@ export function ProjectNav({ projects, selectedProjectId, onSelect }: ProjectNav
   const { t } = usePreferences();
 
   return (
-    <aside className="project-nav">
+    <section className="project-nav">
       <div className="section-heading">{t(copy.projects)}</div>
       <div className="project-nav__list">
         {projects.map((project) => {
@@ -27,15 +27,10 @@ export function ProjectNav({ projects, selectedProjectId, onSelect }: ProjectNav
               type="button"
             >
               <span className="project-nav__code">{project.code}</span>
-              <span className="project-nav__body">
-                <strong>{project.name}</strong>
-                <small>{project.description ?? project.name}</small>
-              </span>
-              <span aria-hidden="true">›</span>
             </button>
           );
         })}
       </div>
-    </aside>
+    </section>
   );
 }

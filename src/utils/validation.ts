@@ -8,7 +8,7 @@ export function requireNonNegative(value: number, label: string): string | null 
   return null;
 }
 
-export function validateWeek(values: Pick<Week, 'week_number' | 'start_date' | 'end_date'>): string | null {
+export function validateWeek(values: Pick<Week, 'week_number' | 'calendar_year' | 'start_date' | 'end_date'>): string | null {
   if (values.week_number < 1 || values.week_number > 53) {
     return 'Week number must be between 1 and 53.';
   }
@@ -33,8 +33,8 @@ export function validateProject(values: Pick<Project, 'code' | 'name'>): string 
 }
 
 export function validateNote(note: Pick<PriorityNote, 'priority' | 'note_text'>): string | null {
-  if (![0, 1, 2].includes(note.priority)) {
-    return 'Priority must be 0, 1, or 2.';
+  if (![0, 1, 2, 3].includes(note.priority)) {
+    return 'Priority must be 0, 1, 2, or 3.';
   }
 
   if (!note.note_text.trim()) {

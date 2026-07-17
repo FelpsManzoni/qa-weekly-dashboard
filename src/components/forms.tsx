@@ -9,10 +9,19 @@ import { copy, maintenanceTitles } from '../utils/copy';
 import { usePreferences } from '../hooks/usePreferences';
 import { validateNote, validateProject, validateWeek, requireNonNegative } from '../utils/validation';
 import { useEditLock } from '../hooks/useEditLock';
-import type { IssueMetric, PriorityNote, Project, ReleaseVersion, TestCaseDistribution, Week } from '../types';
+import { useAuth } from '../hooks/useAuth';
+import { useUsers } from '../hooks/useUsers';
+import type { IssueMetric, PriorityNote, Project, ReleaseStatus, ReleaseVersion, TestCaseDistribution, Week } from '../types';
+import { RELEASE_STATUSES } from '../types';
 import './shared/Form.css';
 
 type SaveHandler = () => void;
+const PRIORITY_OPTIONS = [
+  { value: 0, label: 'priority0' },
+  { value: 1, label: 'priority1' },
+  { value: 2, label: 'priority2' },
+  { value: 3, label: 'priority3' }
+] as const;
 
 function FormActions({ onCancel }: { onCancel: () => void }) {
   const { t } = usePreferences();
@@ -85,13 +94,25 @@ export function WeekForm({ selected, onSaved }: { selected: Week | null; onSaved
 }
 
 export function ProjectForm({ selected, onSaved }: { selected: Project | null; onSaved: SaveHandler }) {
-  const [values, setValues] = useState({ code: '', name: '', description: '', display_order: 1, is_active: true });
+  const [values, setValues] = useState({ code: '', name: '', description: '', client: '', main_technology_scope: '', lead_qa_user_id: '', display_order: 1, is_active: true });
   const [error, setError] = useState<string | null>(null);
   const lock = useEditLock('projects', selected?.id ?? null, Boolean(selected?.id));
   const { t } = usePreferences();
+  const users = useUsers();
 
   useEffect(() => {
-    if (selected) setValues({ ...selected, description: selected.description ?? '' });
+    if (selected) {
+      setValues({
+        code: selected.code,
+        name: selected.name,
+        description: selected.description ?? '',
+        client: selected.client ?? '',
+        main_technology_scope: selected.main_technology_scope ?? '',
+        lead_qa_user_id: selected.lead_qa_user_id ?? '',
+        display_order: selected.display_order,
+        is_active: selected.is_active
+      });
+    }
   }, [selected]);
 
   const handleSubmit = async (event: FormEvent) => {
@@ -99,7 +120,18 @@ export function ProjectForm({ selected, onSaved }: { selected: Project | null; o
     if (lock.error) return setError(lock.error);
     const validation = validateProject(values as Project);
     if (validation) return setError(validation);
-    const response = await saveProject({ ...selected, ...values });
+    const payload: Partial<Project> = {
+      ...selected,
+      code: values.code,
+      name: values.name,
+      description: values.description || null,
+      client: values.client || null,
+      main_technology_scope: values.main_technology_scope || null,
+      lead_qa_user_id: values.lead_qa_user_id || null,
+      display_order: values.display_order,
+      is_active: values.is_active
+    };
+    const response = await saveProject(payload);
     setError(response.error?.message ?? null);
     if (!response.error) {
       await lock.release();
@@ -118,7 +150,32 @@ export function ProjectForm({ selected, onSaved }: { selected: Project | null; o
         <label>{t(copy.order)}<input type="number" value={values.display_order} onChange={(e) => setValues({ ...values, display_order: Number(e.target.value) })} /></label>
       </div>
       <label>{t(copy.description)}<textarea value={values.description} onChange={(e) => setValues({ ...values, description: e.target.value })} /></label>
-      <FormActions onCancel={() => { if (selected) setValues({ ...selected, description: selected.description ?? '' }); void lock.release(); }} />
+      <label>{t(copy.leadQa)}<select value={values.lead_qa_user_id} onChange={(e) => setValues({ ...values, lead_qa_user_id: e.target.value })}>
+        <option value="">{t(copy.selectProject)}</option>
+        {users.data.map((user) => (
+          <option key={user.id} value={user.id}>{user.display_name || user.username}</option>
+        ))}
+      </select></label>
+      <div className="maintenance-form__grid">
+        <label>{t(copy.client)}<input value={values.client} onChange={(e) => setValues({ ...values, client: e.target.value })} /></label>
+        <label>{t(copy.mainTechScope)}<input value={values.main_technology_scope} onChange={(e) => setValues({ ...values, main_technology_scope: e.target.value })} /></label>
+      </div>
+      <label className="maintenance-form__checkbox"><input type="checkbox" checked={values.is_active} onChange={(e) => setValues({ ...values, is_active: e.target.checked })} /> {t(copy.active)}</label>
+      <FormActions onCancel={() => {
+        if (selected) {
+          setValues({
+            code: selected.code,
+            name: selected.name,
+            description: selected.description ?? '',
+            client: selected.client ?? '',
+            main_technology_scope: selected.main_technology_scope ?? '',
+            lead_qa_user_id: selected.lead_qa_user_id ?? '',
+            display_order: selected.display_order,
+            is_active: selected.is_active
+          });
+        }
+        void lock.release();
+      }} />
     </form>
   );
 }
@@ -207,7 +264,19 @@ export function TestCaseDistributionForm({ weekId, projectId, selected, onSaved 
 }
 
 export function ReleaseForm({ weekId, projectId, selected, onSaved }: { weekId: string | null; projectId: string | null; selected: ReleaseVersion | null; onSaved: SaveHandler }) {
-  const [values, setValues] = useState({ version: '', date: '', status: '', critical_issues: '', changelog: '' });
+  const [values, setValues] = useState({
+    version: '',
+    released_date: '',
+    verified_date: '',
+    status: 'Approved' as ReleaseStatus,
+    tests_pass: 0,
+    tests_fail: 0,
+    tests_not_tested: 0,
+    issue_count_a: 0,
+    issue_count_b: 0,
+    issue_count_c: 0,
+    release_notes: ''
+  });
   const [error, setError] = useState<string | null>(null);
   const lock = useEditLock('release_versions', selected?.id ?? null, Boolean(selected?.id));
   const { t } = usePreferences();
@@ -216,13 +285,31 @@ export function ReleaseForm({ weekId, projectId, selected, onSaved }: { weekId: 
     if (selected) {
       setValues({
         version: selected.version,
-        date: selected.date,
+        released_date: selected.released_date,
+        verified_date: selected.verified_date ?? '',
         status: selected.status,
-        critical_issues: selected.critical_issues ?? '',
-        changelog: selected.changelog ?? ''
+        tests_pass: selected.tests_pass,
+        tests_fail: selected.tests_fail,
+        tests_not_tested: selected.tests_not_tested,
+        issue_count_a: selected.issue_count_a,
+        issue_count_b: selected.issue_count_b,
+        issue_count_c: selected.issue_count_c,
+        release_notes: selected.release_notes ?? ''
       });
     } else {
-      setValues({ version: '', date: '', status: '', critical_issues: '', changelog: '' });
+      setValues({
+        version: '',
+        released_date: '',
+        verified_date: '',
+        status: 'Approved',
+        tests_pass: 0,
+        tests_fail: 0,
+        tests_not_tested: 0,
+        issue_count_a: 0,
+        issue_count_b: 0,
+        issue_count_c: 0,
+        release_notes: ''
+      });
     }
   }, [selected]);
 
@@ -245,27 +332,40 @@ export function ReleaseForm({ weekId, projectId, selected, onSaved }: { weekId: 
       {error ? <div className="maintenance-form__error">{error}</div> : null}
       <div className="maintenance-form__grid">
         <label>{t(copy.version)}<input value={values.version} onChange={(e) => setValues({ ...values, version: e.target.value })} /></label>
-        <label>{t(copy.date)}<input type="date" value={values.date} onChange={(e) => setValues({ ...values, date: e.target.value })} /></label>
-        <label>{t(copy.status)}<input value={values.status} onChange={(e) => setValues({ ...values, status: e.target.value })} /></label>
+        <label>{t(copy.releasedDate)}<input type="date" value={values.released_date} onChange={(e) => setValues({ ...values, released_date: e.target.value })} /></label>
+        <label>{t(copy.verifiedDate)}<input type="date" value={values.verified_date} onChange={(e) => setValues({ ...values, verified_date: e.target.value })} /></label>
+        <label>{t(copy.status)}<select value={values.status} onChange={(e) => setValues({ ...values, status: e.target.value as ReleaseStatus })}>
+          {RELEASE_STATUSES.map((status) => <option key={status} value={status}>{status}</option>)}
+        </select></label>
       </div>
-      <label>{t(copy.criticalIssues)}<textarea value={values.critical_issues} onChange={(e) => setValues({ ...values, critical_issues: e.target.value })} /></label>
-      <label>{t(copy.changelog)}<textarea value={values.changelog} onChange={(e) => setValues({ ...values, changelog: e.target.value })} /></label>
+      <div className="maintenance-form__grid">
+        <label>{t(copy.testsPass)}<input type="number" value={values.tests_pass} onChange={(e) => setValues({ ...values, tests_pass: Number(e.target.value) })} /></label>
+        <label>{t(copy.testsFail)}<input type="number" value={values.tests_fail} onChange={(e) => setValues({ ...values, tests_fail: Number(e.target.value) })} /></label>
+        <label>{t(copy.testsNotTested)}<input type="number" value={values.tests_not_tested} onChange={(e) => setValues({ ...values, tests_not_tested: Number(e.target.value) })} /></label>
+      </div>
+      <div className="maintenance-form__grid">
+        <label>{t(copy.issueCountA)}<input type="number" value={values.issue_count_a} onChange={(e) => setValues({ ...values, issue_count_a: Number(e.target.value) })} /></label>
+        <label>{t(copy.issueCountB)}<input type="number" value={values.issue_count_b} onChange={(e) => setValues({ ...values, issue_count_b: Number(e.target.value) })} /></label>
+        <label>{t(copy.issueCountC)}<input type="number" value={values.issue_count_c} onChange={(e) => setValues({ ...values, issue_count_c: Number(e.target.value) })} /></label>
+      </div>
+      <label>{t(copy.releaseNotes)}<textarea value={values.release_notes} onChange={(e) => setValues({ ...values, release_notes: e.target.value })} /></label>
       <FormActions onCancel={() => void lock.release()} />
     </form>
   );
 }
 
 export function NoteForm({ weekId, projectId, selected, onSaved }: { weekId: string | null; projectId: string | null; selected: PriorityNote | null; onSaved: SaveHandler }) {
-  const [values, setValues] = useState({ priority: 0 as 0 | 1 | 2, note_text: '', author: '' });
+  const { user } = useAuth();
+  const [values, setValues] = useState({ priority: 0 as PriorityNote['priority'], note_text: '' });
   const [error, setError] = useState<string | null>(null);
   const lock = useEditLock('notes', selected?.id ?? null, Boolean(selected?.id));
   const { t } = usePreferences();
 
   useEffect(() => {
     if (selected) {
-      setValues({ priority: selected.priority, note_text: selected.note_text, author: selected.author ?? '' });
+      setValues({ priority: selected.priority, note_text: selected.note_text });
     } else {
-      setValues({ priority: 0, note_text: '', author: '' });
+      setValues({ priority: 0, note_text: '' });
     }
   }, [selected]);
 
@@ -275,7 +375,13 @@ export function NoteForm({ weekId, projectId, selected, onSaved }: { weekId: str
     const validation = validateNote(values);
     if (validation) return setError(validation);
     if (!weekId || !projectId) return setError('Select week and project first.');
-    const response = await saveNote({ id: selected?.id, week_id: weekId, project_id: projectId, ...values });
+    const response = await saveNote({
+      id: selected?.id,
+      week_id: weekId,
+      project_id: projectId,
+      ...values,
+      author: user?.display_name?.trim() || user?.username || null
+    });
     setError(response.error?.message ?? null);
     if (!response.error) {
       await lock.release();
@@ -289,8 +395,9 @@ export function NoteForm({ weekId, projectId, selected, onSaved }: { weekId: str
       <LockNotice message={lockMessage(lock, t)} />
       {error ? <div className="maintenance-form__error">{error}</div> : null}
       <div className="maintenance-form__grid">
-        <label>{t(copy.priority)}<select value={values.priority} onChange={(e) => setValues({ ...values, priority: Number(e.target.value) as 0 | 1 | 2 })}><option value={0}>0</option><option value={1}>1</option><option value={2}>2</option></select></label>
-        <label>{t(copy.author)}<input value={values.author} onChange={(e) => setValues({ ...values, author: e.target.value })} /></label>
+        <label>{t(copy.priority)}<select value={values.priority} onChange={(e) => setValues({ ...values, priority: Number(e.target.value) as PriorityNote['priority'] })}>
+          {PRIORITY_OPTIONS.map((option) => <option key={option.value} value={option.value}>{t(copy[option.label])}</option>)}
+        </select></label>
       </div>
       <label>{t(copy.note)}<textarea value={values.note_text} onChange={(e) => setValues({ ...values, note_text: e.target.value })} /></label>
       <FormActions onCancel={() => void lock.release()} />

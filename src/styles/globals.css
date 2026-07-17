@@ -60,7 +60,10 @@ textarea {
   --text-primary: var(--neutral-0);
   --text-secondary: var(--neutral-300);
   --text-tertiary: var(--neutral-400);
-  --text-inverse: var(--neutral-900);
+  --text-inverse: var(--neutral-0);
+  --brand-secondary: var(--brand-primary);
+  --brand-secondary-hover: var(--brand-primary-hover);
+  --focus-ring: var(--brand-accent);
   --status-pass-bg: #0c2f17;
   --status-fail-bg: #3a1414;
   --status-warning-bg: #3a2e10;

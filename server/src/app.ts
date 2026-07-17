@@ -11,6 +11,8 @@ import { testCasesRouter } from './routes/testCases.js';
 import { releasesRouter } from './routes/releases.js';
 import { notesRouter } from './routes/notes.js';
 import { locksRouter } from './routes/locks.js';
+import { usersRouter } from './routes/users.js';
+import { projectDataRouter } from './routes/projectData.js';
 
 /** Builds the Express app. Separated from index.ts so tests can import it without listening. */
 export function createApp() {
@@ -32,6 +34,8 @@ export function createApp() {
   app.use('/api/releases', requireAuth, releasesRouter);
   app.use('/api/notes', requireAuth, notesRouter);
   app.use('/api/locks', requireAuth, locksRouter);
+  app.use('/api/users', requireAuth, usersRouter);
+  app.use('/api/project-data', requireAuth, projectDataRouter);
 
   app.use(errorHandler);
 

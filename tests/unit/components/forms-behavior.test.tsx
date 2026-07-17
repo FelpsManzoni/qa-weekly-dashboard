@@ -10,6 +10,15 @@ vi.mock('../../../src/api/weeks', () => ({ saveWeek: (...a: unknown[]) => saveWe
 vi.mock('../../../src/api/notes', () => ({ saveNote: (...a: unknown[]) => saveNote(...a) }));
 vi.mock('../../../src/api/releases', () => ({ saveRelease: (...a: unknown[]) => saveRelease(...a) }));
 vi.mock('../../../src/api/issues', () => ({ saveIssueMetric: (...a: unknown[]) => saveIssueMetric(...a) }));
+vi.mock('../../../src/hooks/useAuth', () => ({
+  useAuth: () => ({
+    user: { id: 'u1', username: 'qauser', email: 'qa@example.com', display_name: 'QA User' },
+    isLoading: false,
+    login: vi.fn(),
+    register: vi.fn(),
+    logout: vi.fn()
+  })
+}));
 
 let lockValue: { lock: unknown; error: string | null; acquire: () => void; release: () => void };
 vi.mock('../../../src/hooks/useEditLock', () => ({ useEditLock: () => lockValue }));
@@ -23,7 +32,7 @@ beforeEach(() => {
   saveIssueMetric.mockResolvedValue({ data: { id: 'i1' }, error: null });
 });
 
-const release = { id: 'r1', week_id: 'w1', project_id: 'p1', version: 'v2.0', date: '2026-07-03', status: 'Ready', critical_issues: '', changelog: '' };
+const release = { id: 'r1', week_id: 'w1', project_id: 'p1', version: 'v2.0', released_date: '2026-07-03', verified_date: '2026-07-04', status: 'Approved', tests_pass: 10, tests_fail: 1, tests_not_tested: 0, issue_count_a: 0, issue_count_b: 0, issue_count_c: 0, release_notes: '' } as const;
 
 it('blocks save and shows a validation error for invalid week dates', async () => {
   render(<WeekForm selected={null} onSaved={vi.fn()} />);

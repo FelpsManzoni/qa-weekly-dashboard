@@ -19,7 +19,7 @@ beforeEach(() => vi.clearAllMocks());
 it('returns empty and does not fetch when ids are missing (disabled)', async () => {
   const issues = renderHook(() => useIssueHistory(null));
   const notes = renderHook(() => useNotes(null, null));
-  const releases = renderHook(() => useReleases('w1', null));
+  const releases = renderHook(() => useReleases({ id: 'w1', end_date: '2026-07-05' }, null));
   const dist = renderHook(() => useTestCaseDistribution(null, 'p1'));
 
   await waitFor(() => expect(issues.result.current.data).toEqual([]));
@@ -34,4 +34,10 @@ it('surfaces loader errors as hook error state', async () => {
   fetchNotes.mockResolvedValue({ data: [], error: { message: 'boom', code: 'X' } });
   const notes = renderHook(() => useNotes('w1', 'p1'));
   await waitFor(() => expect(notes.result.current.error).toBe('boom'));
+});
+
+it('passes selected week and range through the issue history hook', async () => {
+  fetchIssueHistory.mockResolvedValue({ data: [], error: null });
+  renderHook(() => useIssueHistory('p1', 'w1', 10));
+  await waitFor(() => expect(fetchIssueHistory).toHaveBeenCalledWith('p1', 'w1', 10));
 });

@@ -21,16 +21,28 @@ export type ApiItemResponse<T> = {
 export type Week = {
   id: string;
   week_number: number;
+  calendar_year: number;
   start_date: string;
   end_date: string;
   is_active: boolean;
 };
+
+export type WeekDraft = Omit<Week, 'id'> & {
+  id: string | null;
+};
+
+export const RELEASE_STATUSES = ['Approved', 'Failed', 'Conditionally Approved', 'Blocked'] as const;
+export type ReleaseStatus = (typeof RELEASE_STATUSES)[number];
 
 export type Project = {
   id: string;
   code: string;
   name: string;
   description: string | null;
+  lead_qa_user_id: string | null;
+  lead_qa_name: string | null;
+  client: string | null;
+  main_technology_scope: string | null;
   display_order: number;
   is_active: boolean;
 };
@@ -57,17 +69,23 @@ export type ReleaseVersion = {
   week_id: string;
   project_id: string;
   version: string;
-  date: string;
-  status: string;
-  critical_issues: string | null;
-  changelog: string | null;
+  released_date: string;
+  verified_date: string | null;
+  status: ReleaseStatus;
+  tests_pass: number;
+  tests_fail: number;
+  tests_not_tested: number;
+  issue_count_a: number;
+  issue_count_b: number;
+  issue_count_c: number;
+  release_notes: string | null;
 };
 
 export type PriorityNote = {
   id: string;
   week_id: string;
   project_id: string;
-  priority: 0 | 1 | 2;
+  priority: 0 | 1 | 2 | 3;
   note_text: string;
   author: string | null;
   created_at?: string;
@@ -92,6 +110,21 @@ export type DashboardSelection = {
   selectedWeekId: string | null;
   selectedProjectId: string | null;
 };
+
+export type ProjectDataPayload = {
+  issueMetric: IssueMetric | null;
+  testCase: TestCaseDistribution | null;
+  releases: ReleaseVersion[];
+  notes: PriorityNote[];
+};
+
+export type ProjectDataRequest = {
+  project_id: string;
+  week_id?: string | null;
+  week_start_date?: string | null;
+};
+
+export type AppSection = 'dashboard' | 'projects' | 'project-data';
 
 export type MaintenanceMode =
   | 'weeks'

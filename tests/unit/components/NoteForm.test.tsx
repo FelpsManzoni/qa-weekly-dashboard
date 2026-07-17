@@ -9,6 +9,12 @@ vi.mock('../../../src/hooks/useEditLock', () => ({
   useEditLock: () => ({ lock: null, error: null, release: vi.fn() })
 }));
 
+vi.mock('../../../src/hooks/useAuth', () => ({
+  useAuth: () => ({
+    user: { id: 'u1', username: 'qauser', email: 'qa@example.com', display_name: 'QA User' }
+  })
+}));
+
 it('submits a note form', async () => {
   const onSaved = vi.fn();
   render(<NoteForm weekId="w1" projectId="p1" selected={null} onSaved={onSaved} />);

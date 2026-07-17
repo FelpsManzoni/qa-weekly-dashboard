@@ -14,8 +14,8 @@ it('submits a release form', async () => {
   render(<ReleaseForm weekId="w1" projectId="p1" selected={null} onSaved={onSaved} />);
 
   fireEvent.change(screen.getByLabelText(/Version/i), { target: { value: 'v1.0.0' } });
-  fireEvent.change(screen.getByLabelText(/^Date/i), { target: { value: '2026-07-03' } });
-  fireEvent.change(screen.getByLabelText(/Status/i), { target: { value: 'Ready' } });
+  fireEvent.change(screen.getByLabelText(/Released date/i), { target: { value: '2026-07-03' } });
+  fireEvent.change(screen.getByLabelText(/Verified date/i), { target: { value: '2026-07-04' } });
   fireEvent.click(screen.getByRole('button', { name: /Save/i }));
 
   await waitFor(() => expect(onSaved).toHaveBeenCalled());

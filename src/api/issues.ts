@@ -2,12 +2,13 @@ import { apiGet, apiPost, queryString } from './client';
 import type { ApiItemResponse, ApiListResponse, IssueMetric } from '../types';
 
 // History for a project, ordered by week number server-side. When aroundWeekId is
-// provided the backend scopes the result to a window of weeks around that week.
+// provided the backend scopes the result to the most recent N weeks ending there.
 export async function fetchIssueHistory(
   projectId: string,
-  aroundWeekId?: string | null
+  endWeekId?: string | null,
+  rangeWeeks: 5 | 10 = 5
 ): Promise<ApiListResponse<IssueMetric>> {
-  const qs = queryString({ project_id: projectId, around_week_id: aroundWeekId });
+  const qs = queryString({ project_id: projectId, end_week_id: endWeekId, range_weeks: rangeWeeks });
   const { data, error } = await apiGet<IssueMetric[]>(`/issue-metrics${qs}`);
   return { data: data ?? [], error };
 }
