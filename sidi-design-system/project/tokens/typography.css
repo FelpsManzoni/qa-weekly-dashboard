@@ -1,0 +1,43 @@
+/* ============================================================
+   SiDi — Typography Tokens
+   FONT SUBSTITUTION NOTE: no font files were provided with the
+   brand assets. The logo wordmark uses a bold geometric rounded
+   sans (dots on the "i"s are perfect disconnected circles) and
+   the tagline uses a clean geometric sans. Closest Google Fonts
+   matches, loaded via CDN below:
+     - "Poppins" (600/700/800) for display/headings — geometric,
+       rounded terminals, close match to the SiDi wordmark.
+     - "Inter" (400/500/600) for body/UI text — neutral, highly
+       legible at small dashboard sizes.
+   Flagged to the user in readme.md; swap for real brand font
+   files if/when supplied.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --font-display: 'Poppins', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'SF Mono', 'Menlo', 'Consolas', monospace;
+
+  /* Type scale */
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-md: 16px;
+  --text-lg: 18px;
+  --text-xl: 22px;
+  --text-2xl: 28px;
+  --text-3xl: 36px;
+  --text-4xl: 48px;
+
+  --leading-tight: 1.15;
+  --leading-normal: 1.4;
+  --leading-relaxed: 1.6;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-extrabold: 800;
+}

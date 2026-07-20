@@ -1,0 +1,17 @@
+<!-- @dsCard group="Colors" viewport="700x150" subtitle="QA status colors — derived in oklch to match brand vividness" name="QA Status Colors" -->
+<html><head><link rel="stylesheet" href="../styles.css"><style>
+body{margin:0;font-family:var(--font-body);background:var(--surface-card)}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);height:150px}
+.cell{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;border-right:1px solid var(--border-subtle)}
+.dot{width:34px;height:34px;border-radius:999px}
+.lbl{font-size:12px;font-weight:600;color:var(--text-primary)}
+</style></head>
+<body>
+<div class="grid">
+  <div class="cell" style="background:var(--status-pass-bg)"><div class="dot" style="background:var(--status-pass)"></div><div class="lbl">Pass</div></div>
+  <div class="cell" style="background:var(--status-fail-bg)"><div class="dot" style="background:var(--status-fail)"></div><div class="lbl">Fail</div></div>
+  <div class="cell" style="background:var(--status-warning-bg)"><div class="dot" style="background:var(--status-warning)"></div><div class="lbl">Warning</div></div>
+  <div class="cell" style="background:var(--status-running-bg)"><div class="dot" style="background:var(--status-running)"></div><div class="lbl">Running</div></div>
+  <div class="cell" style="background:var(--status-blocked-bg)"><div class="dot" style="background:var(--status-blocked)"></div><div class="lbl">Blocked</div></div>
+</div>
+</body></html>
