@@ -125,6 +125,10 @@ export const copy = {
     en: 'Select project',
     pt: 'Selecionar projeto'
   },
+  selectLeadQa: {
+    en: 'Select Lead QA',
+    pt: 'Selecionar QA Líder'
+  },
   selectWeek: {
     en: 'Select week',
     pt: 'Selecionar semana'

@@ -9,6 +9,16 @@
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
+.maintenance-form__grid label {
+  min-width: 0;
+}
+
+.maintenance-form__grid input,
+.maintenance-form__grid select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .maintenance-form label {
   color: var(--text-secondary);
   display: grid;
