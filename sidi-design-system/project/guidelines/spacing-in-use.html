@@ -1,0 +1,18 @@
+<!-- @dsCard group="Spacing" viewport="700x160" subtitle="Card padding &amp; gap conventions in practice" name="Spacing In Use" -->
+<html><head><link rel="stylesheet" href="../styles.css"><style>
+body{margin:0;padding:16px;font-family:var(--font-body);background:var(--surface-page)}
+.card{background:var(--surface-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:var(--space-5);display:flex;gap:var(--space-4);align-items:center}
+.stat{display:flex;flex-direction:column;gap:var(--space-1)}
+.stat b{font-size:var(--text-2xl);font-family:var(--font-display);color:var(--text-primary)}
+.stat span{font-size:var(--text-xs);color:var(--text-secondary)}
+.divider{width:1px;height:36px;background:var(--border-subtle)}
+</style></head>
+<body>
+<div class="card">
+  <div class="stat"><b>128</b><span>Tests run</span></div>
+  <div class="divider"></div>
+  <div class="stat"><b style="color:var(--status-pass)">96%</b><span>Pass rate</span></div>
+  <div class="divider"></div>
+  <div class="stat"><b style="color:var(--status-fail)">5</b><span>Failing</span></div>
+</div>
+</body></html>

@@ -1,0 +1,13 @@
+.app-shell__body {
+  display: grid;
+  gap: var(--space-5);
+  margin: 0 auto;
+  max-width: 1400px;
+  padding: var(--space-5);
+}
+
+.app-shell__content {
+  display: grid;
+  gap: var(--space-5);
+  min-width: 0;
+}

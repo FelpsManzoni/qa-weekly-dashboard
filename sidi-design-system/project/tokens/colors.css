@@ -1,0 +1,90 @@
+/* ============================================================
+   SiDi — Color Tokens
+   Base brand colors come directly from the company palette
+   (uploads/Paleta de cores.webp). Semantic/status colors for
+   QA states (pass/fail/warning/running) are not present in the
+   brand palette, so they are derived in oklch() to match the
+   lightness/chroma character of the brand greens — see readme
+   VISUAL FOUNDATIONS > Color for rationale.
+   ============================================================ */
+
+:root {
+  /* ---- Brand base colors (from brand palette) ---- */
+  --sidi-green-dark: #006325;
+  --sidi-green-bright: #00ed3c;
+  --sidi-purple-dark: #480e60;
+  --sidi-purple-light: #b094fb;
+  --sidi-black: #000000;
+  --sidi-gray: #979a9c;
+  --sidi-white: #ffffff;
+
+  /* ---- Neutral scale (derived from sidi-gray + black, for UI surfaces/text) ---- */
+  --neutral-0: #ffffff;
+  --neutral-50: #f7f8f8;
+  --neutral-100: #eef0f0;
+  --neutral-200: #dde0e1;
+  --neutral-300: #c3c7c9;
+  --neutral-400: var(--sidi-gray);      /* #979a9c */
+  --neutral-500: #7c7f81;
+  --neutral-600: #5f6264;
+  --neutral-700: #45474a;
+  --neutral-800: #2c2d2f;
+  --neutral-900: #171819;
+  --neutral-1000: var(--sidi-black);
+
+  /* ---- Brand ramps ---- */
+  --green-50:  #e8fbec;
+  --green-100: #c3f5cf;
+  --green-300: #5cf07f;
+  --green-500: var(--sidi-green-bright); /* #00ed3c */
+  --green-700: #0a8a34;
+  --green-900: var(--sidi-green-dark);   /* #006325 */
+
+  --purple-50:  #f4eefc;
+  --purple-100: #e4d5fb;
+  --purple-300: var(--sidi-purple-light); /* #b094fb */
+  --purple-500: #8456d9;
+  --purple-700: #62309a;
+  --purple-900: var(--sidi-purple-dark);  /* #480e60 */
+
+  /* ---- Derived semantic/status colors (oklch, harmonized with brand chroma/lightness) ----
+     QA status needs pass / fail / warning / running states beyond the brand's
+     green + purple. Hue is rotated from the brand green's oklch coordinates
+     (L .83 C .23) to keep the same "vividness" so new hues feel native. */
+  --status-pass:     var(--green-500);
+  --status-pass-bg:  var(--green-50);
+  --status-fail:     oklch(0.58 0.22 22);   /* harmonized red */
+  --status-fail-bg:  oklch(0.96 0.03 22);
+  --status-warning:  oklch(0.80 0.17 70);   /* harmonized amber */
+  --status-warning-bg: oklch(0.97 0.045 80);
+  --status-running:  var(--purple-500);
+  --status-running-bg: var(--purple-50);
+  --status-blocked:  var(--neutral-500);
+  --status-blocked-bg: var(--neutral-100);
+
+  /* ---- Semantic aliases ---- */
+  --surface-page: var(--neutral-50);
+  --surface-card: var(--neutral-0);
+  --surface-sunken: var(--neutral-100);
+  --surface-inverse: var(--sidi-black);
+
+  --border-subtle: var(--neutral-200);
+  --border-default: var(--neutral-300);
+  --border-strong: var(--neutral-700);
+
+  --text-primary: var(--neutral-900);
+  --text-secondary: var(--neutral-600);
+  --text-tertiary: var(--neutral-400);
+  --text-inverse: var(--neutral-0);
+  --text-link: var(--purple-700);
+  --text-link-hover: var(--purple-900);
+
+  --brand-primary: var(--sidi-green-dark);
+  --brand-primary-hover: #024d1d;
+  --brand-primary-active: #013c15;
+  --brand-accent: var(--sidi-green-bright);
+  --brand-secondary: var(--purple-900);
+  --brand-secondary-hover: #370a4b;
+
+  --focus-ring: var(--purple-300);
+}
