@@ -93,8 +93,8 @@ export function WeekForm({ selected, onSaved }: { selected: Week | null; onSaved
   );
 }
 
-export function ProjectForm({ selected, onSaved }: { selected: Project | null; onSaved: SaveHandler }) {
-  const [values, setValues] = useState({ code: '', name: '', description: '', client: '', main_technology_scope: '', lead_qa_user_id: '', display_order: 1, is_active: true });
+export function ProjectForm({ selected, nextOrder, onClose, onSaved }: { selected: Project | null; nextOrder: number; onClose: () => void; onSaved: SaveHandler }) {
+  const [values, setValues] = useState({ code: '', name: '', description: '', client: '', main_technology_scope: '', lead_qa_user_id: '', is_active: true });
   const [error, setError] = useState<string | null>(null);
   const lock = useEditLock('projects', selected?.id ?? null, Boolean(selected?.id));
   const { t } = usePreferences();
@@ -109,7 +109,6 @@ export function ProjectForm({ selected, onSaved }: { selected: Project | null; o
         client: selected.client ?? '',
         main_technology_scope: selected.main_technology_scope ?? '',
         lead_qa_user_id: selected.lead_qa_user_id ?? '',
-        display_order: selected.display_order,
         is_active: selected.is_active
       });
     }
@@ -128,7 +127,7 @@ export function ProjectForm({ selected, onSaved }: { selected: Project | null; o
       client: values.client || null,
       main_technology_scope: values.main_technology_scope || null,
       lead_qa_user_id: values.lead_qa_user_id || null,
-      display_order: values.display_order,
+      display_order: selected ? selected.display_order : nextOrder,
       is_active: values.is_active
     };
     const response = await saveProject(payload);
@@ -147,11 +146,10 @@ export function ProjectForm({ selected, onSaved }: { selected: Project | null; o
       <div className="maintenance-form__grid">
         <label>{t(copy.code)}<input value={values.code} onChange={(e) => setValues({ ...values, code: e.target.value.toUpperCase() })} /></label>
         <label>{t(copy.name)}<input value={values.name} onChange={(e) => setValues({ ...values, name: e.target.value })} /></label>
-        <label>{t(copy.order)}<input type="number" value={values.display_order} onChange={(e) => setValues({ ...values, display_order: Number(e.target.value) })} /></label>
       </div>
       <label>{t(copy.description)}<textarea value={values.description} onChange={(e) => setValues({ ...values, description: e.target.value })} /></label>
       <label>{t(copy.leadQa)}<select value={values.lead_qa_user_id} onChange={(e) => setValues({ ...values, lead_qa_user_id: e.target.value })}>
-        <option value="">{t(copy.selectProject)}</option>
+        <option value="">{t(copy.selectLeadQa)}</option>
         {users.data.map((user) => (
           <option key={user.id} value={user.id}>{user.display_name || user.username}</option>
         ))}
@@ -160,22 +158,7 @@ export function ProjectForm({ selected, onSaved }: { selected: Project | null; o
         <label>{t(copy.client)}<input value={values.client} onChange={(e) => setValues({ ...values, client: e.target.value })} /></label>
         <label>{t(copy.mainTechScope)}<input value={values.main_technology_scope} onChange={(e) => setValues({ ...values, main_technology_scope: e.target.value })} /></label>
       </div>
-      <label className="maintenance-form__checkbox"><input type="checkbox" checked={values.is_active} onChange={(e) => setValues({ ...values, is_active: e.target.checked })} /> {t(copy.active)}</label>
-      <FormActions onCancel={() => {
-        if (selected) {
-          setValues({
-            code: selected.code,
-            name: selected.name,
-            description: selected.description ?? '',
-            client: selected.client ?? '',
-            main_technology_scope: selected.main_technology_scope ?? '',
-            lead_qa_user_id: selected.lead_qa_user_id ?? '',
-            display_order: selected.display_order,
-            is_active: selected.is_active
-          });
-        }
-        void lock.release();
-      }} />
+      <FormActions onCancel={() => { void lock.release(); onClose(); }} />
     </form>
   );
 }

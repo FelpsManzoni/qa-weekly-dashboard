@@ -7,7 +7,7 @@ vi.mock('../../../src/api/projects', () => ({
 
 it('submits a project form', async () => {
   const onSaved = vi.fn();
-  render(<ProjectForm selected={null} onSaved={onSaved} />);
+  render(<ProjectForm selected={null} nextOrder={1} onClose={vi.fn()} onSaved={onSaved} />);
 
   fireEvent.change(screen.getByLabelText(/Code/i), { target: { value: 'ham' } });
   fireEvent.change(screen.getByLabelText(/Name/i), { target: { value: 'Harman Audio Mixer' } });
